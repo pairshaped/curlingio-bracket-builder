@@ -1,5 +1,6 @@
 elm-app build
 touch build/.nojekyll
+cp CNAME build/
 git add --all
 git commit -am "Pages build"
 git push
