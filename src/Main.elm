@@ -1,12 +1,14 @@
 port module Main exposing (..)
 
+-- import Debug exposing (log)
+
 import Browser
-import Debug exposing (log)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onDoubleClick)
+import Html.Events exposing (onClick, onDoubleClick, onInput)
 import Html5.DragDrop as DragDrop
 import Json.Decode exposing (Value)
+import Json.Encode as Json
 import List.Extra
 
 
@@ -23,11 +25,14 @@ port dragstart : Value -> Cmd msg
 
 type alias Model =
     { dragDrop : DragDrop.Model Coords Coords
+    , showGrid : Bool
     , groups : List Group
     , cols : Int
     , rows : Int
+    , teams : List Team
     , games : List Game
     , editingGame : Maybe Game
+    , editingGroup : Maybe Group
     }
 
 
@@ -47,63 +52,91 @@ type alias Group =
 type alias Game =
     { id : Maybe Int
     , name : String
+    , top : Maybe GamePosition
+    , bottom : Maybe GamePosition
+    , gameWinner : Maybe GameWinner
     , coords : Coords
     }
+
+
+type alias Team =
+    { id : Int
+    , name : String
+    }
+
+
+type GamePosition
+    = TeamAssignment (Maybe Team)
+    | WinnerFrom Game
+    | LoserFrom Game
+
+
+type GameWinner
+    = Top
+    | Bottom
+
+
+teams : List Team
+teams =
+    [ Team 1 "Team A", Team 2 "Team B" ]
 
 
 init : ( Model, Cmd Msg )
 init =
     ( { dragDrop = DragDrop.init
-      , groups = [ Group 0 "Group A", Group 1 "Group B" ]
+      , showGrid = True
+      , groups = [ Group 0 "A Event", Group 1 "B Event" ]
       , cols = 14
       , rows = 16
+      , teams = teams
       , games =
-            [ Game Nothing "A vs B" (Coords 0 0 0)
-            , Game Nothing "C vs D" (Coords 0 2 0)
-            , Game Nothing "E vs F" (Coords 0 4 0)
-            , Game Nothing "G vs H" (Coords 0 6 0)
-            , Game Nothing "I vs J" (Coords 0 8 0)
-            , Game Nothing "K vs L" (Coords 0 10 0)
-            , Game Nothing "M vs N" (Coords 0 12 0)
-            , Game Nothing "O vs P" (Coords 0 14 0)
+            [ Game Nothing "A1" (Just (TeamAssignment (List.Extra.getAt 0 teams))) (Just (TeamAssignment (List.Extra.getAt 1 teams))) (Just Top) (Coords 0 0 0)
+            , Game Nothing "C vs D" Nothing Nothing Nothing (Coords 0 2 0)
+            , Game Nothing "E vs F" Nothing Nothing Nothing (Coords 0 4 0)
+            , Game Nothing "G vs H" Nothing Nothing Nothing (Coords 0 6 0)
+            , Game Nothing "I vs J" Nothing Nothing Nothing (Coords 0 8 0)
+            , Game Nothing "K vs L" Nothing Nothing Nothing (Coords 0 10 0)
+            , Game Nothing "M vs N" Nothing Nothing Nothing (Coords 0 12 0)
+            , Game Nothing "O vs P" Nothing Nothing Nothing (Coords 0 14 0)
 
             -- Group A Round 2
-            , Game Nothing "TBD" (Coords 0 1 2)
-            , Game Nothing "TBD" (Coords 0 5 2)
-            , Game Nothing "TBD" (Coords 0 9 2)
-            , Game Nothing "TBD" (Coords 0 13 2)
+            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 0 1 2)
+            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 0 5 2)
+            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 0 9 2)
+            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 0 13 2)
 
             -- Group A Semifinal
-            , Game Nothing "Semifinal" (Coords 0 3 4)
-            , Game Nothing "Semifinal" (Coords 0 11 4)
+            , Game Nothing "Semifinal" Nothing Nothing Nothing (Coords 0 3 4)
+            , Game Nothing "Semifinal" Nothing Nothing Nothing (Coords 0 11 4)
 
             -- Group A Final
-            , Game Nothing "Final" (Coords 0 7 6)
+            , Game Nothing "Final" Nothing Nothing Nothing (Coords 0 7 6)
 
             -- Group B
-            , Game Nothing "A vs B" (Coords 1 0 0)
-            , Game Nothing "C vs D" (Coords 1 2 0)
-            , Game Nothing "E vs F" (Coords 1 4 0)
-            , Game Nothing "G vs H" (Coords 1 6 0)
+            , Game Nothing "A vs B" Nothing Nothing Nothing (Coords 1 0 0)
+            , Game Nothing "C vs D" Nothing Nothing Nothing (Coords 1 2 0)
+            , Game Nothing "E vs F" Nothing Nothing Nothing (Coords 1 4 0)
+            , Game Nothing "G vs H" Nothing Nothing Nothing (Coords 1 6 0)
 
             -- Group B Round 2
-            , Game Nothing "TBD" (Coords 1 1 2)
-            , Game Nothing "TBD" (Coords 1 5 2)
-            , Game Nothing "TBD" (Coords 1 1 10)
-            , Game Nothing "TBD" (Coords 1 5 10)
-            , Game Nothing "TBD" (Coords 1 0 12)
-            , Game Nothing "TBD" (Coords 1 2 12)
-            , Game Nothing "TBD" (Coords 1 4 12)
-            , Game Nothing "TBD" (Coords 1 6 12)
+            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 1 2)
+            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 5 2)
+            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 1 10)
+            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 5 10)
+            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 0 12)
+            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 2 12)
+            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 4 12)
+            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 6 12)
 
             -- Group B Semifinal
-            , Game Nothing "Semifinal" (Coords 1 3 4)
-            , Game Nothing "Semifinal" (Coords 1 3 8)
+            , Game Nothing "Semifinal" Nothing Nothing Nothing (Coords 1 3 4)
+            , Game Nothing "Semifinal" Nothing Nothing Nothing (Coords 1 3 8)
 
             -- Group B Final
-            , Game Nothing "Final" (Coords 1 3 6)
+            , Game Nothing "Final" Nothing Nothing Nothing (Coords 1 3 6)
             ]
       , editingGame = Nothing
+      , editingGroup = Nothing
       }
     , Cmd.none
     )
@@ -128,16 +161,17 @@ updateGame games game =
     List.Extra.updateIf (\g -> g.coords == game.coords) (\g -> game) games
 
 
-addGame : List Game -> List Game
-addGame games =
-    let
-        coords =
-            Coords 0 0 6
-    in
+updateGroup : List Group -> Group -> List Group
+updateGroup groups group =
+    List.Extra.updateIf (\g -> g.position == group.position) (\g -> group) groups
+
+
+addGame : List Game -> Coords -> List Game
+addGame games coords =
     -- Don't add games on top of each other. Only add a game if there's room.
     case findGameByCoords games coords of
         Nothing ->
-            games ++ [ Game Nothing "New Game" coords ]
+            games ++ [ Game Nothing "New" Nothing Nothing Nothing coords ]
 
         _ ->
             games
@@ -149,17 +183,23 @@ addGame games =
 
 type Msg
     = DragDropMsg (DragDrop.Msg Coords Coords)
+    | ToggleGrid
     | AddRow
     | RemoveRow
     | AddCol
     | RemoveCol
     | AddGroup
+    | EditGroup Group
+    | UpdateGroupName String
+    | CancelEditGroup
+    | SaveGroup Group
     | RemoveGroup Group
-    | AddGame
+    | AddGame Coords
     | RemoveGame Game
     | EditGame Game
-    | UpdateGame Game
-    | CancelEdit
+    | SaveGame Game
+    | UpdateGameName String
+    | CancelEditGame
     | Save
     | Revert
 
@@ -180,17 +220,20 @@ update msg model =
                             model.games
 
                         Just ( fromCoords, toCoords, { x, y } ) ->
-                            let
-                                _ =
-                                    log "result" result
-
-                                --{ from = fromCoords, to = toCoords }
-                            in
+                            -- let
+                            --     _ =
+                            --         log "result" result
+                            -- in
                             moveGame model.games fromCoords toCoords
               }
             , DragDrop.getDragstartEvent msg_
                 |> Maybe.map (.event >> dragstart)
                 |> Maybe.withDefault Cmd.none
+            )
+
+        ToggleGrid ->
+            ( { model | showGrid = not model.showGrid }
+            , Cmd.none
             )
 
         AddRow ->
@@ -214,20 +257,61 @@ update msg model =
             )
 
         AddGroup ->
+            let
+                nextGroupId =
+                    List.length model.groups
+            in
             ( { model
-                | groups = model.groups ++ [ Group 2 "Group C" ]
+                | groups = model.groups ++ [ Group nextGroupId ("Group " ++ String.fromInt (nextGroupId + 1)) ]
+              }
+            , Cmd.none
+            )
+
+        EditGroup group ->
+            ( { model | editingGroup = Just group }
+            , Cmd.none
+            )
+
+        UpdateGroupName name ->
+            let
+                updatedGroup =
+                    case model.editingGroup of
+                        Just group ->
+                            Just { group | name = name }
+
+                        Nothing ->
+                            model.editingGroup
+            in
+            ( { model
+                | editingGroup = updatedGroup
+              }
+            , Cmd.none
+            )
+
+        CancelEditGroup ->
+            ( { model | editingGroup = Nothing }
+            , Cmd.none
+            )
+
+        SaveGroup group ->
+            ( { model
+                | editingGroup = Nothing
+                , groups = updateGroup model.groups group
               }
             , Cmd.none
             )
 
         RemoveGroup group ->
-            ( { model | groups = List.Extra.remove group model.groups }
+            ( { model
+                | editingGroup = Nothing
+                , groups = List.Extra.remove group model.groups
+              }
             , Cmd.none
             )
 
-        AddGame ->
+        AddGame coords ->
             ( { model
-                | games = addGame model.games
+                | games = addGame model.games coords
               }
             , Cmd.none
             )
@@ -241,17 +325,25 @@ update msg model =
             )
 
         EditGame game ->
-            let
-                _ =
-                    log "Edit" game
-            in
             ( { model | editingGame = Just game }, Cmd.none )
 
-        UpdateGame game ->
+        UpdateGameName name ->
             let
-                _ =
-                    log "Update" game
+                updatedGame =
+                    case model.editingGame of
+                        Just game ->
+                            Just { game | name = name }
+
+                        Nothing ->
+                            model.editingGame
             in
+            ( { model
+                | editingGame = updatedGame
+              }
+            , Cmd.none
+            )
+
+        SaveGame game ->
             ( { model
                 | editingGame = Nothing
                 , games = updateGame model.games game
@@ -259,7 +351,7 @@ update msg model =
             , Cmd.none
             )
 
-        CancelEdit ->
+        CancelEditGame ->
             ( { model | editingGame = Nothing }
             , Cmd.none
             )
@@ -288,23 +380,66 @@ view model =
                 viewEditGame model game
 
             Nothing ->
-                viewBracket model
+                case model.editingGroup of
+                    Just group ->
+                        viewEditGroup model group
+
+                    Nothing ->
+                        viewBracket model
+        ]
+
+
+viewEditGroup : Model -> Group -> Html Msg
+viewEditGroup model group =
+    div [ class "d-flex justify-content-center" ]
+        [ div [ class "edit-group" ]
+            [ div [ class "border p-3" ]
+                [ div
+                    [ class "form-group" ]
+                    [ label [ for "editing-group-name" ] [ text "Group Name" ]
+                    , input
+                        [ class "form-control"
+                        , id "editing-group-name"
+                        , value group.name
+                        , onInput UpdateGroupName
+                        ]
+                        []
+                    ]
+                , div
+                    [ class "d-flex justify-content-end" ]
+                    [ button [ onClick CancelEditGroup, class "btn btn-secondary mr-2" ] [ text "Cancel" ]
+                    , button [ onClick (RemoveGroup group), class "btn btn-danger mr-2" ] [ text "Remove" ]
+                    , button [ onClick (SaveGroup group), class "btn btn-primary" ] [ text "Update" ]
+                    ]
+                ]
+            ]
         ]
 
 
 viewEditGame : Model -> Game -> Html Msg
 viewEditGame model game =
-    div [ class "row justify-content-center" ]
-        [ div [ class "col-xs-12 col-md-8 col-lg-6 col-xl-5" ]
+    div [ class "d-flex justify-content-center" ]
+        [ div [ class "edit-game" ]
             [ div [ class "border p-3" ]
-                [ h5 [] [ text game.name ]
+                [ div
+                    [ class "form-group" ]
+                    [ label [ for "editing-game-name" ] [ text "Game Name" ]
+                    , input
+                        [ class "form-control"
+                        , id "editing-game-name"
+                        , value game.name
+                        , onInput UpdateGameName
+                        ]
+                        []
+                    ]
                 , div
-                    []
-                    [ p [] [ text "Body" ] ]
+                    [ class "form-group" ]
+                    [ label [ for "editing-top-position" ] [ text "Top Position" ] ]
                 , div
                     [ class "d-flex justify-content-end" ]
-                    [ button [ onClick CancelEdit, class "btn btn-secondary mr-2" ] [ text "Cancel" ]
-                    , button [ onClick (UpdateGame game), class "btn btn-primary" ] [ text "Update" ]
+                    [ button [ onClick CancelEditGame, class "btn btn-secondary mr-2" ] [ text "Cancel" ]
+                    , button [ onClick (RemoveGame game), class "btn btn-danger mr-2" ] [ text "Remove" ]
+                    , button [ onClick (SaveGame game), class "btn btn-primary" ] [ text "Update" ]
                     ]
                 ]
             ]
@@ -321,11 +456,22 @@ viewBracket model =
             DragDrop.getDroppablePosition model.dragDrop
     in
     div []
-        [ div [ class "text-right" ]
-            [ button [ class "btn btn-primary btn-sm mr-1", onClick AddGroup ] [ text "Add Group" ]
-            , button [ class "btn btn-success btn-sm", onClick AddGame ] [ text "Add Game" ]
+        [ div [ class "d-flex justify-content-between" ]
+            [ p [ class "alert alert-info" ] [ text "Drag and drop games anywhere you like. Double click anywhere to add a new game. Double click a game to change or remove it. Double click a group name to change or remove it." ]
+            , div []
+                [ button [ class "btn btn-info btn-sm", onClick ToggleGrid ]
+                    [ text
+                        (if model.showGrid then
+                            "Hide Grid"
+
+                         else
+                            "Show Grid"
+                        )
+                    ]
+                ]
             ]
         , viewGroups model fromCoords toCoords
+        , button [ class "btn btn-primary", onClick AddGroup ] [ text "Add Group" ]
         ]
 
 
@@ -337,14 +483,21 @@ viewGroups model fromCoords toCoords =
 
 viewGroup : Model -> Maybe Coords -> Maybe DragDrop.Position -> Group -> Html Msg
 viewGroup model fromCoords toCoords group =
+    let
+        grid =
+            if model.showGrid then
+                [ class "show-grid" ]
+
+            else
+                []
+    in
     div
-        [ class "ml-3 mr-3 mb-5"
-        ]
-        [ h3
-            []
-            [ text group.name ]
+        [ class "group" ]
+        [ div
+            [ class "group-name btn btn-default", onDoubleClick (EditGroup group) ]
+            [ text ("☷ " ++ group.name) ]
         , table
-            []
+            grid
             (List.map (viewRow model fromCoords toCoords group) (List.range 0 (model.rows - 1)))
         ]
 
@@ -380,6 +533,25 @@ viewCell model fromCoords toCoords group row col =
 
             else
                 []
+
+        positionText position =
+            case position of
+                Just (TeamAssignment team) ->
+                    case team of
+                        Just team_ ->
+                            team_.name
+
+                        Nothing ->
+                            "TBD"
+
+                Just (WinnerFrom game) ->
+                    "Winner from"
+
+                Just (LoserFrom game) ->
+                    "Loser from"
+
+                Nothing ->
+                    "TBD"
     in
     td
         (highlight
@@ -389,16 +561,21 @@ viewCell model fromCoords toCoords group row col =
                 else
                     []
                )
+            ++ [ onDoubleClick (AddGame onCoords) ]
         )
         (case onGame of
             Just game ->
                 [ div
-                    ([ onDoubleClick (EditGame game) ] ++ DragDrop.draggable DragDropMsg onCoords)
-                    [ div [ class "actions" ]
-                        [ div [ class "delete", onClick (RemoveGame game) ]
-                            [ text "X" ]
-                        ]
-                    , text game.name
+                    ([ class "game", onDoubleClick (EditGame game) ] ++ DragDrop.draggable DragDropMsg onCoords)
+                    [ div
+                        [ class "game-name" ]
+                        [ text game.name ]
+                    , div
+                        [ class "game-top" ]
+                        [ text (positionText game.top) ]
+                    , div
+                        [ class "game-bottom" ]
+                        [ text (positionText game.bottom) ]
                     ]
                 ]
 

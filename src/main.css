@@ -15,56 +15,99 @@ h3 {
 }
 
 td {
-  min-width: 120px;
-  height: 34px;
+  min-width: 110px;
+  height: 41px;
   text-align: "center";
   padding: 0;
   position: relative;
-  border: 1px solid #f2f2f2;
+}
+
+table.show-grid td {
+  border: 1px solid rgb(240, 240, 240);
 }
 
 td.drop-target {
   background-color: #aaa;
 }
 
-td > div {
+.group {
+  margin-bottom: 24px;
+}
+
+.group-name {
+  font-weight: bold;
+  border-radius: 0;
+  padding-left: 0;
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+
+.game {
   display: flex;
+  flex-direction: column;
   position: absolute;
   top: 0;
-  width: 150%;
-  height: 150%;
-  padding: 5px;
+  width: 200px;
+  height: 65px;
   overflow: hidden;
   z-index: 100;
-  background-color: rgba(18, 147, 216, 0.5);
-  border: solid 1px rgb(18, 147, 216);
+  background-color: rgba(0, 0, 0, 0.2);
   justify-content: center;
   align-items: center;
+  cursor: pointer;
 }
 
-td > div > .actions {
-  position: absolute;
-  top: 0;
-  left: 0;
+.game-name {
   width: 100%;
-  padding: 0 5px;
-  display: flex;
-  justify-content: flex-end;
+  height: 15px;
+  font-size: 10px;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  padding-left: 3px;
   z-index: 200;
-  cursor: pointer;
 }
 
-.actions > .edit {
-  cursor: pointer;
-  z-index: 200;
-  font-size: 12px;
-  margin-right: 5px;
-  color: blue;
+.game-top, .game-bottom {
+  width: 100%;
+  height: 25px;
+  padding-left: 2px;
+  border: solid 1px rgba(0, 0, 0, 0.3);
+  font-size: 15px;
 }
 
-.actions > .delete {
-  cursor: pointer;
-  z-index: 200;
-  font-size: 12px;
-  color: red;
+.game-top {
+  border-bottom: none;
 }
+
+.edit-game {
+  min-width: 300px;
+  max-width: 500px;
+}
+
+/* .game > .actions { */
+/*   position: absolute; */
+/*   top: 0; */
+/*   left: 0; */
+/*   width: 100%; */
+/*   padding: 0 5px; */
+/*   display: flex; */
+/*   justify-content: flex-end; */
+/*   z-index: 200; */
+/*   cursor: pointer; */
+/* } */
+/*  */
+/* .game > .actions > .edit { */
+/*   cursor: pointer; */
+/*   z-index: 200; */
+/*   font-size: 12px; */
+/*   margin-right: 5px; */
+/*   color: blue; */
+/* } */
+/*  */
+/* .game > .actions > .delete { */
+/*   cursor: pointer; */
+/*   z-index: 200; */
+/*   font-size: 12px; */
+/*   color: red; */
+/* } */
