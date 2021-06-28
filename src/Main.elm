@@ -90,7 +90,7 @@ init =
       , rows = 16
       , teams = teams
       , games =
-            [ Game Nothing "A1" (Just (TeamAssignment (List.Extra.getAt 0 teams))) (Just (TeamAssignment (List.Extra.getAt 1 teams))) (Just Top) (Coords 0 0 0)
+            [ Game Nothing "A vs B" (Just (TeamAssignment (List.Extra.getAt 0 teams))) (Just (TeamAssignment (List.Extra.getAt 1 teams))) (Just Top) (Coords 0 0 0)
             , Game Nothing "C vs D" Nothing Nothing Nothing (Coords 0 2 0)
             , Game Nothing "E vs F" Nothing Nothing Nothing (Coords 0 4 0)
             , Game Nothing "G vs H" Nothing Nothing Nothing (Coords 0 6 0)
@@ -100,14 +100,14 @@ init =
             , Game Nothing "O vs P" Nothing Nothing Nothing (Coords 0 14 0)
 
             -- Group A Round 2
-            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 0 1 2)
-            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 0 5 2)
-            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 0 9 2)
-            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 0 13 2)
+            , Game Nothing "Quarterfinal 1" Nothing Nothing Nothing (Coords 0 1 2)
+            , Game Nothing "Quarterfinal 2" Nothing Nothing Nothing (Coords 0 5 2)
+            , Game Nothing "Quarterfinal 3" Nothing Nothing Nothing (Coords 0 9 2)
+            , Game Nothing "Quarterfinal 4" Nothing Nothing Nothing (Coords 0 13 2)
 
             -- Group A Semifinal
-            , Game Nothing "Semifinal" Nothing Nothing Nothing (Coords 0 3 4)
-            , Game Nothing "Semifinal" Nothing Nothing Nothing (Coords 0 11 4)
+            , Game Nothing "Semifinal 1" Nothing Nothing Nothing (Coords 0 3 4)
+            , Game Nothing "Semifinal 2" Nothing Nothing Nothing (Coords 0 11 4)
 
             -- Group A Final
             , Game Nothing "Final" Nothing Nothing Nothing (Coords 0 7 6)
@@ -374,104 +374,112 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div [ class "p-3" ]
-        [ case model.editingGame of
-            Just game ->
-                viewEditGame model game
-
-            Nothing ->
-                case model.editingGroup of
-                    Just group ->
-                        viewEditGroup model group
-
-                    Nothing ->
-                        viewBracket model
-        ]
-
-
-viewEditGroup : Model -> Group -> Html Msg
-viewEditGroup model group =
-    div [ class "d-flex justify-content-center" ]
-        [ div [ class "edit-group" ]
-            [ div [ class "border p-3" ]
-                [ div
-                    [ class "form-group" ]
-                    [ label [ for "editing-group-name" ] [ text "Group Name" ]
-                    , input
-                        [ class "form-control"
-                        , id "editing-group-name"
-                        , value group.name
-                        , onInput UpdateGroupName
-                        ]
-                        []
-                    ]
-                , div
-                    [ class "d-flex justify-content-end" ]
-                    [ button [ onClick CancelEditGroup, class "btn btn-secondary mr-2" ] [ text "Cancel" ]
-                    , button [ onClick (RemoveGroup group), class "btn btn-danger mr-2" ] [ text "Remove" ]
-                    , button [ onClick (SaveGroup group), class "btn btn-primary" ] [ text "Update" ]
-                    ]
-                ]
-            ]
-        ]
-
-
-viewEditGame : Model -> Game -> Html Msg
-viewEditGame model game =
-    div [ class "d-flex justify-content-center" ]
-        [ div [ class "edit-game" ]
-            [ div [ class "border p-3" ]
-                [ div
-                    [ class "form-group" ]
-                    [ label [ for "editing-game-name" ] [ text "Game Name" ]
-                    , input
-                        [ class "form-control"
-                        , id "editing-game-name"
-                        , value game.name
-                        , onInput UpdateGameName
-                        ]
-                        []
-                    ]
-                , div
-                    [ class "form-group" ]
-                    [ label [ for "editing-top-position" ] [ text "Top Position" ] ]
-                , div
-                    [ class "d-flex justify-content-end" ]
-                    [ button [ onClick CancelEditGame, class "btn btn-secondary mr-2" ] [ text "Cancel" ]
-                    , button [ onClick (RemoveGame game), class "btn btn-danger mr-2" ] [ text "Remove" ]
-                    , button [ onClick (SaveGame game), class "btn btn-primary" ] [ text "Update" ]
-                    ]
-                ]
-            ]
-        ]
-
-
-viewBracket : Model -> Html Msg
-viewBracket model =
     let
         fromCoords =
             DragDrop.getDropId model.dragDrop
 
         toCoords =
             DragDrop.getDroppablePosition model.dragDrop
-    in
-    div []
-        [ div [ class "d-flex justify-content-between" ]
-            [ p [ class "alert alert-info" ] [ text "Drag and drop games anywhere you like. Double click anywhere to add a new game. Double click a game to change or remove it. Double click a group name to change or remove it." ]
-            , div [ style "min-width" "100px", class "text-right" ]
-                [ button [ class "btn btn-info btn-sm", onClick ToggleGrid ]
-                    [ text
-                        (if model.showGrid then
-                            "Hide Grid"
 
-                         else
-                            "Show Grid"
-                        )
+        modalOpen =
+            model.editingGroup /= Nothing || model.editingGame /= Nothing
+    in
+    div [ classList [ ( "modal-open", modalOpen ) ] ]
+        [ div [ class "p-3" ]
+            [ div [ class "d-flex justify-content-between" ]
+                [ p [ class "alert alert-info" ] [ text "Drag and drop games anywhere you like. Double click anywhere to add a new game. Double click a game to change or remove it. Double click a group name to change or remove it." ]
+                , div [ style "min-width" "100px", class "text-right" ]
+                    [ button [ class "btn btn-info btn-sm", onClick ToggleGrid ]
+                        [ text
+                            (if model.showGrid then
+                                "Hide Grid"
+
+                             else
+                                "Show Grid"
+                            )
+                        ]
                     ]
                 ]
+            , viewGroups model fromCoords toCoords
+            , button [ class "btn btn-primary", onClick AddGroup ] [ text "Add Group" ]
+            , if modalOpen then
+                viewModal model
+
+              else
+                text ""
             ]
-        , viewGroups model fromCoords toCoords
-        , button [ class "btn btn-primary", onClick AddGroup ] [ text "Add Group" ]
+        , div [ classList [ ( "modal-backdrop", modalOpen ), ( "show", modalOpen ) ] ] []
+        ]
+
+
+viewModal : Model -> Html Msg
+viewModal model =
+    div [ class "modal", style "display" "block" ]
+        [ div [ class "modal-dialog" ]
+            [ case model.editingGame of
+                Just game ->
+                    viewEditGame model game
+
+                Nothing ->
+                    case model.editingGroup of
+                        Just group ->
+                            viewEditGroup model group
+
+                        Nothing ->
+                            text ""
+            ]
+        ]
+
+
+viewEditGroup : Model -> Group -> Html Msg
+viewEditGroup model group =
+    div [ class "modal-content" ]
+        [ div [ class "modal-header" ]
+            [ h5 [ class "modal-title" ] [ text "Edit Game" ] ]
+        , div [ class "modal-body" ]
+            [ div
+                [ class "form-group" ]
+                [ label [ for "editing-group-name" ] [ text "Group Name" ]
+                , input
+                    [ class "form-control"
+                    , id "editing-group-name"
+                    , value group.name
+                    , onInput UpdateGroupName
+                    ]
+                    []
+                ]
+            ]
+        , div [ class "modal-footer" ]
+            [ button [ onClick CancelEditGroup, class "btn btn-secondary mr-2" ] [ text "Cancel" ]
+            , button [ onClick (RemoveGroup group), class "btn btn-danger mr-2" ] [ text "Remove" ]
+            , button [ onClick (SaveGroup group), class "btn btn-primary" ] [ text "Update" ]
+            ]
+        ]
+
+
+viewEditGame : Model -> Game -> Html Msg
+viewEditGame model game =
+    div [ class "modal-content" ]
+        [ div [ class "modal-header" ]
+            [ h5 [ class "modal-title" ] [ text "Edit Game" ] ]
+        , div [ class "modal-body" ]
+            [ div
+                [ class "form-group" ]
+                [ label [ for "editing-game-name" ] [ text "Game Name" ]
+                , input
+                    [ class "form-control"
+                    , id "editing-game-name"
+                    , value game.name
+                    , onInput UpdateGameName
+                    ]
+                    []
+                ]
+            ]
+        , div [ class "modal-footer" ]
+            [ button [ onClick CancelEditGame, class "btn btn-secondary mr-2" ] [ text "Cancel" ]
+            , button [ onClick (RemoveGame game), class "btn btn-danger mr-2" ] [ text "Remove" ]
+            , button [ onClick (SaveGame game), class "btn btn-primary" ] [ text "Update" ]
+            ]
         ]
 
 
