@@ -458,7 +458,7 @@ viewBracket model =
     div []
         [ div [ class "d-flex justify-content-between" ]
             [ p [ class "alert alert-info" ] [ text "Drag and drop games anywhere you like. Double click anywhere to add a new game. Double click a game to change or remove it. Double click a group name to change or remove it." ]
-            , div []
+            , div [ style "min-width" "100px", class "text-right" ]
                 [ button [ class "btn btn-info btn-sm", onClick ToggleGrid ]
                     [ text
                         (if model.showGrid then

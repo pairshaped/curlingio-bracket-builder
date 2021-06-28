@@ -1,6 +1,6 @@
 {
-  "short_name": "Elm App",
-  "name": "Create Elm App Sample",
+  "short_name": "Bracket Bulder",
+  "name": "Curling I/O - Bracker Builder",
   "icons": [
     {
       "src": "favicon.ico",
