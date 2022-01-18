@@ -28,11 +28,11 @@ type alias Model =
     , showGrid : Bool
     , groups : List Group
     , cols : Int
-    , rows : Int
     , teams : List Team
     , games : List Game
     , editingGame : Maybe Game
     , editingGroup : Maybe Group
+    , newGameCount : Int
     }
 
 
@@ -46,11 +46,13 @@ type alias Coords =
 type alias Group =
     { position : Int
     , name : String
+    , rows : Int
     }
 
 
 type alias Game =
     { id : Maybe Int
+    , tempId : Maybe Int
     , name : String
     , top : Maybe GamePosition
     , bottom : Maybe GamePosition
@@ -66,7 +68,7 @@ type alias Team =
 
 
 type GamePosition
-    = TeamAssignment (Maybe Team)
+    = TeamAssignment Team
     | WinnerFrom Game
     | LoserFrom Game
 
@@ -76,67 +78,83 @@ type GameWinner
     | Bottom
 
 
-teams : List Team
-teams =
-    [ Team 1 "Team A", Team 2 "Team B" ]
+initTeams : List Team
+initTeams =
+    [ Team 1 "Team 1"
+    , Team 2 "Team 2"
+    , Team 3 "Team 3"
+    , Team 4 "Team 4"
+    , Team 5 "Team 5"
+    , Team 6 "Team 6"
+    , Team 7 "Team 7"
+    , Team 8 "Team 8"
+    , Team 9 "Team 9"
+    , Team 10 "Team 10"
+    , Team 11 "Team 11"
+    , Team 12 "Team 12"
+    , Team 13 "Team 13"
+    , Team 14 "Team 14"
+    , Team 15 "Team 15"
+    , Team 16 "Team 16"
+    ]
 
 
 init : ( Model, Cmd Msg )
 init =
     ( { dragDrop = DragDrop.init
       , showGrid = True
-      , groups = [ Group 0 "A Event", Group 1 "B Event" ]
+      , groups = [ Group 0 "A Event" 16, Group 1 "B Event" 16 ]
       , cols = 14
-      , rows = 16
-      , teams = teams
+      , teams = initTeams
       , games =
-            [ Game Nothing "A vs B" (Just (TeamAssignment (List.Extra.getAt 0 teams))) (Just (TeamAssignment (List.Extra.getAt 1 teams))) (Just Top) (Coords 0 0 0)
-            , Game Nothing "C vs D" Nothing Nothing Nothing (Coords 0 2 0)
-            , Game Nothing "E vs F" Nothing Nothing Nothing (Coords 0 4 0)
-            , Game Nothing "G vs H" Nothing Nothing Nothing (Coords 0 6 0)
-            , Game Nothing "I vs J" Nothing Nothing Nothing (Coords 0 8 0)
-            , Game Nothing "K vs L" Nothing Nothing Nothing (Coords 0 10 0)
-            , Game Nothing "M vs N" Nothing Nothing Nothing (Coords 0 12 0)
-            , Game Nothing "O vs P" Nothing Nothing Nothing (Coords 0 14 0)
+            [ Game (Just 1) Nothing "1 vs 2" (Just (TeamAssignment (Team 1 "Team 1"))) (Just (TeamAssignment (Team 2 "Team 2"))) Nothing (Coords 0 0 0)
+            , Game (Just 2) Nothing "3 vs 4" (Just (TeamAssignment (Team 3 "Team 3"))) (Just (TeamAssignment (Team 4 "Team 4"))) Nothing (Coords 0 2 0)
+            , Game (Just 3) Nothing "5 vs 6" Nothing Nothing Nothing (Coords 0 4 0)
+            , Game (Just 4) Nothing "7 vs 8" Nothing Nothing Nothing (Coords 0 6 0)
+            , Game (Just 5) Nothing "9 vs 10" Nothing Nothing Nothing (Coords 0 8 0)
+            , Game (Just 6) Nothing "11 vs 12" Nothing Nothing Nothing (Coords 0 10 0)
+            , Game (Just 7) Nothing "13 vs 14" Nothing Nothing Nothing (Coords 0 12 0)
+            , Game (Just 8) Nothing "15 vs 16" Nothing Nothing Nothing (Coords 0 14 0)
 
             -- Group A Round 2
-            , Game Nothing "Quarterfinal 1" Nothing Nothing Nothing (Coords 0 1 2)
-            , Game Nothing "Quarterfinal 2" Nothing Nothing Nothing (Coords 0 5 2)
-            , Game Nothing "Quarterfinal 3" Nothing Nothing Nothing (Coords 0 9 2)
-            , Game Nothing "Quarterfinal 4" Nothing Nothing Nothing (Coords 0 13 2)
+            , Game (Just 9) Nothing "Quarterfinal 1" Nothing Nothing Nothing (Coords 0 1 2)
+            , Game (Just 10) Nothing "Quarterfinal 2" Nothing Nothing Nothing (Coords 0 5 2)
+            , Game (Just 11) Nothing "Quarterfinal 3" Nothing Nothing Nothing (Coords 0 9 2)
+            , Game (Just 12) Nothing "Quarterfinal 4" Nothing Nothing Nothing (Coords 0 13 2)
 
             -- Group A Semifinal
-            , Game Nothing "Semifinal 1" Nothing Nothing Nothing (Coords 0 3 4)
-            , Game Nothing "Semifinal 2" Nothing Nothing Nothing (Coords 0 11 4)
+            , Game (Just 13) Nothing "Semifinal 1" Nothing Nothing Nothing (Coords 0 3 4)
+            , Game (Just 14) Nothing "Semifinal 2" Nothing Nothing Nothing (Coords 0 11 4)
 
             -- Group A Final
-            , Game Nothing "Final" Nothing Nothing Nothing (Coords 0 7 6)
+            , Game (Just 15) Nothing "Final" Nothing Nothing Nothing (Coords 0 7 6)
 
             -- Group B
-            , Game Nothing "A vs B" Nothing Nothing Nothing (Coords 1 0 0)
-            , Game Nothing "C vs D" Nothing Nothing Nothing (Coords 1 2 0)
-            , Game Nothing "E vs F" Nothing Nothing Nothing (Coords 1 4 0)
-            , Game Nothing "G vs H" Nothing Nothing Nothing (Coords 1 6 0)
+            , Game (Just 16) Nothing "TBD" Nothing Nothing Nothing (Coords 1 0 0)
+            , Game (Just 17) Nothing "TBD" Nothing Nothing Nothing (Coords 1 2 0)
+            , Game (Just 18) Nothing "TBD" Nothing Nothing Nothing (Coords 1 4 0)
+            , Game (Just 19) Nothing "TBD" Nothing Nothing Nothing (Coords 1 6 0)
 
             -- Group B Round 2
-            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 1 2)
-            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 5 2)
-            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 1 10)
-            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 5 10)
-            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 0 12)
-            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 2 12)
-            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 4 12)
-            , Game Nothing "TBD" Nothing Nothing Nothing (Coords 1 6 12)
+            , Game (Just 20) Nothing "TBD" Nothing Nothing Nothing (Coords 1 1 2)
+            , Game (Just 21) Nothing "TBD" Nothing Nothing Nothing (Coords 1 5 2)
+            , Game (Just 22) Nothing "TBD" Nothing Nothing Nothing (Coords 1 1 10)
+            , Game (Just 23) Nothing "TBD" Nothing Nothing Nothing (Coords 1 5 10)
+            , Game (Just 24) Nothing "TBD" Nothing Nothing Nothing (Coords 1 0 12)
+            , Game (Just 25) Nothing "TBD" Nothing Nothing Nothing (Coords 1 2 12)
+            , Game (Just 26) Nothing "TBD" Nothing Nothing Nothing (Coords 1 4 12)
+            , Game (Just 27) Nothing "TBD" Nothing Nothing Nothing (Coords 1 6 12)
 
             -- Group B Semifinal
-            , Game Nothing "Semifinal" Nothing Nothing Nothing (Coords 1 3 4)
-            , Game Nothing "Semifinal" Nothing Nothing Nothing (Coords 1 3 8)
+            , Game (Just 28) Nothing "Semifinal" Nothing Nothing Nothing (Coords 1 3 4)
+            , Game (Just 29) Nothing "Semifinal" Nothing Nothing Nothing (Coords 1 3 8)
 
             -- Group B Final
-            , Game Nothing "Final" Nothing Nothing Nothing (Coords 1 3 6)
+            , Game (Just 30) Nothing "Final" Nothing Nothing Nothing (Coords 1 3 6)
             ]
       , editingGame = Nothing
       , editingGroup = Nothing
+      , newGameCount = 0
       }
     , Cmd.none
     )
@@ -166,15 +184,66 @@ updateGroup groups group =
     List.Extra.updateIf (\g -> g.position == group.position) (\g -> group) groups
 
 
-addGame : List Game -> Coords -> List Game
-addGame games coords =
+addGame : Int -> List Game -> Coords -> List Game
+addGame tempId games coords =
     -- Don't add games on top of each other. Only add a game if there's room.
     case findGameByCoords games coords of
         Nothing ->
-            games ++ [ Game Nothing "New" Nothing Nothing Nothing coords ]
+            games ++ [ Game Nothing (Just tempId) "New" Nothing Nothing Nothing coords ]
 
         _ ->
             games
+
+
+unassignedTeams : List Team -> List Game -> Maybe Game -> List Team
+unassignedTeams teams games excludeGame =
+    let
+        gamesNotExcluded =
+            case excludeGame of
+                Just game ->
+                    case game.id of
+                        Just _ ->
+                            games
+                                |> List.filter (\g -> g.id /= game.id)
+
+                        Nothing ->
+                            case game.tempId of
+                                Just _ ->
+                                    games
+                                        |> List.filter (\g -> g.tempId /= game.tempId)
+
+                                Nothing ->
+                                    games
+
+                Nothing ->
+                    games
+
+        assignedTo team g =
+            let
+                assignedTop =
+                    case g.top of
+                        Just (TeamAssignment t) ->
+                            t.id == team.id
+
+                        _ ->
+                            False
+
+                assignedBottom =
+                    case g.bottom of
+                        Just (TeamAssignment t) ->
+                            t.id == team.id
+
+                        _ ->
+                            False
+            in
+            assignedTop || assignedBottom
+
+        unassigned team =
+            gamesNotExcluded
+                |> List.filter (assignedTo team)
+                |> List.isEmpty
+    in
+    List.filter unassigned teams
 
 
 
@@ -184,8 +253,8 @@ addGame games coords =
 type Msg
     = DragDropMsg (DragDrop.Msg Coords Coords)
     | ToggleGrid
-    | AddRow
-    | RemoveRow
+    | AddRow Group
+    | RemoveRow Group
     | AddCol
     | RemoveCol
     | AddGroup
@@ -236,23 +305,39 @@ update msg model =
             , Cmd.none
             )
 
-        AddRow ->
-            ( { model | rows = model.rows + 1 }
+        AddRow group ->
+            let
+                updatedGroup g =
+                    if group.position == g.position then
+                        { g | rows = g.rows + 1 }
+
+                    else
+                        g
+            in
+            ( { model | groups = List.map updatedGroup model.groups }
             , Cmd.none
             )
 
-        RemoveRow ->
-            ( { model | rows = model.rows - 1 }
+        RemoveRow group ->
+            let
+                updatedGroup g =
+                    if group.position == g.position then
+                        { g | rows = g.rows - 1 }
+
+                    else
+                        g
+            in
+            ( { model | groups = List.map updatedGroup model.groups }
             , Cmd.none
             )
 
         AddCol ->
-            ( { model | rows = model.cols + 1 }
+            ( { model | cols = model.cols + 1 }
             , Cmd.none
             )
 
         RemoveCol ->
-            ( { model | rows = model.cols - 1 }
+            ( { model | cols = model.cols - 1 }
             , Cmd.none
             )
 
@@ -262,7 +347,7 @@ update msg model =
                     List.length model.groups
             in
             ( { model
-                | groups = model.groups ++ [ Group nextGroupId ("Group " ++ String.fromInt (nextGroupId + 1)) ]
+                | groups = model.groups ++ [ Group nextGroupId ("Group " ++ String.fromInt (nextGroupId + 1)) 16 ]
               }
             , Cmd.none
             )
@@ -311,7 +396,8 @@ update msg model =
 
         AddGame coords ->
             ( { model
-                | games = addGame model.games coords
+                | games = addGame model.newGameCount model.games coords
+                , newGameCount = model.newGameCount + 1
               }
             , Cmd.none
             )
@@ -459,6 +545,11 @@ viewEditGroup model group =
 
 viewEditGame : Model -> Game -> Html Msg
 viewEditGame model game =
+    let
+        teamOptions =
+            unassignedTeams model.teams model.games (Just game)
+                |> List.map (\t -> option [ value (String.fromInt t.id) ] [ text t.name ])
+    in
     div [ class "modal-content" ]
         [ div [ class "modal-header" ]
             [ h5 [ class "modal-title" ] [ text "Edit Game" ] ]
@@ -473,6 +564,15 @@ viewEditGame model game =
                     , onInput UpdateGameName
                     ]
                     []
+                ]
+            , div
+                [ class "form-group" ]
+                [ label [ for "editing-game-top" ] [ text "Team" ]
+                , select
+                    [ class "form-control"
+                    , id "editing-game-top"
+                    ]
+                    teamOptions
                 ]
             ]
         , div [ class "modal-footer" ]
@@ -506,7 +606,7 @@ viewGroup model fromCoords toCoords group =
             [ text ("☷ " ++ group.name) ]
         , table
             grid
-            (List.map (viewRow model fromCoords toCoords group) (List.range 0 (model.rows - 1)))
+            (List.map (viewRow model fromCoords toCoords group) (List.range 0 (group.rows - 1)))
         ]
 
 
@@ -545,12 +645,7 @@ viewCell model fromCoords toCoords group row col =
         positionText position =
             case position of
                 Just (TeamAssignment team) ->
-                    case team of
-                        Just team_ ->
-                            team_.name
-
-                        Nothing ->
-                            "TBD"
+                    team.name
 
                 Just (WinnerFrom game) ->
                     "Winner from"
