@@ -25,7 +25,6 @@ port dragstart : Value -> Cmd msg
 
 type alias Model =
     { dragDrop : DragDrop.Model Coords Coords
-    , showGrid : Bool
     , groups : List Group
     , cols : Int
     , teams : List Team
@@ -102,7 +101,6 @@ initTeams =
 init : ( Model, Cmd Msg )
 init =
     ( { dragDrop = DragDrop.init
-      , showGrid = True
       , groups = [ Group 0 "A Event" 16, Group 1 "B Event" 16 ]
       , cols = 14
       , teams = initTeams
@@ -195,6 +193,15 @@ addGame tempId games coords =
             games
 
 
+minRowsForGroup : Group -> List Game -> Int
+minRowsForGroup group games =
+    games
+        |> List.filter (\g -> g.coords.group == group.position)
+        |> List.map (\g -> g.coords.row + 2)
+        |> List.maximum
+        |> Maybe.withDefault 8
+
+
 unassignedTeams : List Team -> List Game -> Maybe Game -> List Team
 unassignedTeams teams games excludeGame =
     let
@@ -252,14 +259,13 @@ unassignedTeams teams games excludeGame =
 
 type Msg
     = DragDropMsg (DragDrop.Msg Coords Coords)
-    | ToggleGrid
-    | AddRow Group
-    | RemoveRow Group
+    | ToggleHelp
     | AddCol
     | RemoveCol
     | AddGroup
     | EditGroup Group
     | UpdateGroupName String
+    | UpdateGroupRows String
     | CancelEditGroup
     | SaveGroup Group
     | RemoveGroup Group
@@ -289,10 +295,6 @@ update msg model =
                             model.games
 
                         Just ( fromCoords, toCoords, { x, y } ) ->
-                            -- let
-                            --     _ =
-                            --         log "result" result
-                            -- in
                             moveGame model.games fromCoords toCoords
               }
             , DragDrop.getDragstartEvent msg_
@@ -300,36 +302,8 @@ update msg model =
                 |> Maybe.withDefault Cmd.none
             )
 
-        ToggleGrid ->
-            ( { model | showGrid = not model.showGrid }
-            , Cmd.none
-            )
-
-        AddRow group ->
-            let
-                updatedGroup g =
-                    if group.position == g.position then
-                        { g | rows = g.rows + 1 }
-
-                    else
-                        g
-            in
-            ( { model | groups = List.map updatedGroup model.groups }
-            , Cmd.none
-            )
-
-        RemoveRow group ->
-            let
-                updatedGroup g =
-                    if group.position == g.position then
-                        { g | rows = g.rows - 1 }
-
-                    else
-                        g
-            in
-            ( { model | groups = List.map updatedGroup model.groups }
-            , Cmd.none
-            )
+        ToggleHelp ->
+            ( model, Cmd.none )
 
         AddCol ->
             ( { model | cols = model.cols + 1 }
@@ -363,6 +337,27 @@ update msg model =
                     case model.editingGroup of
                         Just group ->
                             Just { group | name = name }
+
+                        Nothing ->
+                            model.editingGroup
+            in
+            ( { model
+                | editingGroup = updatedGroup
+              }
+            , Cmd.none
+            )
+
+        UpdateGroupRows rows ->
+            let
+                updatedGroup =
+                    case model.editingGroup of
+                        Just group ->
+                            case String.toInt rows of
+                                Just i ->
+                                    Just { group | rows = i }
+
+                                Nothing ->
+                                    model.editingGroup
 
                         Nothing ->
                             model.editingGroup
@@ -475,15 +470,8 @@ view model =
             [ div [ class "d-flex justify-content-between" ]
                 [ p [ class "alert alert-info" ] [ text "Drag and drop games anywhere you like. Double click anywhere to add a new game. Double click a game to change or remove it. Double click a group name to change or remove it." ]
                 , div [ style "min-width" "100px", class "text-right" ]
-                    [ button [ class "btn btn-info btn-sm", onClick ToggleGrid ]
-                        [ text
-                            (if model.showGrid then
-                                "Hide Grid"
-
-                             else
-                                "Show Grid"
-                            )
-                        ]
+                    [ button [ class "btn btn-info btn-sm", onClick ToggleHelp ]
+                        [ text "Help" ]
                     ]
                 ]
             , viewGroups model fromCoords toCoords
@@ -534,6 +522,20 @@ viewEditGroup model group =
                     ]
                     []
                 ]
+            , div
+                [ class "form-group" ]
+                [ label [ for "editing-group-rows" ] [ text ("Group Rows: " ++ String.fromInt group.rows) ]
+                , input
+                    [ class "form-control"
+                    , id "editing-group-rows"
+                    , type_ "range"
+                    , Html.Attributes.min (String.fromInt (minRowsForGroup group model.games))
+                    , Html.Attributes.max "60"
+                    , value (String.fromInt group.rows)
+                    , onInput UpdateGroupRows
+                    ]
+                    []
+                ]
             ]
         , div [ class "modal-footer" ]
             [ button [ onClick CancelEditGroup, class "btn btn-secondary mr-2" ] [ text "Cancel" ]
@@ -546,9 +548,21 @@ viewEditGroup model group =
 viewEditGame : Model -> Game -> Html Msg
 viewEditGame model game =
     let
-        teamOptions =
+        teamOption selectedTeam team =
+            let
+                isSelected =
+                    case selectedTeam of
+                        Just (TeamAssignment t) ->
+                            t.id == team.id
+
+                        _ ->
+                            False
+            in
+            option [ value (String.fromInt team.id), selected isSelected ] [ text team.name ]
+
+        teamOptions selectedTeam =
             unassignedTeams model.teams model.games (Just game)
-                |> List.map (\t -> option [ value (String.fromInt t.id) ] [ text t.name ])
+                |> List.map (teamOption selectedTeam)
     in
     div [ class "modal-content" ]
         [ div [ class "modal-header" ]
@@ -567,12 +581,21 @@ viewEditGame model game =
                 ]
             , div
                 [ class "form-group" ]
-                [ label [ for "editing-game-top" ] [ text "Team" ]
+                [ label [ for "editing-game-top" ] [ text "Top Team" ]
                 , select
                     [ class "form-control"
                     , id "editing-game-top"
                     ]
-                    teamOptions
+                    (teamOptions game.top)
+                ]
+            , div
+                [ class "form-group" ]
+                [ label [ for "editing-game-bottom" ] [ text "Bottom Team" ]
+                , select
+                    [ class "form-control"
+                    , id "editing-game-bottom"
+                    ]
+                    (teamOptions game.bottom)
                 ]
             ]
         , div [ class "modal-footer" ]
@@ -591,21 +614,13 @@ viewGroups model fromCoords toCoords =
 
 viewGroup : Model -> Maybe Coords -> Maybe DragDrop.Position -> Group -> Html Msg
 viewGroup model fromCoords toCoords group =
-    let
-        grid =
-            if model.showGrid then
-                [ class "show-grid" ]
-
-            else
-                []
-    in
     div
         [ class "group" ]
         [ div
             [ class "group-name btn btn-default", onDoubleClick (EditGroup group) ]
             [ text ("☷ " ++ group.name) ]
         , table
-            grid
+            []
             (List.map (viewRow model fromCoords toCoords group) (List.range 0 (group.rows - 1)))
         ]
 
