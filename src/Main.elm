@@ -10,6 +10,7 @@ import Html5.DragDrop as DragDrop
 import Json.Decode exposing (Value)
 import Json.Encode as Json
 import List.Extra
+import String.Extra
 
 
 
@@ -253,6 +254,16 @@ unassignedTeams teams games excludeGame =
     List.filter unassigned teams
 
 
+unassignedWinners : List Game -> Maybe Game -> List Game
+unassignedWinners games excludeGame =
+    games
+
+
+unassignedLosers : List Game -> Maybe Game -> List Game
+unassignedLosers games excludeGame =
+    games
+
+
 
 ---- UPDATE ----
 
@@ -274,6 +285,7 @@ type Msg
     | EditGame Game
     | SaveGame Game
     | UpdateGameName String
+    | UpdateGamePosition String String
     | CancelEditGame
     | Save
     | Revert
@@ -303,9 +315,11 @@ update msg model =
             )
 
         ToggleHelp ->
+            -- TODO: Toggle a help view
             ( model, Cmd.none )
 
         AddCol ->
+            -- TODO: Add columns automatically when a game is dropped on the last column
             ( { model | cols = model.cols + 1 }
             , Cmd.none
             )
@@ -414,6 +428,104 @@ update msg model =
                     case model.editingGame of
                         Just game ->
                             Just { game | name = name }
+
+                        Nothing ->
+                            model.editingGame
+            in
+            ( { model
+                | editingGame = updatedGame
+              }
+            , Cmd.none
+            )
+
+        UpdateGamePosition position assignment ->
+            let
+                updatedGame : Maybe Game
+                updatedGame =
+                    case model.editingGame of
+                        Just game ->
+                            let
+                                parsedAssignment =
+                                    String.split "_" assignment
+                            in
+                            case parsedAssignment of
+                                x :: xs ->
+                                    case x of
+                                        "" ->
+                                            -- Blank was selected
+                                            case position of
+                                                "top" ->
+                                                    Just { game | top = Nothing }
+
+                                                "bottom" ->
+                                                    Just { game | bottom = Nothing }
+
+                                                _ ->
+                                                    model.editingGame
+
+                                        "team" ->
+                                            -- A team was selected
+                                            case List.head xs of
+                                                Just teamIdStr ->
+                                                    case String.toInt teamIdStr of
+                                                        Just teamId ->
+                                                            case List.Extra.find (\t -> t.id == teamId) model.teams of
+                                                                Just team ->
+                                                                    case position of
+                                                                        "top" ->
+                                                                            Just { game | top = Just (TeamAssignment team) }
+
+                                                                        "bottom" ->
+                                                                            Just { game | bottom = Just (TeamAssignment team) }
+
+                                                                        _ ->
+                                                                            model.editingGame
+
+                                                                Nothing ->
+                                                                    model.editingGame
+
+                                                        Nothing ->
+                                                            model.editingGame
+
+                                                _ ->
+                                                    model.editingGame
+
+                                        gameResult ->
+                                            -- A winner / loser from game was selected
+                                            case List.head xs of
+                                                Just gameIdStr ->
+                                                    case String.toInt gameIdStr of
+                                                        Just gameId ->
+                                                            case List.Extra.find (\g -> g.id == Just gameId || g.tempId == Just gameId) model.games of
+                                                                Just g ->
+                                                                    -- Pattern match on position to assign to and whether it was a winner or loser from game
+                                                                    case ( position, gameResult ) of
+                                                                        ( "top", "winner" ) ->
+                                                                            Just { game | top = Just (WinnerFrom g) }
+
+                                                                        ( "top", "loser" ) ->
+                                                                            Just { game | top = Just (LoserFrom g) }
+
+                                                                        ( "bottom", "winner" ) ->
+                                                                            Just { game | bottom = Just (WinnerFrom g) }
+
+                                                                        ( "bottom", "loser" ) ->
+                                                                            Just { game | bottom = Just (LoserFrom g) }
+
+                                                                        _ ->
+                                                                            model.editingGame
+
+                                                                Nothing ->
+                                                                    model.editingGame
+
+                                                        Nothing ->
+                                                            model.editingGame
+
+                                                _ ->
+                                                    model.editingGame
+
+                                _ ->
+                                    model.editingGame
 
                         Nothing ->
                             model.editingGame
@@ -548,21 +660,85 @@ viewEditGroup model group =
 viewEditGame : Model -> Game -> Html Msg
 viewEditGame model game =
     let
-        teamOption selectedTeam team =
+        teamOption : Maybe GamePosition -> Team -> Html Msg
+        teamOption selectedGamePosition team =
             let
                 isSelected =
-                    case selectedTeam of
+                    case selectedGamePosition of
                         Just (TeamAssignment t) ->
                             t.id == team.id
 
                         _ ->
                             False
             in
-            option [ value (String.fromInt team.id), selected isSelected ] [ text team.name ]
+            option [ value ("team_" ++ String.fromInt team.id), selected isSelected ] [ text team.name ]
 
-        teamOptions selectedTeam =
+        teamOptions : Maybe GamePosition -> List (Html Msg)
+        teamOptions selectedGamePosition =
             unassignedTeams model.teams model.games (Just game)
-                |> List.map (teamOption selectedTeam)
+                |> List.map (teamOption selectedGamePosition)
+                |> (::) (option [] [])
+
+        gameOption : String -> Maybe Game -> Game -> Html Msg
+        gameOption fromType selectedGame forGame =
+            let
+                isSelected : Bool
+                isSelected =
+                    let
+                        isSelectedInside : Game -> Bool
+                        isSelectedInside g =
+                            case g.id of
+                                Just id ->
+                                    Just id == forGame.id
+
+                                Nothing ->
+                                    game.tempId == forGame.tempId
+                    in
+                    case selectedGame of
+                        Just g ->
+                            isSelectedInside g
+
+                        _ ->
+                            False
+
+                forGameId : String
+                forGameId =
+                    case forGame.id of
+                        Just id ->
+                            String.fromInt id
+
+                        Nothing ->
+                            String.fromInt (Maybe.withDefault 0 forGame.tempId)
+            in
+            option [ value (fromType ++ "_" ++ forGameId), selected isSelected ] [ text (String.Extra.toTitleCase fromType ++ " from " ++ forGame.name) ]
+
+        winnerGameOptions : Maybe GamePosition -> List (Html Msg)
+        winnerGameOptions selectedGamePosition =
+            let
+                selectedGame =
+                    case selectedGamePosition of
+                        Just (WinnerFrom g) ->
+                            Just g
+
+                        _ ->
+                            Nothing
+            in
+            unassignedWinners model.games (Just game)
+                |> List.map (gameOption "winner" selectedGame)
+
+        loserGameOptions : Maybe GamePosition -> List (Html Msg)
+        loserGameOptions selectedGamePosition =
+            let
+                selectedGame =
+                    case selectedGamePosition of
+                        Just (LoserFrom g) ->
+                            Just g
+
+                        _ ->
+                            Nothing
+            in
+            unassignedLosers model.games (Just game)
+                |> List.map (gameOption "loser" selectedGame)
     in
     div [ class "modal-content" ]
         [ div [ class "modal-header" ]
@@ -585,8 +761,9 @@ viewEditGame model game =
                 , select
                     [ class "form-control"
                     , id "editing-game-top"
+                    , onInput (UpdateGamePosition "top")
                     ]
-                    (teamOptions game.top)
+                    (teamOptions game.top ++ winnerGameOptions game.top ++ loserGameOptions game.top)
                 ]
             , div
                 [ class "form-group" ]
@@ -594,8 +771,9 @@ viewEditGame model game =
                 , select
                     [ class "form-control"
                     , id "editing-game-bottom"
+                    , onInput (UpdateGamePosition "bottom")
                     ]
-                    (teamOptions game.bottom)
+                    (teamOptions game.bottom ++ winnerGameOptions game.bottom ++ loserGameOptions game.bottom)
                 ]
             ]
         , div [ class "modal-footer" ]
@@ -663,10 +841,10 @@ viewCell model fromCoords toCoords group row col =
                     team.name
 
                 Just (WinnerFrom game) ->
-                    "Winner from"
+                    "Winner: " ++ game.name
 
                 Just (LoserFrom game) ->
-                    "Loser from"
+                    "Loser: " ++ game.name
 
                 Nothing ->
                     "TBD"
