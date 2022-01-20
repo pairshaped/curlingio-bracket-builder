@@ -10,6 +10,7 @@ import Html5.DragDrop as DragDrop
 import Json.Decode exposing (Value)
 import Json.Encode as Json
 import List.Extra
+import Set
 import String.Extra
 
 
@@ -51,9 +52,8 @@ type alias Group =
 
 
 type alias Game =
-    { id : Maybe Int
-    , tempId : Maybe Int
-    , name : String
+    { id : Int
+    , name : Maybe String
     , top : Maybe GamePosition
     , bottom : Maybe GamePosition
     , gameWinner : Maybe GameWinner
@@ -67,10 +67,17 @@ type alias Team =
     }
 
 
+{-| TODO : I think we need to change this to be Team ID and Game ID assignments.
+After that complies, we should also try making Winner / Loser a param instead of their own types, like (GameAssignment (Winner Int)).
+-}
 type GamePosition
-    = TeamAssignment Team
-    | WinnerFrom Game
-    | LoserFrom Game
+    = TeamAssignment Int
+    | GameAssignment GameResult Int
+
+
+type GameResult
+    = Winner
+    | Loser
 
 
 type GameWinner
@@ -80,22 +87,22 @@ type GameWinner
 
 initTeams : List Team
 initTeams =
-    [ Team 1 "Team 1"
-    , Team 2 "Team 2"
-    , Team 3 "Team 3"
-    , Team 4 "Team 4"
-    , Team 5 "Team 5"
-    , Team 6 "Team 6"
-    , Team 7 "Team 7"
-    , Team 8 "Team 8"
-    , Team 9 "Team 9"
-    , Team 10 "Team 10"
-    , Team 11 "Team 11"
-    , Team 12 "Team 12"
-    , Team 13 "Team 13"
-    , Team 14 "Team 14"
-    , Team 15 "Team 15"
-    , Team 16 "Team 16"
+    [ Team 1 "Homer"
+    , Team 2 "Marge"
+    , Team 3 "Bart"
+    , Team 4 "Lisa"
+    , Team 5 "Maggie"
+    , Team 6 "Krusty"
+    , Team 7 "Snowball"
+    , Team 8 "Apu"
+    , Team 9 "Barney"
+    , Team 10 "Ralph"
+    , Team 11 "Itchy"
+    , Team 12 "Scratchy"
+    , Team 13 "Millhouse"
+    , Team 14 "Moe"
+    , Team 15 "Monty"
+    , Team 16 "Ned"
     ]
 
 
@@ -106,54 +113,54 @@ init =
       , cols = 14
       , teams = initTeams
       , games =
-            [ Game (Just 1) Nothing "1 vs 2" (Just (TeamAssignment (Team 1 "Team 1"))) (Just (TeamAssignment (Team 2 "Team 2"))) Nothing (Coords 0 0 0)
-            , Game (Just 2) Nothing "3 vs 4" (Just (TeamAssignment (Team 3 "Team 3"))) (Just (TeamAssignment (Team 4 "Team 4"))) Nothing (Coords 0 2 0)
-            , Game (Just 3) Nothing "5 vs 6" Nothing Nothing Nothing (Coords 0 4 0)
-            , Game (Just 4) Nothing "7 vs 8" Nothing Nothing Nothing (Coords 0 6 0)
-            , Game (Just 5) Nothing "9 vs 10" Nothing Nothing Nothing (Coords 0 8 0)
-            , Game (Just 6) Nothing "11 vs 12" Nothing Nothing Nothing (Coords 0 10 0)
-            , Game (Just 7) Nothing "13 vs 14" Nothing Nothing Nothing (Coords 0 12 0)
-            , Game (Just 8) Nothing "15 vs 16" Nothing Nothing Nothing (Coords 0 14 0)
+            [ Game 1 (Just "1 vs 2") (Just (TeamAssignment 1)) (Just (TeamAssignment 2)) Nothing (Coords 0 0 0)
+            , Game 2 (Just "3 vs 4") (Just (TeamAssignment 3)) (Just (TeamAssignment 4)) Nothing (Coords 0 2 0)
+            , Game 3 (Just "5 vs 6") (Just (TeamAssignment 5)) (Just (TeamAssignment 6)) Nothing (Coords 0 4 0)
+            , Game 4 (Just "7 vs 8") (Just (TeamAssignment 7)) (Just (TeamAssignment 8)) Nothing (Coords 0 6 0)
+            , Game 5 (Just "9 vs 10") (Just (TeamAssignment 9)) (Just (TeamAssignment 10)) Nothing (Coords 0 8 0)
+            , Game 6 (Just "11 vs 12") (Just (TeamAssignment 11)) (Just (TeamAssignment 12)) Nothing (Coords 0 10 0)
+            , Game 7 (Just "13 vs 14") (Just (TeamAssignment 13)) (Just (TeamAssignment 14)) Nothing (Coords 0 12 0)
+            , Game 8 (Just "15 vs 16") (Just (TeamAssignment 15)) (Just (TeamAssignment 16)) Nothing (Coords 0 14 0)
 
             -- Group A Round 2
-            , Game (Just 9) Nothing "Quarterfinal 1" Nothing Nothing Nothing (Coords 0 1 2)
-            , Game (Just 10) Nothing "Quarterfinal 2" Nothing Nothing Nothing (Coords 0 5 2)
-            , Game (Just 11) Nothing "Quarterfinal 3" Nothing Nothing Nothing (Coords 0 9 2)
-            , Game (Just 12) Nothing "Quarterfinal 4" Nothing Nothing Nothing (Coords 0 13 2)
+            , Game 9 (Just "Quarterfinal 1") (Just (GameAssignment Winner 1)) (Just (GameAssignment Winner 2)) Nothing (Coords 0 1 2)
+            , Game 10 (Just "Quarterfinal 2") (Just (GameAssignment Winner 3)) (Just (GameAssignment Winner 4)) Nothing (Coords 0 5 2)
+            , Game 11 (Just "Quarterfinal 3") (Just (GameAssignment Winner 5)) (Just (GameAssignment Winner 6)) Nothing (Coords 0 9 2)
+            , Game 12 (Just "Quarterfinal 4") (Just (GameAssignment Winner 7)) (Just (GameAssignment Winner 8)) Nothing (Coords 0 13 2)
 
             -- Group A Semifinal
-            , Game (Just 13) Nothing "Semifinal 1" Nothing Nothing Nothing (Coords 0 3 4)
-            , Game (Just 14) Nothing "Semifinal 2" Nothing Nothing Nothing (Coords 0 11 4)
+            , Game 13 (Just "Semifinal 1") (Just (GameAssignment Winner 9)) (Just (GameAssignment Winner 10)) Nothing (Coords 0 3 4)
+            , Game 14 (Just "Semifinal 2") (Just (GameAssignment Winner 11)) (Just (GameAssignment Winner 12)) Nothing (Coords 0 11 4)
 
             -- Group A Final
-            , Game (Just 15) Nothing "Final" Nothing Nothing Nothing (Coords 0 7 6)
+            , Game 15 (Just "Final") Nothing Nothing Nothing (Coords 0 7 6)
 
             -- Group B
-            , Game (Just 16) Nothing "TBD" Nothing Nothing Nothing (Coords 1 0 0)
-            , Game (Just 17) Nothing "TBD" Nothing Nothing Nothing (Coords 1 2 0)
-            , Game (Just 18) Nothing "TBD" Nothing Nothing Nothing (Coords 1 4 0)
-            , Game (Just 19) Nothing "TBD" Nothing Nothing Nothing (Coords 1 6 0)
+            , Game 16 Nothing Nothing Nothing Nothing (Coords 1 0 0)
+            , Game 17 Nothing Nothing Nothing Nothing (Coords 1 2 0)
+            , Game 18 Nothing Nothing Nothing Nothing (Coords 1 4 0)
+            , Game 19 Nothing Nothing Nothing Nothing (Coords 1 6 0)
 
             -- Group B Round 2
-            , Game (Just 20) Nothing "TBD" Nothing Nothing Nothing (Coords 1 1 2)
-            , Game (Just 21) Nothing "TBD" Nothing Nothing Nothing (Coords 1 5 2)
-            , Game (Just 22) Nothing "TBD" Nothing Nothing Nothing (Coords 1 1 10)
-            , Game (Just 23) Nothing "TBD" Nothing Nothing Nothing (Coords 1 5 10)
-            , Game (Just 24) Nothing "TBD" Nothing Nothing Nothing (Coords 1 0 12)
-            , Game (Just 25) Nothing "TBD" Nothing Nothing Nothing (Coords 1 2 12)
-            , Game (Just 26) Nothing "TBD" Nothing Nothing Nothing (Coords 1 4 12)
-            , Game (Just 27) Nothing "TBD" Nothing Nothing Nothing (Coords 1 6 12)
+            , Game 20 Nothing Nothing Nothing Nothing (Coords 1 1 2)
+            , Game 21 Nothing Nothing Nothing Nothing (Coords 1 5 2)
+            , Game 22 Nothing Nothing Nothing Nothing (Coords 1 1 10)
+            , Game 23 Nothing Nothing Nothing Nothing (Coords 1 5 10)
+            , Game 24 Nothing Nothing Nothing Nothing (Coords 1 0 12)
+            , Game 25 Nothing Nothing Nothing Nothing (Coords 1 2 12)
+            , Game 26 Nothing Nothing Nothing Nothing (Coords 1 4 12)
+            , Game 27 Nothing Nothing Nothing Nothing (Coords 1 6 12)
 
             -- Group B Semifinal
-            , Game (Just 28) Nothing "Semifinal" Nothing Nothing Nothing (Coords 1 3 4)
-            , Game (Just 29) Nothing "Semifinal" Nothing Nothing Nothing (Coords 1 3 8)
+            , Game 28 (Just "Semifinal") Nothing Nothing Nothing (Coords 1 3 4)
+            , Game 29 (Just "Semifinal") Nothing Nothing Nothing (Coords 1 3 8)
 
             -- Group B Final
-            , Game (Just 30) Nothing "Final" Nothing Nothing Nothing (Coords 1 3 6)
+            , Game 30 (Just "Final") Nothing Nothing Nothing (Coords 1 3 6)
             ]
       , editingGame = Nothing
       , editingGroup = Nothing
-      , newGameCount = 0
+      , newGameCount = -1
       }
     , Cmd.none
     )
@@ -163,37 +170,45 @@ init =
 --- HELPERS ---
 
 
+{-| Find a game by it's coordinates
+-}
 findGameByCoords : List Game -> Coords -> Maybe Game
 findGameByCoords games coords =
     List.Extra.find (\game -> game.coords == coords) games
 
 
+{-| Move a game on the grid from one set of coords to another.
+-}
 moveGame : List Game -> Coords -> Coords -> List Game
 moveGame games fromCoords toCoords =
     List.Extra.updateIf (\game -> game.coords == fromCoords) (\game -> { game | coords = toCoords }) games
 
 
-updateGame : List Game -> Game -> List Game
-updateGame games game =
+updatedGames : List Game -> Game -> List Game
+updatedGames games game =
     List.Extra.updateIf (\g -> g.coords == game.coords) (\g -> game) games
 
 
-updateGroup : List Group -> Group -> List Group
-updateGroup groups group =
+updatedGroups : List Group -> Group -> List Group
+updatedGroups groups group =
     List.Extra.updateIf (\g -> g.position == group.position) (\g -> group) groups
 
 
+{-| Add a game to the grid, with the assigned ID, but only if there's room.
+-}
 addGame : Int -> List Game -> Coords -> List Game
-addGame tempId games coords =
+addGame id games coords =
     -- Don't add games on top of each other. Only add a game if there's room.
     case findGameByCoords games coords of
         Nothing ->
-            games ++ [ Game Nothing (Just tempId) "New" Nothing Nothing Nothing coords ]
+            games ++ [ Game id Nothing Nothing Nothing Nothing coords ]
 
         _ ->
             games
 
 
+{-| Find the minimum required rows for a group based on the placement of games within it, making sure there are enough rows for all of a groups games to be shown.
+-}
 minRowsForGroup : Group -> List Game -> Int
 minRowsForGroup group games =
     games
@@ -203,25 +218,16 @@ minRowsForGroup group games =
         |> Maybe.withDefault 8
 
 
+{-| Return a list of teams that haven't been assigned to a game yet.
+-}
 unassignedTeams : List Team -> List Game -> Maybe Game -> List Team
 unassignedTeams teams games excludeGame =
     let
         gamesNotExcluded =
             case excludeGame of
                 Just game ->
-                    case game.id of
-                        Just _ ->
-                            games
-                                |> List.filter (\g -> g.id /= game.id)
-
-                        Nothing ->
-                            case game.tempId of
-                                Just _ ->
-                                    games
-                                        |> List.filter (\g -> g.tempId /= game.tempId)
-
-                                Nothing ->
-                                    games
+                    games
+                        |> List.filter (\g -> g.id /= game.id)
 
                 Nothing ->
                     games
@@ -230,16 +236,16 @@ unassignedTeams teams games excludeGame =
             let
                 assignedTop =
                     case g.top of
-                        Just (TeamAssignment t) ->
-                            t.id == team.id
+                        Just (TeamAssignment id) ->
+                            id == team.id
 
                         _ ->
                             False
 
                 assignedBottom =
                     case g.bottom of
-                        Just (TeamAssignment t) ->
-                            t.id == team.id
+                        Just (TeamAssignment id) ->
+                            id == team.id
 
                         _ ->
                             False
@@ -254,14 +260,87 @@ unassignedTeams teams games excludeGame =
     List.filter unassigned teams
 
 
-unassignedWinners : List Game -> Maybe Game -> List Game
-unassignedWinners games excludeGame =
-    games
+assignGameNamesWhenPossible : List Team -> List Game -> List Game
+assignGameNamesWhenPossible teams games =
+    let
+        assignName game =
+            case game.name of
+                Nothing ->
+                    -- Check if we have 2 teams assigned and auto generate the name if we do
+                    case ( game.top, game.bottom ) of
+                        ( Just (TeamAssignment topId), Just (TeamAssignment bottomId) ) ->
+                            let
+                                team1Maybe =
+                                    List.Extra.find (\t -> t.id == topId) teams
+
+                                team2Maybe =
+                                    List.Extra.find (\t -> t.id == bottomId) teams
+                            in
+                            case ( team1Maybe, team2Maybe ) of
+                                ( Just team1, Just team2 ) ->
+                                    { game | name = Just (team1.name ++ " vs " ++ team2.name) }
+
+                                _ ->
+                                    game
+
+                        _ ->
+                            game
+
+                _ ->
+                    game
+    in
+    List.map assignName games
 
 
-unassignedLosers : List Game -> Maybe Game -> List Game
-unassignedLosers games excludeGame =
-    games
+{-| Return a list of games who's winner or loser hasn't been assigned to another game yet.
+We can pass in a game that should be excluded from the matching check, like the game we are currently editing, so that winner from that game is excluded.
+We can also pass in a game assignment that should be included, regardless of whether or not it's been assigned. For example, the current selected assignment in the dropdown.
+-}
+unassignedGames : GameResult -> Maybe Int -> Maybe Int -> List Game -> List Game
+unassignedGames gameResult excludeGameId includeGameId games =
+    let
+        isAssignedToGame : Game -> Game -> Bool
+        isAssignedToGame game gameWithAssignment =
+            if Just game.id == includeGameId then
+                False
+
+            else if game.name == Nothing then
+                True
+
+            else
+                case gameResult of
+                    Winner ->
+                        case ( gameWithAssignment.top, gameWithAssignment.bottom ) of
+                            ( Just (GameAssignment Winner topId), Just (GameAssignment Winner bottomId) ) ->
+                                topId == game.id || bottomId == game.id
+
+                            ( Just (GameAssignment Winner id), _ ) ->
+                                id == game.id
+
+                            ( _, Just (GameAssignment Winner id) ) ->
+                                id == game.id
+
+                            _ ->
+                                False
+
+                    Loser ->
+                        case ( gameWithAssignment.top, gameWithAssignment.bottom ) of
+                            ( Just (GameAssignment Loser id), _ ) ->
+                                id == game.id
+
+                            ( _, Just (GameAssignment Loser id) ) ->
+                                id == game.id
+
+                            _ ->
+                                False
+
+        hasNotBeenAssigned : Game -> Bool
+        hasNotBeenAssigned game =
+            games
+                |> List.filter (isAssignedToGame game)
+                |> List.isEmpty
+    in
+    List.filter hasNotBeenAssigned games
 
 
 
@@ -283,10 +362,9 @@ type Msg
     | AddGame Coords
     | RemoveGame Game
     | EditGame Game
-    | SaveGame Game
     | UpdateGameName String
     | UpdateGamePosition String String
-    | CancelEditGame
+    | CloseEditGame
     | Save
     | Revert
 
@@ -390,7 +468,7 @@ update msg model =
         SaveGroup group ->
             ( { model
                 | editingGroup = Nothing
-                , groups = updateGroup model.groups group
+                , groups = updatedGroups model.groups group
               }
             , Cmd.none
             )
@@ -406,7 +484,7 @@ update msg model =
         AddGame coords ->
             ( { model
                 | games = addGame model.newGameCount model.games coords
-                , newGameCount = model.newGameCount + 1
+                , newGameCount = model.newGameCount - 1
               }
             , Cmd.none
             )
@@ -424,128 +502,156 @@ update msg model =
 
         UpdateGameName name ->
             let
-                updatedGame =
-                    case model.editingGame of
-                        Just game ->
-                            Just { game | name = name }
+                maybeName =
+                    case name of
+                        "" ->
+                            Nothing
 
-                        Nothing ->
-                            model.editingGame
+                        _ ->
+                            Just name
+
+                updatedGame game =
+                    { game | name = maybeName }
             in
             ( { model
-                | editingGame = updatedGame
+                | editingGame = Maybe.map updatedGame model.editingGame
               }
             , Cmd.none
             )
 
         UpdateGamePosition position assignment ->
             let
-                updatedGame : Maybe Game
-                updatedGame =
-                    case model.editingGame of
-                        Just game ->
-                            let
-                                parsedAssignment =
-                                    String.split "_" assignment
-                            in
-                            case parsedAssignment of
-                                x :: xs ->
-                                    case x of
-                                        "" ->
-                                            -- Blank was selected
-                                            case position of
-                                                "top" ->
-                                                    Just { game | top = Nothing }
+                updatedGame : Game -> Game
+                updatedGame game =
+                    let
+                        parsedAssignment =
+                            String.split "_" assignment
+                    in
+                    case parsedAssignment of
+                        x :: xs ->
+                            case x of
+                                "" ->
+                                    -- Blank was selected
+                                    case position of
+                                        "top" ->
+                                            { game | top = Nothing }
 
-                                                "bottom" ->
-                                                    Just { game | bottom = Nothing }
+                                        "bottom" ->
+                                            { game | bottom = Nothing }
 
-                                                _ ->
-                                                    model.editingGame
+                                        _ ->
+                                            game
 
-                                        "team" ->
-                                            -- A team was selected
-                                            case List.head xs of
-                                                Just teamIdStr ->
-                                                    case String.toInt teamIdStr of
-                                                        Just teamId ->
-                                                            case List.Extra.find (\t -> t.id == teamId) model.teams of
-                                                                Just team ->
-                                                                    case position of
-                                                                        "top" ->
-                                                                            Just { game | top = Just (TeamAssignment team) }
+                                "team" ->
+                                    -- A team was selected
+                                    case List.head xs of
+                                        Just teamIdStr ->
+                                            case String.toInt teamIdStr of
+                                                Just teamId ->
+                                                    case List.Extra.find (\t -> t.id == teamId) model.teams of
+                                                        Just team ->
+                                                            case position of
+                                                                "top" ->
+                                                                    { game | top = Just (TeamAssignment team.id) }
 
-                                                                        "bottom" ->
-                                                                            Just { game | bottom = Just (TeamAssignment team) }
+                                                                "bottom" ->
+                                                                    { game | bottom = Just (TeamAssignment team.id) }
 
-                                                                        _ ->
-                                                                            model.editingGame
-
-                                                                Nothing ->
-                                                                    model.editingGame
+                                                                _ ->
+                                                                    game
 
                                                         Nothing ->
-                                                            model.editingGame
+                                                            game
 
-                                                _ ->
-                                                    model.editingGame
+                                                Nothing ->
+                                                    game
 
-                                        gameResult ->
-                                            -- A winner / loser from game was selected
-                                            case List.head xs of
-                                                Just gameIdStr ->
-                                                    case String.toInt gameIdStr of
-                                                        Just gameId ->
-                                                            case List.Extra.find (\g -> g.id == Just gameId || g.tempId == Just gameId) model.games of
-                                                                Just g ->
-                                                                    -- Pattern match on position to assign to and whether it was a winner or loser from game
-                                                                    case ( position, gameResult ) of
-                                                                        ( "top", "winner" ) ->
-                                                                            Just { game | top = Just (WinnerFrom g) }
+                                        _ ->
+                                            game
 
-                                                                        ( "top", "loser" ) ->
-                                                                            Just { game | top = Just (LoserFrom g) }
+                                gameResult ->
+                                    -- A winner / loser from game was selected
+                                    case List.head xs of
+                                        Just gameIdStr ->
+                                            case String.toInt gameIdStr of
+                                                Just gameId ->
+                                                    case List.Extra.find (\g -> g.id == gameId) model.games of
+                                                        Just g ->
+                                                            -- Pattern match on position to assign to and whether it was a winner or loser from game
+                                                            case ( position, gameResult ) of
+                                                                ( "top", "winner" ) ->
+                                                                    { game | top = Just (GameAssignment Winner g.id) }
 
-                                                                        ( "bottom", "winner" ) ->
-                                                                            Just { game | bottom = Just (WinnerFrom g) }
+                                                                ( "top", "loser" ) ->
+                                                                    { game | top = Just (GameAssignment Loser g.id) }
 
-                                                                        ( "bottom", "loser" ) ->
-                                                                            Just { game | bottom = Just (LoserFrom g) }
+                                                                ( "bottom", "winner" ) ->
+                                                                    { game | bottom = Just (GameAssignment Winner g.id) }
 
-                                                                        _ ->
-                                                                            model.editingGame
+                                                                ( "bottom", "loser" ) ->
+                                                                    { game | bottom = Just (GameAssignment Loser g.id) }
 
-                                                                Nothing ->
-                                                                    model.editingGame
+                                                                _ ->
+                                                                    game
 
                                                         Nothing ->
-                                                            model.editingGame
+                                                            game
 
-                                                _ ->
-                                                    model.editingGame
+                                                Nothing ->
+                                                    game
 
-                                _ ->
-                                    model.editingGame
+                                        _ ->
+                                            game
 
-                        Nothing ->
-                            model.editingGame
+                        _ ->
+                            game
             in
             ( { model
-                | editingGame = updatedGame
+                | editingGame = Maybe.map updatedGame model.editingGame
+                , games =
+                    Maybe.map updatedGame model.editingGame
+                        |> Maybe.map (updatedGames model.games)
+                        |> Maybe.withDefault model.games
               }
             , Cmd.none
             )
 
-        SaveGame game ->
+        CloseEditGame ->
+            let
+                assignName game =
+                    case game.name of
+                        Nothing ->
+                            -- Check if we have 2 teams assigned and auto generate the name if we do
+                            case ( game.top, game.bottom ) of
+                                ( Just (TeamAssignment topId), Just (TeamAssignment bottomId) ) ->
+                                    let
+                                        team1Maybe =
+                                            List.Extra.find (\t -> t.id == topId) model.teams
+
+                                        team2Maybe =
+                                            List.Extra.find (\t -> t.id == bottomId) model.teams
+                                    in
+                                    case ( team1Maybe, team2Maybe ) of
+                                        ( Just team1, Just team2 ) ->
+                                            { game | name = Just (team1.name ++ " vs " ++ team2.name) }
+
+                                        _ ->
+                                            game
+
+                                _ ->
+                                    game
+
+                        _ ->
+                            game
+            in
             ( { model
                 | editingGame = Nothing
-                , games = updateGame model.games game
+                , games =
+                    model.editingGame
+                        |> Maybe.map assignName
+                        |> Maybe.map (updatedGames model.games)
+                        |> Maybe.withDefault model.games
               }
-            , Cmd.none
-            )
-
-        CancelEditGame ->
-            ( { model | editingGame = Nothing }
             , Cmd.none
             )
 
@@ -665,8 +771,8 @@ viewEditGame model game =
             let
                 isSelected =
                     case selectedGamePosition of
-                        Just (TeamAssignment t) ->
-                            t.id == team.id
+                        Just (TeamAssignment id) ->
+                            id == team.id
 
                         _ ->
                             False
@@ -679,66 +785,49 @@ viewEditGame model game =
                 |> List.map (teamOption selectedGamePosition)
                 |> (::) (option [] [])
 
-        gameOption : String -> Maybe Game -> Game -> Html Msg
-        gameOption fromType selectedGame forGame =
+        gameOption : String -> Maybe Int -> Game -> Html Msg
+        gameOption fromType selectedId forGame =
             let
                 isSelected : Bool
                 isSelected =
-                    let
-                        isSelectedInside : Game -> Bool
-                        isSelectedInside g =
-                            case g.id of
-                                Just id ->
-                                    Just id == forGame.id
-
-                                Nothing ->
-                                    game.tempId == forGame.tempId
-                    in
-                    case selectedGame of
-                        Just g ->
-                            isSelectedInside g
+                    case selectedId of
+                        Just id ->
+                            id == forGame.id
 
                         _ ->
                             False
-
-                forGameId : String
-                forGameId =
-                    case forGame.id of
-                        Just id ->
-                            String.fromInt id
-
-                        Nothing ->
-                            String.fromInt (Maybe.withDefault 0 forGame.tempId)
             in
-            option [ value (fromType ++ "_" ++ forGameId), selected isSelected ] [ text (String.Extra.toTitleCase fromType ++ " from " ++ forGame.name) ]
+            option [ value (fromType ++ "_" ++ String.fromInt forGame.id), selected isSelected ] [ text (String.Extra.toTitleCase fromType ++ ": " ++ Maybe.withDefault "TDB" forGame.name) ]
 
         winnerGameOptions : Maybe GamePosition -> List (Html Msg)
         winnerGameOptions selectedGamePosition =
             let
-                selectedGame =
+                selectedId =
                     case selectedGamePosition of
-                        Just (WinnerFrom g) ->
-                            Just g
+                        Just (GameAssignment Winner id) ->
+                            Just id
 
                         _ ->
                             Nothing
             in
-            unassignedWinners model.games (Just game)
-                |> List.map (gameOption "winner" selectedGame)
+            model.games
+                |> unassignedGames Winner (Just game.id) selectedId
+                |> List.map (gameOption "winner" selectedId)
 
         loserGameOptions : Maybe GamePosition -> List (Html Msg)
         loserGameOptions selectedGamePosition =
             let
-                selectedGame =
+                selectedId =
                     case selectedGamePosition of
-                        Just (LoserFrom g) ->
-                            Just g
+                        Just (GameAssignment Loser id) ->
+                            Just id
 
                         _ ->
                             Nothing
             in
-            unassignedLosers model.games (Just game)
-                |> List.map (gameOption "loser" selectedGame)
+            model.games
+                |> unassignedGames Loser (Just game.id) selectedId
+                |> List.map (gameOption "loser" selectedId)
     in
     div [ class "modal-content" ]
         [ div [ class "modal-header" ]
@@ -750,7 +839,7 @@ viewEditGame model game =
                 , input
                     [ class "form-control"
                     , id "editing-game-name"
-                    , value game.name
+                    , value (Maybe.withDefault "" game.name)
                     , onInput UpdateGameName
                     ]
                     []
@@ -777,9 +866,8 @@ viewEditGame model game =
                 ]
             ]
         , div [ class "modal-footer" ]
-            [ button [ onClick CancelEditGame, class "btn btn-secondary mr-2" ] [ text "Cancel" ]
-            , button [ onClick (RemoveGame game), class "btn btn-danger mr-2" ] [ text "Remove" ]
-            , button [ onClick (SaveGame game), class "btn btn-primary" ] [ text "Update" ]
+            [ button [ onClick (RemoveGame game), class "btn btn-danger mr-2" ] [ text "Remove" ]
+            , button [ onClick CloseEditGame, class "btn btn-primary mr-2" ] [ text "Done" ]
             ]
         ]
 
@@ -837,14 +925,29 @@ viewCell model fromCoords toCoords group row col =
 
         positionText position =
             case position of
-                Just (TeamAssignment team) ->
-                    team.name
+                Just (TeamAssignment id) ->
+                    case List.Extra.find (\t -> t.id == id) model.teams of
+                        Just team ->
+                            team.name
 
-                Just (WinnerFrom game) ->
-                    "Winner: " ++ game.name
+                        Nothing ->
+                            "TBD"
 
-                Just (LoserFrom game) ->
-                    "Loser: " ++ game.name
+                Just (GameAssignment Winner id) ->
+                    case List.Extra.find (\g -> g.id == id) model.games of
+                        Just game ->
+                            "Winner: " ++ Maybe.withDefault "TDB" game.name
+
+                        Nothing ->
+                            "TBD"
+
+                Just (GameAssignment Loser id) ->
+                    case List.Extra.find (\g -> g.id == id) model.games of
+                        Just game ->
+                            "Loser: " ++ Maybe.withDefault "TDB" game.name
+
+                        Nothing ->
+                            "TBD"
 
                 Nothing ->
                     "TBD"
@@ -865,7 +968,7 @@ viewCell model fromCoords toCoords group row col =
                     ([ class "game", onDoubleClick (EditGame game) ] ++ DragDrop.draggable DragDropMsg onCoords)
                     [ div
                         [ class "game-name" ]
-                        [ text game.name ]
+                        [ text (Maybe.withDefault "TDB" game.name) ]
                     , div
                         [ class "game-top" ]
                         [ text (positionText game.top) ]
