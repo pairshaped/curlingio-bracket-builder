@@ -67,9 +67,6 @@ type alias Team =
     }
 
 
-{-| TODO : I think we need to change this to be Team ID and Game ID assignments.
-After that complies, we should also try making Winner / Loser a param instead of their own types, like (GameAssignment (Winner Int)).
--}
 type GamePosition
     = TeamAssignment Int
     | GameAssignment GameResult Int
@@ -393,11 +390,11 @@ update msg model =
             )
 
         ToggleHelp ->
-            -- TODO: Toggle a help view
+            -- NOT DONE: Toggle a help view
             ( model, Cmd.none )
 
         AddCol ->
-            -- TODO: Add columns automatically when a game is dropped on the last column
+            -- NOT DONE: Add columns automatically when a game is dropped on the last column
             ( { model | cols = model.cols + 1 }
             , Cmd.none
             )
