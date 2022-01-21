@@ -730,9 +730,17 @@ viewModal model =
 
 viewEditGroup : Model -> Group -> Html Msg
 viewEditGroup model group =
+    let
+        hasNoGames : Bool
+        hasNoGames =
+            model.games
+                |> List.filter (\g -> g.coords.group == group.position)
+                |> List.isEmpty
+                |> not
+    in
     div [ class "modal-content" ]
         [ div [ class "modal-header" ]
-            [ h5 [ class "modal-title" ] [ text "Edit Game" ] ]
+            [ h5 [ class "modal-title" ] [ text "Edit Group" ] ]
         , div [ class "modal-body" ]
             [ div
                 [ class "form-group" ]
@@ -760,10 +768,9 @@ viewEditGroup model group =
                     []
                 ]
             ]
-        , div [ class "modal-footer" ]
-            [ button [ onClick CancelEditGroup, class "btn btn-secondary mr-2" ] [ text "Cancel" ]
-            , button [ onClick (RemoveGroup group), class "btn btn-danger mr-2" ] [ text "Remove" ]
-            , button [ onClick (SaveGroup group), class "btn btn-primary" ] [ text "Update" ]
+        , div [ class "modal-footer d-flex justify-content-between" ]
+            [ button [ onClick (RemoveGroup group), class "btn btn-danger mr-2", disabled hasNoGames ] [ text "Remove" ]
+            , button [ onClick (SaveGroup group), class "btn btn-primary" ] [ text "Done" ]
             ]
         ]
 
