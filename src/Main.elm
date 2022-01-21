@@ -107,7 +107,7 @@ initTeams =
 init : ( Model, Cmd Msg )
 init =
     ( { dragDrop = DragDrop.init
-      , groups = [ Group 0 "A Event" 16 True, Group 1 "B Event" 16 True ]
+      , groups = [ Group 0 "A Event" 16 True, Group 1 "B Event" 8 True ]
       , cols = 14
       , teams = initTeams
       , games =
@@ -134,27 +134,20 @@ init =
             , Game 15 (Just "Final") (Just (GameAssignment Winner 13)) (Just (GameAssignment Winner 14)) Nothing (Coords 0 7 6)
 
             -- Group B
-            , Game 16 Nothing Nothing Nothing Nothing (Coords 1 0 0)
-            , Game 17 Nothing Nothing Nothing Nothing (Coords 1 2 0)
-            , Game 18 Nothing Nothing Nothing Nothing (Coords 1 4 0)
-            , Game 19 Nothing Nothing Nothing Nothing (Coords 1 6 0)
+            , Game 16 (Just "B 1") (Just (GameAssignment Loser 1)) (Just (GameAssignment Loser 2)) Nothing (Coords 1 0 0)
+            , Game 17 (Just "B 2") (Just (GameAssignment Loser 3)) (Just (GameAssignment Loser 4)) Nothing (Coords 1 2 0)
+            , Game 18 (Just "B 3") (Just (GameAssignment Loser 5)) (Just (GameAssignment Loser 6)) Nothing (Coords 1 4 0)
+            , Game 19 (Just "B 4") (Just (GameAssignment Loser 7)) (Just (GameAssignment Loser 8)) Nothing (Coords 1 6 0)
 
             -- Group B Round 2
-            , Game 20 Nothing Nothing Nothing Nothing (Coords 1 1 2)
-            , Game 21 Nothing Nothing Nothing Nothing (Coords 1 5 2)
-            , Game 22 Nothing Nothing Nothing Nothing (Coords 1 1 10)
-            , Game 23 Nothing Nothing Nothing Nothing (Coords 1 5 10)
-            , Game 24 Nothing Nothing Nothing Nothing (Coords 1 0 12)
-            , Game 25 Nothing Nothing Nothing Nothing (Coords 1 2 12)
-            , Game 26 Nothing Nothing Nothing Nothing (Coords 1 4 12)
-            , Game 27 Nothing Nothing Nothing Nothing (Coords 1 6 12)
+            , Game 20 (Just "B Quaterfinal 1") Nothing Nothing Nothing (Coords 1 1 2)
+            , Game 21 (Just "B Quaterfinal 2") Nothing Nothing Nothing (Coords 1 5 2)
 
             -- Group B Semifinal
-            , Game 28 (Just "Semifinal") Nothing Nothing Nothing (Coords 1 3 4)
-            , Game 29 (Just "Semifinal") Nothing Nothing Nothing (Coords 1 3 8)
+            , Game 22 (Just "B Semifinal") Nothing Nothing Nothing (Coords 1 3 4)
 
             -- Group B Final
-            , Game 30 (Just "Final") Nothing Nothing Nothing (Coords 1 3 6)
+            , Game 23 (Just "B Final") Nothing Nothing Nothing (Coords 1 3 6)
             ]
       , editingGame = Nothing
       , editingGroup = Nothing
@@ -323,6 +316,9 @@ unassignedGames gameResult excludeGameId includeGameId games =
 
                     Loser ->
                         case ( gameWithAssignment.top, gameWithAssignment.bottom ) of
+                            ( Just (GameAssignment Loser topId), Just (GameAssignment Loser bottomId) ) ->
+                                topId == game.id || bottomId == game.id
+
                             ( Just (GameAssignment Loser id), _ ) ->
                                 id == game.id
 
@@ -806,7 +802,7 @@ viewEditGame model game =
                         _ ->
                             False
             in
-            option [ value (fromType ++ "_" ++ String.fromInt forGame.id), selected isSelected ] [ text (String.Extra.toTitleCase fromType ++ ": " ++ Maybe.withDefault "TDB" forGame.name) ]
+            option [ value (fromType ++ "_" ++ String.fromInt forGame.id), selected isSelected ] [ text (String.Extra.toTitleCase fromType ++ " of " ++ Maybe.withDefault "TDB" forGame.name) ]
 
         winnerGameOptions : Maybe GamePosition -> List (Html Msg)
         winnerGameOptions selectedGamePosition =
@@ -891,20 +887,17 @@ viewGroup model fromCoords toCoords group =
     div
         [ class "group" ]
         [ div
-            [ class "group-name btn btn-default"
-            , onDoubleClick (EditGroup group)
-            , onClick (ToggleGroup group)
-            ]
-            [ text
-                ("☷ "
-                    ++ group.name
-                    ++ (if group.visible then
-                            ""
-
-                        else
-                            " (Click to show)"
-                       )
-                )
+            [ class "d-flex" ]
+            [ div
+                [ class "group-name btn btn-default"
+                , onClick (ToggleGroup group)
+                ]
+                [ text ("☷ " ++ group.name) ]
+            , div
+                [ class "btn btn-default px-0"
+                , onClick (EditGroup group)
+                ]
+                [ text "✎" ]
             ]
         , if group.visible then
             table
@@ -961,7 +954,7 @@ viewCell model fromCoords toCoords group row col =
                 Just (GameAssignment Winner id) ->
                     case List.Extra.find (\g -> g.id == id) model.games of
                         Just game ->
-                            "Winner: " ++ Maybe.withDefault "TDB" game.name
+                            "W: " ++ Maybe.withDefault "TDB" game.name
 
                         Nothing ->
                             "TBD"
@@ -969,7 +962,7 @@ viewCell model fromCoords toCoords group row col =
                 Just (GameAssignment Loser id) ->
                     case List.Extra.find (\g -> g.id == id) model.games of
                         Just game ->
-                            "Loser: " ++ Maybe.withDefault "TDB" game.name
+                            "L: " ++ Maybe.withDefault "TDB" game.name
 
                         Nothing ->
                             "TBD"
@@ -1000,7 +993,7 @@ viewCell model fromCoords toCoords group row col =
                             [ class "game-delete align-self-end"
                             , onClick (RemoveGame game)
                             ]
-                            [ text "x" ]
+                            [ text "✘" ]
                         ]
                     , div
                         [ class "game-top" ]
