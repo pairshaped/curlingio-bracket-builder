@@ -140,14 +140,11 @@ init =
             , Game 19 (Just "B 4") (Just (GameAssignment Loser 7)) (Just (GameAssignment Loser 8)) Nothing (Coords 1 6 0)
 
             -- Group B Round 2
-            , Game 20 (Just "B Quaterfinal 1") Nothing Nothing Nothing (Coords 1 1 2)
-            , Game 21 (Just "B Quaterfinal 2") Nothing Nothing Nothing (Coords 1 5 2)
+            , Game 20 (Just "B Semifinal 1") (Just (GameAssignment Winner 16)) (Just (GameAssignment Winner 17)) Nothing (Coords 1 1 2)
+            , Game 21 (Just "B Semifinal 2") (Just (GameAssignment Winner 18)) (Just (GameAssignment Winner 19)) Nothing (Coords 1 5 2)
 
             -- Group B Semifinal
-            , Game 22 (Just "B Semifinal") Nothing Nothing Nothing (Coords 1 3 4)
-
-            -- Group B Final
-            , Game 23 (Just "B Final") Nothing Nothing Nothing (Coords 1 3 6)
+            , Game 22 (Just "B Final") (Just (GameAssignment Winner 20)) (Just (GameAssignment Winner 21)) Nothing (Coords 1 3 4)
             ]
       , editingGame = Nothing
       , editingGroup = Nothing
@@ -283,6 +280,21 @@ assignGameNamesWhenPossible teams games =
     List.map assignName games
 
 
+trimMaybe : Maybe String -> Maybe String
+trimMaybe str =
+    case str of
+        Just s ->
+            case String.trim s of
+                "" ->
+                    Nothing
+
+                s_ ->
+                    Just s_
+
+        Nothing ->
+            Nothing
+
+
 {-| Return a list of games who's winner or loser hasn't been assigned to another game yet.
 We can pass in a game that should be excluded from the matching check, like the game we are currently editing, so that winner from that game is excluded.
 We can also pass in a game assignment that should be included, regardless of whether or not it's been assigned. For example, the current selected assignment in the dropdown.
@@ -351,8 +363,7 @@ type Msg
     | ToggleGroup Group
     | UpdateGroupName String
     | UpdateGroupRows String
-    | CancelEditGroup
-    | SaveGroup Group
+    | CloseEditGroup
     | RemoveGroup Group
     | AddGame Coords
     | RemoveGame Game
@@ -408,7 +419,7 @@ update msg model =
                     List.length model.groups
             in
             ( { model
-                | groups = model.groups ++ [ Group nextGroupId ("Group " ++ String.fromInt (nextGroupId + 1)) 16 True ]
+                | groups = model.groups ++ [ Group nextGroupId ("Group " ++ String.fromInt (nextGroupId + 1)) 8 True ]
               }
             , Cmd.none
             )
@@ -430,50 +441,43 @@ update msg model =
 
         UpdateGroupName name ->
             let
-                updatedGroup =
-                    case model.editingGroup of
-                        Just group ->
-                            Just { group | name = name }
-
-                        Nothing ->
-                            model.editingGroup
+                updatedGroup : Group -> Group
+                updatedGroup group =
+                    { group | name = name }
             in
             ( { model
-                | editingGroup = updatedGroup
+                | editingGroup = Maybe.map updatedGroup model.editingGroup
               }
             , Cmd.none
             )
 
         UpdateGroupRows rows ->
             let
-                updatedGroup =
-                    case model.editingGroup of
-                        Just group ->
-                            case String.toInt rows of
-                                Just i ->
-                                    Just { group | rows = i }
-
-                                Nothing ->
-                                    model.editingGroup
+                updatedGroup : Group -> Group
+                updatedGroup group =
+                    case String.toInt rows of
+                        Just i ->
+                            { group | rows = i }
 
                         Nothing ->
-                            model.editingGroup
+                            group
             in
             ( { model
-                | editingGroup = updatedGroup
+                | editingGroup = Maybe.map updatedGroup model.editingGroup
+                , groups =
+                    Maybe.map updatedGroup model.editingGroup
+                        |> Maybe.map (updatedGroups model.groups)
+                        |> Maybe.withDefault model.groups
               }
             , Cmd.none
             )
 
-        CancelEditGroup ->
-            ( { model | editingGroup = Nothing }
-            , Cmd.none
-            )
-
-        SaveGroup group ->
+        CloseEditGroup ->
             ( { model
                 | editingGroup = Nothing
-                , groups = updatedGroups model.groups group
+                , groups =
+                    Maybe.map (updatedGroups model.groups) model.editingGroup
+                        |> Maybe.withDefault model.groups
               }
             , Cmd.none
             )
@@ -507,6 +511,7 @@ update msg model =
 
         UpdateGameName name ->
             let
+                maybeName : Maybe String
                 maybeName =
                     case name of
                         "" ->
@@ -515,6 +520,7 @@ update msg model =
                         _ ->
                             Just name
 
+                updatedGame : Game -> Game
                 updatedGame game =
                     { game | name = maybeName }
             in
@@ -624,7 +630,7 @@ update msg model =
         CloseEditGame ->
             let
                 assignName game =
-                    case game.name of
+                    case trimMaybe game.name of
                         Nothing ->
                             -- Check if we have 2 teams assigned and auto generate the name if we do
                             case ( game.top, game.bottom ) of
@@ -641,10 +647,10 @@ update msg model =
                                             { game | name = Just (team1.name ++ " vs " ++ team2.name) }
 
                                         _ ->
-                                            game
+                                            { game | name = Nothing }
 
                                 _ ->
-                                    game
+                                    { game | name = Nothing }
 
                         _ ->
                             game
@@ -737,6 +743,10 @@ viewEditGroup model group =
                 |> List.filter (\g -> g.coords.group == group.position)
                 |> List.isEmpty
                 |> not
+
+        hasNoName : Bool
+        hasNoName =
+            String.trim group.name == ""
     in
     div [ class "modal-content" ]
         [ div [ class "modal-header" ]
@@ -770,7 +780,7 @@ viewEditGroup model group =
             ]
         , div [ class "modal-footer d-flex justify-content-between" ]
             [ button [ onClick (RemoveGroup group), class "btn btn-danger mr-2", disabled hasNoGames ] [ text "Remove" ]
-            , button [ onClick (SaveGroup group), class "btn btn-primary" ] [ text "Done" ]
+            , button [ onClick CloseEditGroup, class "btn btn-primary", disabled hasNoName ] [ text "Done" ]
             ]
         ]
 
