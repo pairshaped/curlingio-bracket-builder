@@ -403,8 +403,17 @@ update msg model =
             )
 
         ToggleHelp ->
-            -- NOT DONE: Toggle a help view
-            ( model, Cmd.none )
+            ( { model
+                | overlay =
+                    case model.overlay of
+                        Just ViewingHelp ->
+                            Nothing
+
+                        _ ->
+                            Just ViewingHelp
+              }
+            , Cmd.none
+            )
 
         AddCol ->
             -- NOT DONE: Add columns automatically when a game is dropped on the last column
@@ -689,7 +698,7 @@ view model =
     div [ classList [ ( "modal-open", modalOpen ) ] ]
         [ div [ class "p-3" ]
             [ div [ class "d-flex justify-content-between" ]
-                [ p [ class "alert alert-info" ] [ text "Drag and drop games anywhere you like. Double click anywhere to add a new game. Double click a game to change or remove it. Double click a group name to change or remove it." ]
+                [ h2 [] [ text "Curling I/O Bracket Builder Demo" ]
                 , div [ style "min-width" "100px", class "text-right" ]
                     [ button [ class "btn btn-info btn-sm", onClick ToggleHelp ]
                         [ text "Help" ]
@@ -698,7 +707,7 @@ view model =
             , viewGroups model fromCoords toCoords
             , button [ class "btn btn-primary", onClick AddGroup ] [ text "Add Group" ]
             , if modalOpen then
-                viewModal model
+                viewOverlay model
 
               else
                 text ""
@@ -707,19 +716,51 @@ view model =
         ]
 
 
-viewModal : Model -> Html Msg
-viewModal model =
+viewOverlay : Model -> Html Msg
+viewOverlay model =
     div [ class "modal", style "display" "block" ]
         [ div [ class "modal-dialog" ]
             [ case model.overlay of
+                Just ViewingHelp ->
+                    viewHelp
+
                 Just (EditingGame game) ->
                     viewEditGame model game
 
                 Just (EditingGroup group) ->
                     viewEditGroup model group
 
-                _ ->
+                Nothing ->
                     text ""
+            ]
+        ]
+
+
+viewHelp : Html Msg
+viewHelp =
+    div [ class "modal-content" ]
+        [ div [ class "modal-header" ]
+            [ h2 [ class "modal-title" ] [ text "Help" ] ]
+        , div [ class "modal-body" ]
+            [ h3 [] [ text "Games" ]
+            , ul []
+                [ li [] [ text "Drag and drop games anywhere you like." ]
+                , li [] [ text "Double click an empty area in a group to add a new game." ]
+                , li [] [ text "Double click on a game to edit it." ]
+                , li [] [ text "Click the ✘ in the top right corner of a game to remove it." ]
+                ]
+            , h3 [] [ text "Groups" ]
+            , ul []
+                [ li [] [ text "Click on a group name to temporarily hide it so you can better see other groups." ]
+                , li [] [ text "Click the ✎ icon next to a group name to edit its name and number of rows (height)." ]
+                ]
+            , h3 [] [ text "Saving" ]
+            , ul []
+                [ li [] [ text "Saving changes is currently disabled for this demo. Nothing you do will be saved / persisted when you reload the page." ]
+                ]
+            ]
+        , div [ class "modal-footer" ]
+            [ button [ class "btn btn-primary", onClick ToggleHelp ] [ text "Close" ]
             ]
         ]
 
