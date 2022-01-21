@@ -130,7 +130,7 @@ init =
             , Game 14 (Just "Semifinal 2") (Just (GameAssignment Winner 11)) (Just (GameAssignment Winner 12)) Nothing (Coords 0 11 4)
 
             -- Group A Final
-            , Game 15 (Just "Final") Nothing Nothing Nothing (Coords 0 7 6)
+            , Game 15 (Just "Final") (Just (GameAssignment Winner 13)) (Just (GameAssignment Winner 14)) Nothing (Coords 0 7 6)
 
             -- Group B
             , Game 16 Nothing Nothing Nothing Nothing (Coords 1 0 0)
@@ -863,8 +863,7 @@ viewEditGame model game =
                 ]
             ]
         , div [ class "modal-footer" ]
-            [ button [ onClick (RemoveGame game), class "btn btn-danger mr-2" ] [ text "Remove" ]
-            , button [ onClick CloseEditGame, class "btn btn-primary mr-2" ] [ text "Done" ]
+            [ button [ onClick CloseEditGame, class "btn btn-primary mr-2" ] [ text "Done" ]
             ]
         ]
 
@@ -964,8 +963,16 @@ viewCell model fromCoords toCoords group row col =
                 [ div
                     ([ class "game", onDoubleClick (EditGame game) ] ++ DragDrop.draggable DragDropMsg onCoords)
                     [ div
-                        [ class "game-name" ]
-                        [ text (Maybe.withDefault "TDB" game.name) ]
+                        [ class "d-flex game-header" ]
+                        [ div
+                            [ class "game-name flex-fill" ]
+                            [ text (Maybe.withDefault "TDB" game.name) ]
+                        , div
+                            [ class "game-delete align-self-end"
+                            , onClick (RemoveGame game)
+                            ]
+                            [ text "x" ]
+                        ]
                     , div
                         [ class "game-top" ]
                         [ text (positionText game.top) ]
