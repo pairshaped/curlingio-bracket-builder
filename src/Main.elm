@@ -48,6 +48,7 @@ type alias Group =
     { position : Int
     , name : String
     , rows : Int
+    , visible : Bool
     }
 
 
@@ -106,7 +107,7 @@ initTeams =
 init : ( Model, Cmd Msg )
 init =
     ( { dragDrop = DragDrop.init
-      , groups = [ Group 0 "A Event" 16, Group 1 "B Event" 16 ]
+      , groups = [ Group 0 "A Event" 16 True, Group 1 "B Event" 16 True ]
       , cols = 14
       , teams = initTeams
       , games =
@@ -351,6 +352,7 @@ type Msg
     | RemoveCol
     | AddGroup
     | EditGroup Group
+    | ToggleGroup Group
     | UpdateGroupName String
     | UpdateGroupRows String
     | CancelEditGroup
@@ -410,13 +412,23 @@ update msg model =
                     List.length model.groups
             in
             ( { model
-                | groups = model.groups ++ [ Group nextGroupId ("Group " ++ String.fromInt (nextGroupId + 1)) 16 ]
+                | groups = model.groups ++ [ Group nextGroupId ("Group " ++ String.fromInt (nextGroupId + 1)) 16 True ]
               }
             , Cmd.none
             )
 
         EditGroup group ->
             ( { model | editingGroup = Just group }
+            , Cmd.none
+            )
+
+        ToggleGroup group ->
+            let
+                updatedGroup : Group
+                updatedGroup =
+                    { group | visible = not group.visible }
+            in
+            ( { model | groups = updatedGroups model.groups updatedGroup }
             , Cmd.none
             )
 
@@ -879,11 +891,28 @@ viewGroup model fromCoords toCoords group =
     div
         [ class "group" ]
         [ div
-            [ class "group-name btn btn-default", onDoubleClick (EditGroup group) ]
-            [ text ("☷ " ++ group.name) ]
-        , table
-            []
-            (List.map (viewRow model fromCoords toCoords group) (List.range 0 (group.rows - 1)))
+            [ class "group-name btn btn-default"
+            , onDoubleClick (EditGroup group)
+            , onClick (ToggleGroup group)
+            ]
+            [ text
+                ("☷ "
+                    ++ group.name
+                    ++ (if group.visible then
+                            ""
+
+                        else
+                            " (Click to show)"
+                       )
+                )
+            ]
+        , if group.visible then
+            table
+                []
+                (List.map (viewRow model fromCoords toCoords group) (List.range 0 (group.rows - 1)))
+
+          else
+            div [ class "text-muted group-hide" ] [ text "..." ]
         ]
 
 
