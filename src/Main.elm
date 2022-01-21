@@ -31,10 +31,15 @@ type alias Model =
     , cols : Int
     , teams : List Team
     , games : List Game
-    , editingGame : Maybe Game
-    , editingGroup : Maybe Group
+    , overlay : Maybe Overlay
     , newGameCount : Int
     }
+
+
+type Overlay
+    = EditingGame Game
+    | EditingGroup Group
+    | ViewingHelp
 
 
 type alias Coords =
@@ -146,8 +151,7 @@ init =
             -- Group B Semifinal
             , Game 22 (Just "B Final") (Just (GameAssignment Winner 20)) (Just (GameAssignment Winner 21)) Nothing (Coords 1 3 4)
             ]
-      , editingGame = Nothing
-      , editingGroup = Nothing
+      , overlay = Nothing
       , newGameCount = -1
       }
     , Cmd.none
@@ -361,16 +365,16 @@ type Msg
     | AddGroup
     | EditGroup Group
     | ToggleGroup Group
-    | UpdateGroupName String
-    | UpdateGroupRows String
-    | CloseEditGroup
+    | UpdateGroupName Group String
+    | UpdateGroupRows Group String
+    | CloseEditGroup Group
     | RemoveGroup Group
     | AddGame Coords
     | RemoveGame Game
     | EditGame Game
-    | UpdateGameName String
-    | UpdateGamePosition String String
-    | CloseEditGame
+    | UpdateGameName Game String
+    | UpdateGamePosition Game String String
+    | CloseEditGame Game
     | Save
     | Revert
 
@@ -425,7 +429,7 @@ update msg model =
             )
 
         EditGroup group ->
-            ( { model | editingGroup = Just group }
+            ( { model | overlay = Just (EditingGroup group) }
             , Cmd.none
             )
 
@@ -439,22 +443,20 @@ update msg model =
             , Cmd.none
             )
 
-        UpdateGroupName name ->
+        UpdateGroupName group name ->
             let
-                updatedGroup : Group -> Group
-                updatedGroup group =
+                updatedGroup : Group
+                updatedGroup =
                     { group | name = name }
             in
-            ( { model
-                | editingGroup = Maybe.map updatedGroup model.editingGroup
-              }
+            ( { model | overlay = Just (EditingGroup updatedGroup) }
             , Cmd.none
             )
 
-        UpdateGroupRows rows ->
+        UpdateGroupRows group rows ->
             let
-                updatedGroup : Group -> Group
-                updatedGroup group =
+                updatedGroup : Group
+                updatedGroup =
                     case String.toInt rows of
                         Just i ->
                             { group | rows = i }
@@ -463,28 +465,24 @@ update msg model =
                             group
             in
             ( { model
-                | editingGroup = Maybe.map updatedGroup model.editingGroup
+                | overlay = Just (EditingGroup updatedGroup)
                 , groups =
-                    Maybe.map updatedGroup model.editingGroup
-                        |> Maybe.map (updatedGroups model.groups)
-                        |> Maybe.withDefault model.groups
+                    updatedGroups model.groups updatedGroup
               }
             , Cmd.none
             )
 
-        CloseEditGroup ->
+        CloseEditGroup group ->
             ( { model
-                | editingGroup = Nothing
-                , groups =
-                    Maybe.map (updatedGroups model.groups) model.editingGroup
-                        |> Maybe.withDefault model.groups
+                | overlay = Nothing
+                , groups = updatedGroups model.groups group
               }
             , Cmd.none
             )
 
         RemoveGroup group ->
             ( { model
-                | editingGroup = Nothing
+                | overlay = Nothing
                 , groups = List.Extra.remove group model.groups
               }
             , Cmd.none
@@ -500,16 +498,16 @@ update msg model =
 
         RemoveGame game ->
             ( { model
-                | editingGame = Nothing
+                | overlay = Nothing
                 , games = List.Extra.remove game model.games
               }
             , Cmd.none
             )
 
         EditGame game ->
-            ( { model | editingGame = Just game }, Cmd.none )
+            ( { model | overlay = Just (EditingGame game) }, Cmd.none )
 
-        UpdateGameName name ->
+        UpdateGameName game name ->
             let
                 maybeName : Maybe String
                 maybeName =
@@ -520,20 +518,20 @@ update msg model =
                         _ ->
                             Just name
 
-                updatedGame : Game -> Game
-                updatedGame game =
+                updatedGame : Game
+                updatedGame =
                     { game | name = maybeName }
             in
             ( { model
-                | editingGame = Maybe.map updatedGame model.editingGame
+                | overlay = Just (EditingGame updatedGame)
               }
             , Cmd.none
             )
 
-        UpdateGamePosition position assignment ->
+        UpdateGamePosition game position assignment ->
             let
-                updatedGame : Game -> Game
-                updatedGame game =
+                updatedGame : Game
+                updatedGame =
                     let
                         parsedAssignment =
                             String.split "_" assignment
@@ -618,21 +616,19 @@ update msg model =
                             game
             in
             ( { model
-                | editingGame = Maybe.map updatedGame model.editingGame
-                , games =
-                    Maybe.map updatedGame model.editingGame
-                        |> Maybe.map (updatedGames model.games)
-                        |> Maybe.withDefault model.games
+                | overlay = Just (EditingGame updatedGame)
+                , games = updatedGames model.games updatedGame
               }
             , Cmd.none
             )
 
-        CloseEditGame ->
+        CloseEditGame game ->
             let
-                assignName game =
+                -- Assign a name based on teams, if we have teams but no user specified name.
+                updatedGame : Game
+                updatedGame =
                     case trimMaybe game.name of
                         Nothing ->
-                            -- Check if we have 2 teams assigned and auto generate the name if we do
                             case ( game.top, game.bottom ) of
                                 ( Just (TeamAssignment topId), Just (TeamAssignment bottomId) ) ->
                                     let
@@ -656,12 +652,8 @@ update msg model =
                             game
             in
             ( { model
-                | editingGame = Nothing
-                , games =
-                    model.editingGame
-                        |> Maybe.map assignName
-                        |> Maybe.map (updatedGames model.games)
-                        |> Maybe.withDefault model.games
+                | overlay = Nothing
+                , games = updatedGames model.games updatedGame
               }
             , Cmd.none
             )
@@ -692,7 +684,7 @@ view model =
             DragDrop.getDroppablePosition model.dragDrop
 
         modalOpen =
-            model.editingGroup /= Nothing || model.editingGame /= Nothing
+            model.overlay /= Nothing
     in
     div [ classList [ ( "modal-open", modalOpen ) ] ]
         [ div [ class "p-3" ]
@@ -719,17 +711,15 @@ viewModal : Model -> Html Msg
 viewModal model =
     div [ class "modal", style "display" "block" ]
         [ div [ class "modal-dialog" ]
-            [ case model.editingGame of
-                Just game ->
+            [ case model.overlay of
+                Just (EditingGame game) ->
                     viewEditGame model game
 
-                Nothing ->
-                    case model.editingGroup of
-                        Just group ->
-                            viewEditGroup model group
+                Just (EditingGroup group) ->
+                    viewEditGroup model group
 
-                        Nothing ->
-                            text ""
+                _ ->
+                    text ""
             ]
         ]
 
@@ -759,7 +749,7 @@ viewEditGroup model group =
                     [ class "form-control"
                     , id "editing-group-name"
                     , value group.name
-                    , onInput UpdateGroupName
+                    , onInput (UpdateGroupName group)
                     ]
                     []
                 ]
@@ -773,14 +763,14 @@ viewEditGroup model group =
                     , Html.Attributes.min (String.fromInt (minRowsForGroup group model.games))
                     , Html.Attributes.max "60"
                     , value (String.fromInt group.rows)
-                    , onInput UpdateGroupRows
+                    , onInput (UpdateGroupRows group)
                     ]
                     []
                 ]
             ]
         , div [ class "modal-footer d-flex justify-content-between" ]
             [ button [ onClick (RemoveGroup group), class "btn btn-danger mr-2", disabled hasNoGames ] [ text "Remove" ]
-            , button [ onClick CloseEditGroup, class "btn btn-primary", disabled hasNoName ] [ text "Done" ]
+            , button [ onClick (CloseEditGroup group), class "btn btn-primary", disabled hasNoName ] [ text "Close" ]
             ]
         ]
 
@@ -862,7 +852,7 @@ viewEditGame model game =
                     [ class "form-control"
                     , id "editing-game-name"
                     , value (Maybe.withDefault "" game.name)
-                    , onInput UpdateGameName
+                    , onInput (UpdateGameName game)
                     ]
                     []
                 ]
@@ -872,7 +862,7 @@ viewEditGame model game =
                 , select
                     [ class "form-control"
                     , id "editing-game-top"
-                    , onInput (UpdateGamePosition "top")
+                    , onInput (UpdateGamePosition game "top")
                     ]
                     (teamOptions game.top ++ winnerGameOptions game.top ++ loserGameOptions game.top)
                 ]
@@ -882,13 +872,13 @@ viewEditGame model game =
                 , select
                     [ class "form-control"
                     , id "editing-game-bottom"
-                    , onInput (UpdateGamePosition "bottom")
+                    , onInput (UpdateGamePosition game "bottom")
                     ]
                     (teamOptions game.bottom ++ winnerGameOptions game.bottom ++ loserGameOptions game.bottom)
                 ]
             ]
         , div [ class "modal-footer" ]
-            [ button [ onClick CloseEditGame, class "btn btn-primary mr-2" ] [ text "Done" ]
+            [ button [ onClick (CloseEditGame game), class "btn btn-primary mr-2" ] [ text "Close" ]
             ]
         ]
 
