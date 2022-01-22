@@ -113,7 +113,7 @@ init : ( Model, Cmd Msg )
 init =
     ( { dragDrop = DragDrop.init
       , groups = [ Group 0 "A Event" 16 True, Group 1 "B Event" 8 True ]
-      , cols = 14
+      , cols = 10
       , teams = initTeams
       , games =
             [ Game 1 (Just "1 vs 2") (Just (TeamAssignment 1)) (Just (TeamAssignment 2)) Nothing (Coords 0 0 0)
@@ -197,6 +197,16 @@ addGame id games coords =
 
         _ ->
             games
+
+
+{-| Find the minimum required rows for a group based on the placement of games within it, making sure there are enough rows for all of a groups games to be shown.
+-}
+minCols : List Game -> Int
+minCols games =
+    games
+        |> List.map (\g -> g.coords.col + 2)
+        |> List.maximum
+        |> Maybe.withDefault 10
 
 
 {-| Find the minimum required rows for a group based on the placement of games within it, making sure there are enough rows for all of a groups games to be shown.
@@ -414,6 +424,16 @@ update msg model =
                                         |> List.map updatedRows
                             in
                             updatedRowsForGroups model.groups (moveGame model.games fromCoords toCoords)
+                , cols =
+                    case result of
+                        Nothing ->
+                            model.cols
+
+                        Just ( fromCoords, toCoords, { x, y } ) ->
+                            moveGame model.games fromCoords toCoords
+                                |> minCols
+                                |> Basics.max 10
+                                |> (+) 1
               }
             , DragDrop.getDragstartEvent msg_
                 |> Maybe.map (.event >> dragstart)
