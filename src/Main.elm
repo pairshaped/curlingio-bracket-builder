@@ -396,6 +396,24 @@ update msg model =
 
                         Just ( fromCoords, toCoords, { x, y } ) ->
                             moveGame model.games fromCoords toCoords
+                , groups =
+                    case result of
+                        Nothing ->
+                            model.groups
+
+                        Just ( fromCoords, toCoords, { x, y } ) ->
+                            let
+                                updatedRowsForGroups : List Group -> List Game -> List Group
+                                updatedRowsForGroups groups games =
+                                    let
+                                        updatedRows : Group -> Group
+                                        updatedRows group =
+                                            { group | rows = Basics.max group.rows (minRowsForGroup group games) }
+                                    in
+                                    groups
+                                        |> List.map updatedRows
+                            in
+                            updatedRowsForGroups model.groups (moveGame model.games fromCoords toCoords)
               }
             , DragDrop.getDragstartEvent msg_
                 |> Maybe.map (.event >> dragstart)
