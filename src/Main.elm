@@ -376,7 +376,6 @@ type Msg
     | EditGroup Group
     | ToggleGroup Group
     | UpdateGroupName Group String
-    | UpdateGroupRows Group String
     | CloseEditGroup Group
     | RemoveGroup Group
     | AddGame Coords
@@ -418,7 +417,7 @@ update msg model =
                                     let
                                         updatedRows : Group -> Group
                                         updatedRows group =
-                                            { group | rows = Basics.max group.rows (minRowsForGroup group games + 1) }
+                                            { group | rows = Basics.max 10 (minRowsForGroup group games + 1) }
                                     in
                                     groups
                                         |> List.map updatedRows
@@ -497,25 +496,6 @@ update msg model =
                     { group | name = name }
             in
             ( { model | overlay = Just (EditingGroup updatedGroup) }
-            , Cmd.none
-            )
-
-        UpdateGroupRows group rows ->
-            let
-                updatedGroup : Group
-                updatedGroup =
-                    case String.toInt rows of
-                        Just i ->
-                            { group | rows = i }
-
-                        Nothing ->
-                            group
-            in
-            ( { model
-                | overlay = Just (EditingGroup updatedGroup)
-                , groups =
-                    updatedGroups model.groups updatedGroup
-              }
             , Cmd.none
             )
 
@@ -786,11 +766,12 @@ viewHelp =
                 , li [] [ text "Double click an empty area in a group to add a new game." ]
                 , li [] [ text "Double click on a game to edit it." ]
                 , li [] [ text "Click the ✘ in the top right corner of a game to remove it." ]
+                , li [] [ text "The grid will automatically grow or shrink as you move games near it's edges." ]
                 ]
             , h3 [] [ text "Groups" ]
             , ul []
                 [ li [] [ text "Click on a group name to temporarily hide it so you can better see other groups." ]
-                , li [] [ text "Click the ✎ icon next to a group name to edit its name and number of rows (height)." ]
+                , li [] [ text "Click the ✎ icon next to a group name to edit its name." ]
                 ]
             , h3 [] [ text "Saving" ]
             , ul []
@@ -829,20 +810,6 @@ viewEditGroup model group =
                     , id "editing-group-name"
                     , value group.name
                     , onInput (UpdateGroupName group)
-                    ]
-                    []
-                ]
-            , div
-                [ class "form-group" ]
-                [ label [ for "editing-group-rows" ] [ text ("Group Rows: " ++ String.fromInt group.rows) ]
-                , input
-                    [ class "form-control"
-                    , id "editing-group-rows"
-                    , type_ "range"
-                    , Html.Attributes.min (String.fromInt (minRowsForGroup group model.games))
-                    , Html.Attributes.max "60"
-                    , value (String.fromInt group.rows)
-                    , onInput (UpdateGroupRows group)
                     ]
                     []
                 ]
