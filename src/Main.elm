@@ -408,7 +408,7 @@ update msg model =
                                     let
                                         updatedRows : Group -> Group
                                         updatedRows group =
-                                            { group | rows = Basics.max group.rows (minRowsForGroup group games) }
+                                            { group | rows = Basics.max group.rows (minRowsForGroup group games + 1) }
                                     in
                                     groups
                                         |> List.map updatedRows
