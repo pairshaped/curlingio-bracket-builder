@@ -26,7 +26,7 @@ port dragstart : Value -> Cmd msg
 
 
 type alias Model =
-    { dragDrop : DragDrop.Model Coords Coords
+    { dragDrop : DragDrop.Model DraggableId DroppableId
     , groups : List Group
     , cols : Int
     , teams : List Team
@@ -40,6 +40,16 @@ type Overlay
     = EditingGame Game
     | EditingGroup Group
     | ViewingHelp
+
+
+type DraggableId
+    = DraggableGame Coords
+    | DraggableResult Coords
+
+
+type DroppableId
+    = DroppableCell Coords
+    | DroppableGamePosition Coords
 
 
 type alias Coords =
@@ -60,9 +70,8 @@ type alias Group =
 type alias Game =
     { id : Int
     , name : Maybe String
-    , top : Maybe GamePosition
-    , bottom : Maybe GamePosition
-    , gameWinner : Maybe GameWinner
+    , gamePositions : List GamePosition
+    , gameWinner : Maybe Position
     , coords : Coords
     }
 
@@ -73,9 +82,15 @@ type alias Team =
     }
 
 
-type GamePosition
-    = TeamAssignment Int
-    | GameAssignment GameResult Int
+type alias GamePosition =
+    { position : Position
+    , firstHammer : Bool
+    , assignment : Maybe Assignment
+    }
+
+
+type Position
+    = Int
 
 
 type GameResult
@@ -83,9 +98,9 @@ type GameResult
     | Loser
 
 
-type GameWinner
-    = Top
-    | Bottom
+type Assignment
+    = TeamAssignment Int
+    | GameAssignment GameResult Int
 
 
 initTeams : List Team
@@ -116,40 +131,172 @@ init =
       , cols = 10
       , teams = initTeams
       , games =
-            [ Game 1 (Just "1 vs 2") (Just (TeamAssignment 1)) (Just (TeamAssignment 2)) Nothing (Coords 0 0 0)
-            , Game 2 (Just "3 vs 4") (Just (TeamAssignment 3)) (Just (TeamAssignment 4)) Nothing (Coords 0 2 0)
-            , Game 3 (Just "5 vs 6") (Just (TeamAssignment 5)) (Just (TeamAssignment 6)) Nothing (Coords 0 4 0)
-            , Game 4 (Just "7 vs 8") (Just (TeamAssignment 7)) (Just (TeamAssignment 8)) Nothing (Coords 0 6 0)
-            , Game 5 (Just "9 vs 10") (Just (TeamAssignment 9)) (Just (TeamAssignment 10)) Nothing (Coords 0 8 0)
-            , Game 6 (Just "11 vs 12") (Just (TeamAssignment 11)) (Just (TeamAssignment 12)) Nothing (Coords 0 10 0)
-            , Game 7 (Just "13 vs 14") (Just (TeamAssignment 13)) (Just (TeamAssignment 14)) Nothing (Coords 0 12 0)
-            , Game 8 (Just "15 vs 16") (Just (TeamAssignment 15)) (Just (TeamAssignment 16)) Nothing (Coords 0 14 0)
+            [ Game 1
+                (Just "1 vs 2")
+                [ GamePosition 0 False (Just (TeamAssignment 1))
+                , GamePosition 1 True (Just (TeamAssignment 2))
+                ]
+                Nothing
+                (Coords 0 0 0)
+            , Game 2
+                (Just "3 vs 4")
+                [ GamePosition 0 False (Just (TeamAssignment 3))
+                , GamePosition 1 True (Just (TeamAssignment 4))
+                ]
+                Nothing
+                (Coords 0 2 0)
+            , Game 3
+                (Just "5 vs 6")
+                [ GamePosition 0 False (Just (TeamAssignment 5))
+                , GamePosition 1 True (Just (TeamAssignment 6))
+                ]
+                Nothing
+                (Coords 0 4 0)
+            , Game 4
+                (Just "7 vs 8")
+                [ GamePosition 0 False (Just (TeamAssignment 7))
+                , GamePosition 1 True (Just (TeamAssignment 8))
+                ]
+                Nothing
+                (Coords 0 6 0)
+            , Game 5
+                (Just "9 vs 10")
+                [ GamePosition 0 False (Just (TeamAssignment 9))
+                , GamePosition 1 True (Just (TeamAssignment 10))
+                ]
+                Nothing
+                (Coords 0 8 0)
+            , Game 6
+                (Just "11 vs 12")
+                [ GamePosition 0 False (Just (TeamAssignment 11))
+                , GamePosition 1 True (Just (TeamAssignment 12))
+                ]
+                Nothing
+                (Coords 0 10 0)
+            , Game 7
+                (Just "13 vs 14")
+                [ GamePosition 0 False (Just (TeamAssignment 13))
+                , GamePosition 1 True (Just (TeamAssignment 14))
+                ]
+                Nothing
+                (Coords 0 12 0)
+            , Game 8
+                (Just "15 vs 16")
+                [ GamePosition 0 False (Just (TeamAssignment 15))
+                , GamePosition 1 True (Just (TeamAssignment 16))
+                ]
+                Nothing
+                (Coords 0 14 0)
 
             -- Group A Round 2
-            , Game 9 (Just "Quarterfinal 1") (Just (GameAssignment Winner 1)) (Just (GameAssignment Winner 2)) Nothing (Coords 0 1 2)
-            , Game 10 (Just "Quarterfinal 2") (Just (GameAssignment Winner 3)) (Just (GameAssignment Winner 4)) Nothing (Coords 0 5 2)
-            , Game 11 (Just "Quarterfinal 3") (Just (GameAssignment Winner 5)) (Just (GameAssignment Winner 6)) Nothing (Coords 0 9 2)
-            , Game 12 (Just "Quarterfinal 4") (Just (GameAssignment Winner 7)) (Just (GameAssignment Winner 8)) Nothing (Coords 0 13 2)
+            , Game 9
+                (Just "Quarterfinal 1")
+                [ GamePosition 0 False (Just (GameAssignment Winner 1))
+                , GamePosition 1 True (Just (GameAssignment Winner 2))
+                ]
+                Nothing
+                (Coords 0 1 2)
+            , Game 10
+                (Just "Quarterfinal 2")
+                [ GamePosition 0 False (Just (GameAssignment Winner 3))
+                , GamePosition 1 True (Just (GameAssignment Winner 4))
+                ]
+                Nothing
+                (Coords 0 5 2)
+            , Game 11
+                (Just "Quarterfinal 3")
+                [ GamePosition 0 False (Just (GameAssignment Winner 5))
+                , GamePosition 1 True (Just (GameAssignment Winner 6))
+                ]
+                Nothing
+                (Coords 0 9 2)
+            , Game 12
+                (Just "Quarterfinal 4")
+                [ GamePosition 0 False (Just (GameAssignment Winner 7))
+                , GamePosition 1 True (Just (GameAssignment Winner 8))
+                ]
+                Nothing
+                (Coords 0 13 2)
 
             -- Group A Semifinal
-            , Game 13 (Just "Semifinal 1") (Just (GameAssignment Winner 9)) (Just (GameAssignment Winner 10)) Nothing (Coords 0 3 4)
-            , Game 14 (Just "Semifinal 2") (Just (GameAssignment Winner 11)) (Just (GameAssignment Winner 12)) Nothing (Coords 0 11 4)
+            , Game 13
+                (Just "Semifinal 1")
+                [ GamePosition 0 False (Just (GameAssignment Winner 9))
+                , GamePosition 1 True (Just (GameAssignment Winner 10))
+                ]
+                Nothing
+                (Coords 0 3 4)
+            , Game 14
+                (Just "Semifinal 2")
+                [ GamePosition 0 False (Just (GameAssignment Winner 11))
+                , GamePosition 1 True (Just (GameAssignment Winner 12))
+                ]
+                Nothing
+                (Coords 0 11 4)
 
             -- Group A Final
-            , Game 15 (Just "Final") (Just (GameAssignment Winner 13)) (Just (GameAssignment Winner 14)) Nothing (Coords 0 7 6)
+            , Game 15
+                (Just "Final")
+                [ GamePosition 0 False (Just (GameAssignment Winner 13))
+                , GamePosition 1 True (Just (GameAssignment Winner 14))
+                ]
+                Nothing
+                (Coords 0 7 6)
 
             -- Group B
-            , Game 16 (Just "B 1") (Just (GameAssignment Loser 1)) (Just (GameAssignment Loser 2)) Nothing (Coords 1 0 0)
-            , Game 17 (Just "B 2") (Just (GameAssignment Loser 3)) (Just (GameAssignment Loser 4)) Nothing (Coords 1 2 0)
-            , Game 18 (Just "B 3") (Just (GameAssignment Loser 5)) (Just (GameAssignment Loser 6)) Nothing (Coords 1 4 0)
-            , Game 19 (Just "B 4") (Just (GameAssignment Loser 7)) (Just (GameAssignment Loser 8)) Nothing (Coords 1 6 0)
+            , Game 16
+                (Just "B 1")
+                [ GamePosition 0 False (Just (GameAssignment Loser 1))
+                , GamePosition 1 True (Just (GameAssignment Loser 2))
+                ]
+                Nothing
+                (Coords 1 0 0)
+            , Game 17
+                (Just "B 2")
+                [ GamePosition 0 False (Just (GameAssignment Loser 3))
+                , GamePosition 1 True (Just (GameAssignment Loser 4))
+                ]
+                Nothing
+                (Coords 1 2 0)
+            , Game 18
+                (Just "B 3")
+                [ GamePosition 0 False (Just (GameAssignment Loser 5))
+                , GamePosition 1 True (Just (GameAssignment Loser 6))
+                ]
+                Nothing
+                (Coords 1 4 0)
+            , Game 19
+                (Just "B 4")
+                [ GamePosition 0 False (Just (GameAssignment Loser 7))
+                , GamePosition 1 True (Just (GameAssignment Loser 8))
+                ]
+                Nothing
+                (Coords 1 6 0)
 
             -- Group B Round 2
-            , Game 20 (Just "B Semifinal 1") (Just (GameAssignment Winner 16)) (Just (GameAssignment Winner 17)) Nothing (Coords 1 1 2)
-            , Game 21 (Just "B Semifinal 2") (Just (GameAssignment Winner 18)) (Just (GameAssignment Winner 19)) Nothing (Coords 1 5 2)
+            , Game 20
+                (Just "B Semifinal 1")
+                [ GamePosition 0 False (Just (GameAssignment Winner 16))
+                , GamePosition 1 True (Just (GameAssignment Winner 17))
+                ]
+                Nothing
+                (Coords 1 1 2)
+            , Game 21
+                (Just "B Semifinal 2")
+                [ GamePosition 0 False (Just (GameAssignment Winner 18))
+                , GamePosition 1 True (Just (GameAssignment Winner 19))
+                ]
+                Nothing
+                (Coords 1 5 2)
 
             -- Group B Semifinal
-            , Game 22 (Just "B Final") (Just (GameAssignment Winner 20)) (Just (GameAssignment Winner 21)) Nothing (Coords 1 3 4)
+            , Game 22
+                (Just "B Final")
+                [ GamePosition 0 False (Just (GameAssignment Winner 20))
+                , GamePosition 1 True (Just (GameAssignment Winner 21))
+                ]
+                Nothing
+                (Coords 1 3 4)
             ]
       , overlay = Nothing
       , newGameCount = -1
@@ -236,23 +383,15 @@ unassignedTeams teams games excludeGame =
 
         assignedTo team g =
             let
-                assignedTop =
-                    case g.top of
-                        Just (TeamAssignment id) ->
-                            id == team.id
-
-                        _ ->
-                            False
-
-                assignedBottom =
-                    case g.bottom of
+                assignedToPosition p =
+                    case p.assignment of
                         Just (TeamAssignment id) ->
                             id == team.id
 
                         _ ->
                             False
             in
-            assignedTop || assignedBottom
+            List.any assignedToPosition g.gamePositions
 
         unassigned team =
             gamesNotExcluded
@@ -268,25 +407,22 @@ assignGameNamesWhenPossible teams games =
         assignName game =
             case game.name of
                 Nothing ->
-                    -- Check if we have 2 teams assigned and auto generate the name if we do
-                    case ( game.top, game.bottom ) of
-                        ( Just (TeamAssignment topId), Just (TeamAssignment bottomId) ) ->
-                            let
-                                team1Maybe =
-                                    List.Extra.find (\t -> t.id == topId) teams
-
-                                team2Maybe =
-                                    List.Extra.find (\t -> t.id == bottomId) teams
-                            in
-                            case ( team1Maybe, team2Maybe ) of
-                                ( Just team1, Just team2 ) ->
-                                    { game | name = Just (team1.name ++ " vs " ++ team2.name) }
+                    let
+                        teamName gamePosition =
+                            case gamePosition.assignment of
+                                Just (TeamAssignment id) ->
+                                    List.Extra.find (\t -> t.id == id) teams
+                                        |> Maybe.map (\t -> t.name)
+                                        |> Maybe.withDefault "TBD"
 
                                 _ ->
-                                    game
-
-                        _ ->
-                            game
+                                    "TBD"
+                    in
+                    { game
+                        | name =
+                            List.map teamName game.gamePositions
+                                |> String.join " vs "
+                    }
 
                 _ ->
                     game
@@ -368,7 +504,7 @@ unassignedGames gameResult excludeGameId includeGameId games =
 
 
 type Msg
-    = DragDropMsg (DragDrop.Msg Coords Coords)
+    = DragDropMsg (DragDrop.Msg DraggableId DroppableId)
     | ToggleHelp
     | AddCol
     | RemoveCol
@@ -396,21 +532,12 @@ update msg model =
                 ( model_, result ) =
                     DragDrop.update msg_ model.dragDrop
             in
-            ( { model
-                | dragDrop = model_
-                , games =
-                    case result of
-                        Nothing ->
-                            model.games
-
-                        Just ( fromCoords, toCoords, { x, y } ) ->
-                            moveGame model.games fromCoords toCoords
-                , groups =
-                    case result of
-                        Nothing ->
-                            model.groups
-
-                        Just ( fromCoords, toCoords, { x, y } ) ->
+            ( case result of
+                Just ( DraggableGame fromCoords, DroppableCell toCoords, _ ) ->
+                    { model
+                        | dragDrop = model_
+                        , games = moveGame model.games fromCoords toCoords
+                        , groups =
                             let
                                 updatedRowsForGroups : List Group -> List Game -> List Group
                                 updatedRowsForGroups groups games =
@@ -423,17 +550,19 @@ update msg model =
                                         |> List.map updatedRows
                             in
                             updatedRowsForGroups model.groups (moveGame model.games fromCoords toCoords)
-                , cols =
-                    case result of
-                        Nothing ->
-                            model.cols
-
-                        Just ( fromCoords, toCoords, { x, y } ) ->
+                        , cols =
                             moveGame model.games fromCoords toCoords
                                 |> minCols
                                 |> Basics.max 10
                                 |> (+) 1
-              }
+                    }
+
+                Just ( DraggableResult fromCoords, DroppableGamePosition toCoords, _ ) ->
+                    -- TODO: Team dragging.
+                    { model | dragDrop = model_ }
+
+                _ ->
+                    { model | dragDrop = model_ }
             , DragDrop.getDragstartEvent msg_
                 |> Maybe.map (.event >> dragstart)
                 |> Maybe.withDefault Cmd.none
@@ -704,10 +833,10 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     let
-        fromCoords =
+        droppableId =
             DragDrop.getDropId model.dragDrop
 
-        toCoords =
+        draggedTo =
             DragDrop.getDroppablePosition model.dragDrop
 
         modalOpen =
@@ -722,7 +851,7 @@ view model =
                         [ text "Help" ]
                     ]
                 ]
-            , viewGroups model fromCoords toCoords
+            , viewGroups model droppableId draggedTo
             , button [ class "btn btn-primary", onClick AddGroup ] [ text "Add Group" ]
             , if modalOpen then
                 viewOverlay model
@@ -929,14 +1058,14 @@ viewEditGame model game =
         ]
 
 
-viewGroups : Model -> Maybe Coords -> Maybe DragDrop.Position -> Html Msg
-viewGroups model fromCoords toCoords =
+viewGroups : Model -> Maybe DroppableId -> Maybe DragDrop.Position -> Html Msg
+viewGroups model droppableId toCoords =
     div []
-        (List.map (viewGroup model fromCoords toCoords) model.groups)
+        (List.map (viewGroup model droppableId toCoords) model.groups)
 
 
-viewGroup : Model -> Maybe Coords -> Maybe DragDrop.Position -> Group -> Html Msg
-viewGroup model fromCoords toCoords group =
+viewGroup : Model -> Maybe DroppableId -> Maybe DragDrop.Position -> Group -> Html Msg
+viewGroup model droppableId toCoords group =
     div
         [ class "group" ]
         [ div
@@ -955,26 +1084,26 @@ viewGroup model fromCoords toCoords group =
         , if group.visible then
             table
                 []
-                (List.map (viewRow model fromCoords toCoords group) (List.range 0 (group.rows - 1)))
+                (List.map (viewRow model droppableId toCoords group) (List.range 0 (group.rows - 1)))
 
           else
             div [ class "text-muted group-hide" ] [ text "..." ]
         ]
 
 
-viewRow : Model -> Maybe Coords -> Maybe DragDrop.Position -> Group -> Int -> Html Msg
-viewRow model fromCoords toCoords group row =
+viewRow : Model -> Maybe DroppableId -> Maybe DragDrop.Position -> Group -> Int -> Html Msg
+viewRow model droppableId toCoords group row =
     let
         cellStart =
             row * model.cols
     in
     tr
         []
-        (List.map (viewCell model fromCoords toCoords group row) (List.range 0 (model.cols - 1)))
+        (List.map (viewCell model droppableId toCoords group row) (List.range 0 (model.cols - 1)))
 
 
-viewCell : Model -> Maybe Coords -> Maybe DragDrop.Position -> Group -> Int -> Int -> Html Msg
-viewCell model fromCoords toCoords group row col =
+viewCell : Model -> Maybe DroppableId -> Maybe DragDrop.Position -> Group -> Int -> Int -> Html Msg
+viewCell model droppableId toCoords group row col =
     let
         onCoords =
             Coords group.position row col
@@ -983,21 +1112,65 @@ viewCell model fromCoords toCoords group row col =
             findGameByCoords model.games onCoords
 
         highlight =
-            if fromCoords |> Maybe.map ((==) onCoords) |> Maybe.withDefault False then
-                case toCoords of
-                    Nothing ->
-                        []
-
-                    Just pos ->
+            case droppableId of
+                Just (DroppableCell fromCoords) ->
+                    if fromCoords == onCoords then
                         [ class "drop-target" ]
 
-            else
-                []
+                    else
+                        []
 
-        positionText position =
-            case position of
+                _ ->
+                    []
+    in
+    td
+        (highlight
+            ++ DragDrop.droppable DragDropMsg (DroppableCell onCoords)
+            ++ [ onDoubleClick (AddGame onCoords) ]
+        )
+        [ case onGame of
+            Just game ->
+                viewGame model.games model.teams game onCoords
+
+            Nothing ->
+                text ""
+        ]
+
+
+viewGame : List Game -> List Team -> Game -> Coords -> Html Msg
+viewGame games teams game onCoords =
+    div
+        ([ class "game", onDoubleClick (EditGame game) ] ++ DragDrop.draggable DragDropMsg (DraggableGame onCoords))
+        ([ div
+            [ class "d-flex game-header" ]
+            [ div
+                [ class "game-name flex-fill" ]
+                [ text (Maybe.withDefault "TDB" game.name) ]
+            , div
+                [ class "game-delete align-self-end"
+                , onClick (RemoveGame game)
+                ]
+                [ text "✘" ]
+            ]
+         ]
+            ++ List.indexedMap (\index gamePosition -> viewGamePosition games teams index gamePosition) game.gamePositions
+        )
+
+
+viewGamePosition : List Game -> List Team -> Int -> GamePosition -> Html Msg
+viewGamePosition games teams position gamePosition =
+    let
+        positionClass =
+            if position == 0 then
+                "game-top"
+
+            else
+                "game-bottom"
+
+        positionText =
+            case gamePosition.assignment of
                 Just (TeamAssignment id) ->
-                    case List.Extra.find (\t -> t.id == id) model.teams of
+                    case List.Extra.find (\t -> t.id == id) teams of
                         Just team ->
                             team.name
 
@@ -1005,17 +1178,17 @@ viewCell model fromCoords toCoords group row col =
                             "TBD"
 
                 Just (GameAssignment Winner id) ->
-                    case List.Extra.find (\g -> g.id == id) model.games of
-                        Just game ->
-                            "W: " ++ Maybe.withDefault "TDB" game.name
+                    case List.Extra.find (\g -> g.id == id) games of
+                        Just g ->
+                            "W: " ++ Maybe.withDefault "TDB" g.name
 
                         Nothing ->
                             "TBD"
 
                 Just (GameAssignment Loser id) ->
-                    case List.Extra.find (\g -> g.id == id) model.games of
-                        Just game ->
-                            "L: " ++ Maybe.withDefault "TDB" game.name
+                    case List.Extra.find (\g -> g.id == id) games of
+                        Just g ->
+                            "L: " ++ Maybe.withDefault "TDB" g.name
 
                         Nothing ->
                             "TBD"
@@ -1023,43 +1196,14 @@ viewCell model fromCoords toCoords group row col =
                 Nothing ->
                     "TBD"
     in
-    td
-        (highlight
-            ++ (if onGame == Nothing then
-                    DragDrop.droppable DragDropMsg onCoords
+    div
+        [ class positionClass ]
+        [ text positionText ]
 
-                else
-                    []
-               )
-            ++ [ onDoubleClick (AddGame onCoords) ]
-        )
-        (case onGame of
-            Just game ->
-                [ div
-                    ([ class "game", onDoubleClick (EditGame game) ] ++ DragDrop.draggable DragDropMsg onCoords)
-                    [ div
-                        [ class "d-flex game-header" ]
-                        [ div
-                            [ class "game-name flex-fill" ]
-                            [ text (Maybe.withDefault "TDB" game.name) ]
-                        , div
-                            [ class "game-delete align-self-end"
-                            , onClick (RemoveGame game)
-                            ]
-                            [ text "✘" ]
-                        ]
-                    , div
-                        [ class "game-top" ]
-                        [ text (positionText game.top) ]
-                    , div
-                        [ class "game-bottom" ]
-                        [ text (positionText game.bottom) ]
-                    ]
-                ]
 
-            Nothing ->
-                []
-        )
+viewOutcomeNode : Html Msg
+viewOutcomeNode =
+    div [] []
 
 
 
