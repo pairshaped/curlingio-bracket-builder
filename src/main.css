@@ -23,8 +23,8 @@ td {
   border: 1px solid rgb(240, 240, 240);
 }
 
-td.drop-target {
-  background-color: #aaa;
+.drop-target {
+  background-color: #aaa !important;
 }
 
 .group {
@@ -70,6 +70,10 @@ td.drop-target {
 .game-delete {
   margin: 2px 4px 0 0;
   color: rgb(200, 0, 0);
+}
+
+.game-body {
+  width: 100%;
 }
 
 .game-top, .game-bottom {

@@ -44,12 +44,12 @@ type Overlay
 
 type DraggableId
     = DraggableGame Coords
-    | DraggableResult Coords
+    | DraggableResult ( Int, Result )
 
 
 type DroppableId
     = DroppableCell Coords
-    | DroppableGamePosition Coords
+    | DroppableGamePosition ( Int, Int )
 
 
 type alias Coords =
@@ -71,7 +71,7 @@ type alias Game =
     { id : Int
     , name : Maybe String
     , gamePositions : List GamePosition
-    , gameWinner : Maybe Position
+    , gameWinner : Maybe Int
     , coords : Coords
     }
 
@@ -83,24 +83,26 @@ type alias Team =
 
 
 type alias GamePosition =
-    { position : Position
+    { position : Int
     , firstHammer : Bool
     , assignment : Maybe Assignment
     }
 
 
-type Position
-    = Int
-
-
-type GameResult
+type Result
     = Winner
     | Loser
 
 
+type alias GameResult =
+    { id : Int
+    , result : Result
+    }
+
+
 type Assignment
     = TeamAssignment Int
-    | GameAssignment GameResult Int
+    | GameAssignment Result Int
 
 
 initTeams : List Team
@@ -323,6 +325,44 @@ moveGame games fromCoords toCoords =
     List.Extra.updateIf (\game -> game.coords == fromCoords) (\game -> { game | coords = toCoords }) games
 
 
+connectGameResult : List Game -> ( Int, Result ) -> ( Int, Int ) -> List Game
+connectGameResult games ( fromGameId, result ) ( toGameId, toPosition ) =
+    let
+        unassignedGamePosition gamePosition =
+            -- Unassign the old connection if it exists
+            case gamePosition.assignment of
+                Just (GameAssignment existingResult existingGameId) ->
+                    if existingResult == result && existingGameId == fromGameId then
+                        { gamePosition | assignment = Nothing }
+
+                    else
+                        gamePosition
+
+                _ ->
+                    gamePosition
+
+        unassignedGame game =
+            { game | gamePositions = List.map unassignedGamePosition game.gamePositions }
+
+        assignedGamePosition gamePosition =
+            if gamePosition.position == toPosition then
+                -- Assign the new connection
+                { gamePosition | assignment = Just (GameAssignment result fromGameId) }
+
+            else
+                gamePosition
+
+        assignedGame game =
+            if game.id == toGameId then
+                { game | gamePositions = List.map assignedGamePosition game.gamePositions }
+
+            else
+                game
+    in
+    List.map unassignedGame games
+        |> List.map assignedGame
+
+
 updatedGames : List Game -> Game -> List Game
 updatedGames games game =
     List.Extra.updateIf (\g -> g.coords == game.coords) (\g -> game) games
@@ -340,7 +380,15 @@ addGame id games coords =
     -- Don't add games on top of each other. Only add a game if there's room.
     case findGameByCoords games coords of
         Nothing ->
-            games ++ [ Game id Nothing Nothing Nothing Nothing coords ]
+            games
+                ++ [ Game id
+                        Nothing
+                        [ GamePosition 0 False Nothing
+                        , GamePosition 1 True Nothing
+                        ]
+                        Nothing
+                        coords
+                   ]
 
         _ ->
             games
@@ -401,33 +449,35 @@ unassignedTeams teams games excludeGame =
     List.filter unassigned teams
 
 
+assignGameName : List Team -> Game -> Game
+assignGameName teams game =
+    case game.name of
+        Nothing ->
+            let
+                teamName gamePosition =
+                    case gamePosition.assignment of
+                        Just (TeamAssignment id) ->
+                            List.Extra.find (\t -> t.id == id) teams
+                                |> Maybe.map (\t -> t.name)
+                                |> Maybe.withDefault "TBD"
+
+                        _ ->
+                            "TBD"
+            in
+            { game
+                | name =
+                    List.map teamName game.gamePositions
+                        |> String.join " vs "
+                        |> Just
+            }
+
+        _ ->
+            game
+
+
 assignGameNamesWhenPossible : List Team -> List Game -> List Game
 assignGameNamesWhenPossible teams games =
-    let
-        assignName game =
-            case game.name of
-                Nothing ->
-                    let
-                        teamName gamePosition =
-                            case gamePosition.assignment of
-                                Just (TeamAssignment id) ->
-                                    List.Extra.find (\t -> t.id == id) teams
-                                        |> Maybe.map (\t -> t.name)
-                                        |> Maybe.withDefault "TBD"
-
-                                _ ->
-                                    "TBD"
-                    in
-                    { game
-                        | name =
-                            List.map teamName game.gamePositions
-                                |> String.join " vs "
-                    }
-
-                _ ->
-                    game
-    in
-    List.map assignName games
+    List.map (assignGameName teams) games
 
 
 trimMaybe : Maybe String -> Maybe String
@@ -445,58 +495,10 @@ trimMaybe str =
             Nothing
 
 
-{-| Return a list of games who's winner or loser hasn't been assigned to another game yet.
-We can pass in a game that should be excluded from the matching check, like the game we are currently editing, so that winner from that game is excluded.
-We can also pass in a game assignment that should be included, regardless of whether or not it's been assigned. For example, the current selected assignment in the dropdown.
--}
-unassignedGames : GameResult -> Maybe Int -> Maybe Int -> List Game -> List Game
-unassignedGames gameResult excludeGameId includeGameId games =
-    let
-        isAssignedToGame : Game -> Game -> Bool
-        isAssignedToGame game gameWithAssignment =
-            if Just game.id == includeGameId then
-                False
-
-            else if game.name == Nothing then
-                True
-
-            else
-                case gameResult of
-                    Winner ->
-                        case ( gameWithAssignment.top, gameWithAssignment.bottom ) of
-                            ( Just (GameAssignment Winner topId), Just (GameAssignment Winner bottomId) ) ->
-                                topId == game.id || bottomId == game.id
-
-                            ( Just (GameAssignment Winner id), _ ) ->
-                                id == game.id
-
-                            ( _, Just (GameAssignment Winner id) ) ->
-                                id == game.id
-
-                            _ ->
-                                False
-
-                    Loser ->
-                        case ( gameWithAssignment.top, gameWithAssignment.bottom ) of
-                            ( Just (GameAssignment Loser topId), Just (GameAssignment Loser bottomId) ) ->
-                                topId == game.id || bottomId == game.id
-
-                            ( Just (GameAssignment Loser id), _ ) ->
-                                id == game.id
-
-                            ( _, Just (GameAssignment Loser id) ) ->
-                                id == game.id
-
-                            _ ->
-                                False
-
-        hasNotBeenAssigned : Game -> Bool
-        hasNotBeenAssigned game =
-            games
-                |> List.filter (isAssignedToGame game)
-                |> List.isEmpty
-    in
-    List.filter hasNotBeenAssigned games
+gameResults : List Game -> List GameResult
+gameResults games =
+    List.map (\g -> GameResult g.id Winner) games
+        ++ List.map (\g -> GameResult g.id Loser) games
 
 
 
@@ -518,7 +520,7 @@ type Msg
     | RemoveGame Game
     | EditGame Game
     | UpdateGameName Game String
-    | UpdateGamePosition Game String String
+    | UpdateGamePosition Game Int String
     | CloseEditGame Game
     | Save
     | Revert
@@ -557,9 +559,12 @@ update msg model =
                                 |> (+) 1
                     }
 
-                Just ( DraggableResult fromCoords, DroppableGamePosition toCoords, _ ) ->
+                Just ( DraggableResult from, DroppableGamePosition to, _ ) ->
                     -- TODO: Team dragging.
-                    { model | dragDrop = model_ }
+                    { model
+                        | dragDrop = model_
+                        , games = connectGameResult model.games from to
+                    }
 
                 _ ->
                     { model | dragDrop = model_ }
@@ -684,99 +689,8 @@ update msg model =
             , Cmd.none
             )
 
-        UpdateGamePosition game position assignment ->
-            let
-                updatedGame : Game
-                updatedGame =
-                    let
-                        parsedAssignment =
-                            String.split "_" assignment
-                    in
-                    case parsedAssignment of
-                        x :: xs ->
-                            case x of
-                                "" ->
-                                    -- Blank was selected
-                                    case position of
-                                        "top" ->
-                                            { game | top = Nothing }
-
-                                        "bottom" ->
-                                            { game | bottom = Nothing }
-
-                                        _ ->
-                                            game
-
-                                "team" ->
-                                    -- A team was selected
-                                    case List.head xs of
-                                        Just teamIdStr ->
-                                            case String.toInt teamIdStr of
-                                                Just teamId ->
-                                                    case List.Extra.find (\t -> t.id == teamId) model.teams of
-                                                        Just team ->
-                                                            case position of
-                                                                "top" ->
-                                                                    { game | top = Just (TeamAssignment team.id) }
-
-                                                                "bottom" ->
-                                                                    { game | bottom = Just (TeamAssignment team.id) }
-
-                                                                _ ->
-                                                                    game
-
-                                                        Nothing ->
-                                                            game
-
-                                                Nothing ->
-                                                    game
-
-                                        _ ->
-                                            game
-
-                                gameResult ->
-                                    -- A winner / loser from game was selected
-                                    case List.head xs of
-                                        Just gameIdStr ->
-                                            case String.toInt gameIdStr of
-                                                Just gameId ->
-                                                    case List.Extra.find (\g -> g.id == gameId) model.games of
-                                                        Just g ->
-                                                            -- Pattern match on position to assign to and whether it was a winner or loser from game
-                                                            case ( position, gameResult ) of
-                                                                ( "top", "winner" ) ->
-                                                                    { game | top = Just (GameAssignment Winner g.id) }
-
-                                                                ( "top", "loser" ) ->
-                                                                    { game | top = Just (GameAssignment Loser g.id) }
-
-                                                                ( "bottom", "winner" ) ->
-                                                                    { game | bottom = Just (GameAssignment Winner g.id) }
-
-                                                                ( "bottom", "loser" ) ->
-                                                                    { game | bottom = Just (GameAssignment Loser g.id) }
-
-                                                                _ ->
-                                                                    game
-
-                                                        Nothing ->
-                                                            game
-
-                                                Nothing ->
-                                                    game
-
-                                        _ ->
-                                            game
-
-                        _ ->
-                            game
-            in
-            ( { model
-                | overlay = Just (EditingGame updatedGame)
-                , games = updatedGames model.games updatedGame
-              }
-            , Cmd.none
-            )
+        UpdateGamePosition game index val ->
+            ( model, Cmd.none )
 
         CloseEditGame game ->
             let
@@ -785,24 +699,7 @@ update msg model =
                 updatedGame =
                     case trimMaybe game.name of
                         Nothing ->
-                            case ( game.top, game.bottom ) of
-                                ( Just (TeamAssignment topId), Just (TeamAssignment bottomId) ) ->
-                                    let
-                                        team1Maybe =
-                                            List.Extra.find (\t -> t.id == topId) model.teams
-
-                                        team2Maybe =
-                                            List.Extra.find (\t -> t.id == bottomId) model.teams
-                                    in
-                                    case ( team1Maybe, team2Maybe ) of
-                                        ( Just team1, Just team2 ) ->
-                                            { game | name = Just (team1.name ++ " vs " ++ team2.name) }
-
-                                        _ ->
-                                            { game | name = Nothing }
-
-                                _ ->
-                                    { game | name = Nothing }
+                            assignGameName model.teams game
 
                         _ ->
                             game
@@ -833,7 +730,10 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     let
-        droppableId =
+        dragId =
+            DragDrop.getDragId model.dragDrop
+
+        dropId =
             DragDrop.getDropId model.dragDrop
 
         draggedTo =
@@ -851,7 +751,7 @@ view model =
                         [ text "Help" ]
                     ]
                 ]
-            , viewGroups model droppableId draggedTo
+            , viewGroups model dragId dropId draggedTo
             , button [ class "btn btn-primary", onClick AddGroup ] [ text "Add Group" ]
             , if modalOpen then
                 viewOverlay model
@@ -953,11 +853,11 @@ viewEditGroup model group =
 viewEditGame : Model -> Game -> Html Msg
 viewEditGame model game =
     let
-        teamOption : Maybe GamePosition -> Team -> Html Msg
-        teamOption selectedGamePosition team =
+        teamOption : Int -> GamePosition -> Team -> Html Msg
+        teamOption index selectedGamePosition team =
             let
                 isSelected =
-                    case selectedGamePosition of
+                    case selectedGamePosition.assignment of
                         Just (TeamAssignment id) ->
                             id == team.id
 
@@ -966,61 +866,33 @@ viewEditGame model game =
             in
             option [ value ("team_" ++ String.fromInt team.id), selected isSelected ] [ text team.name ]
 
-        teamOptions : Maybe GamePosition -> List (Html Msg)
-        teamOptions selectedGamePosition =
+        teamOptions : Int -> GamePosition -> List (Html Msg)
+        teamOptions index selectedGamePosition =
             unassignedTeams model.teams model.games (Just game)
-                |> List.map (teamOption selectedGamePosition)
+                |> List.map (teamOption index selectedGamePosition)
                 |> (::) (option [] [])
 
-        gameOption : String -> Maybe Int -> Game -> Html Msg
-        gameOption fromType selectedId forGame =
-            let
-                isSelected : Bool
-                isSelected =
-                    case selectedId of
-                        Just id ->
-                            id == forGame.id
+        viewGamePositionField index gamePosition =
+            if List.isEmpty (unassignedTeams model.teams model.games (Just game)) then
+                text ""
 
-                        _ ->
-                            False
-            in
-            option [ value (fromType ++ "_" ++ String.fromInt forGame.id), selected isSelected ] [ text (String.Extra.toTitleCase fromType ++ " of " ++ Maybe.withDefault "TDB" forGame.name) ]
-
-        winnerGameOptions : Maybe GamePosition -> List (Html Msg)
-        winnerGameOptions selectedGamePosition =
-            let
-                selectedId =
-                    case selectedGamePosition of
-                        Just (GameAssignment Winner id) ->
-                            Just id
-
-                        _ ->
-                            Nothing
-            in
-            model.games
-                |> unassignedGames Winner (Just game.id) selectedId
-                |> List.map (gameOption "winner" selectedId)
-
-        loserGameOptions : Maybe GamePosition -> List (Html Msg)
-        loserGameOptions selectedGamePosition =
-            let
-                selectedId =
-                    case selectedGamePosition of
-                        Just (GameAssignment Loser id) ->
-                            Just id
-
-                        _ ->
-                            Nothing
-            in
-            model.games
-                |> unassignedGames Loser (Just game.id) selectedId
-                |> List.map (gameOption "loser" selectedId)
+            else
+                div
+                    [ class "form-group" ]
+                    [ label [ for "editing-game" ] [ text "Team" ]
+                    , select
+                        [ class "form-control"
+                        , id "editing-game"
+                        , onInput (UpdateGamePosition game index)
+                        ]
+                        (teamOptions index gamePosition)
+                    ]
     in
     div [ class "modal-content" ]
         [ div [ class "modal-header" ]
             [ h5 [ class "modal-title" ] [ text "Edit Game" ] ]
         , div [ class "modal-body" ]
-            [ div
+            ([ div
                 [ class "form-group" ]
                 [ label [ for "editing-game-name" ] [ text "Game Name" ]
                 , input
@@ -1031,41 +903,23 @@ viewEditGame model game =
                     ]
                     []
                 ]
-            , div
-                [ class "form-group" ]
-                [ label [ for "editing-game-top" ] [ text "Top Team" ]
-                , select
-                    [ class "form-control"
-                    , id "editing-game-top"
-                    , onInput (UpdateGamePosition game "top")
-                    ]
-                    (teamOptions game.top ++ winnerGameOptions game.top ++ loserGameOptions game.top)
-                ]
-            , div
-                [ class "form-group" ]
-                [ label [ for "editing-game-bottom" ] [ text "Bottom Team" ]
-                , select
-                    [ class "form-control"
-                    , id "editing-game-bottom"
-                    , onInput (UpdateGamePosition game "bottom")
-                    ]
-                    (teamOptions game.bottom ++ winnerGameOptions game.bottom ++ loserGameOptions game.bottom)
-                ]
-            ]
+             ]
+                ++ List.indexedMap viewGamePositionField game.gamePositions
+            )
         , div [ class "modal-footer" ]
             [ button [ onClick (CloseEditGame game), class "btn btn-primary mr-2" ] [ text "Close" ]
             ]
         ]
 
 
-viewGroups : Model -> Maybe DroppableId -> Maybe DragDrop.Position -> Html Msg
-viewGroups model droppableId toCoords =
+viewGroups : Model -> Maybe DraggableId -> Maybe DroppableId -> Maybe DragDrop.Position -> Html Msg
+viewGroups model dragId dropId toCoords =
     div []
-        (List.map (viewGroup model droppableId toCoords) model.groups)
+        (List.map (viewGroup model dragId dropId toCoords) model.groups)
 
 
-viewGroup : Model -> Maybe DroppableId -> Maybe DragDrop.Position -> Group -> Html Msg
-viewGroup model droppableId toCoords group =
+viewGroup : Model -> Maybe DraggableId -> Maybe DroppableId -> Maybe DragDrop.Position -> Group -> Html Msg
+viewGroup model dragId dropId toCoords group =
     div
         [ class "group" ]
         [ div
@@ -1084,26 +938,26 @@ viewGroup model droppableId toCoords group =
         , if group.visible then
             table
                 []
-                (List.map (viewRow model droppableId toCoords group) (List.range 0 (group.rows - 1)))
+                (List.map (viewRow model dragId dropId toCoords group) (List.range 0 (group.rows - 1)))
 
           else
             div [ class "text-muted group-hide" ] [ text "..." ]
         ]
 
 
-viewRow : Model -> Maybe DroppableId -> Maybe DragDrop.Position -> Group -> Int -> Html Msg
-viewRow model droppableId toCoords group row =
+viewRow : Model -> Maybe DraggableId -> Maybe DroppableId -> Maybe DragDrop.Position -> Group -> Int -> Html Msg
+viewRow model dragId dropId toCoords group row =
     let
         cellStart =
             row * model.cols
     in
     tr
         []
-        (List.map (viewCell model droppableId toCoords group row) (List.range 0 (model.cols - 1)))
+        (List.map (viewCell model dragId dropId toCoords group row) (List.range 0 (model.cols - 1)))
 
 
-viewCell : Model -> Maybe DroppableId -> Maybe DragDrop.Position -> Group -> Int -> Int -> Html Msg
-viewCell model droppableId toCoords group row col =
+viewCell : Model -> Maybe DraggableId -> Maybe DroppableId -> Maybe DragDrop.Position -> Group -> Int -> Int -> Html Msg
+viewCell model dragId dropId toCoords group row col =
     let
         onCoords =
             Coords group.position row col
@@ -1112,8 +966,8 @@ viewCell model droppableId toCoords group row col =
             findGameByCoords model.games onCoords
 
         highlight =
-            case droppableId of
-                Just (DroppableCell fromCoords) ->
+            case ( dragId, dropId ) of
+                ( Just (DraggableGame _), Just (DroppableCell fromCoords) ) ->
                     if fromCoords == onCoords then
                         [ class "drop-target" ]
 
@@ -1130,18 +984,18 @@ viewCell model droppableId toCoords group row col =
         )
         [ case onGame of
             Just game ->
-                viewGame model.games model.teams game onCoords
+                viewGame dragId dropId model.games model.teams game onCoords
 
             Nothing ->
                 text ""
         ]
 
 
-viewGame : List Game -> List Team -> Game -> Coords -> Html Msg
-viewGame games teams game onCoords =
+viewGame : Maybe DraggableId -> Maybe DroppableId -> List Game -> List Team -> Game -> Coords -> Html Msg
+viewGame dragId dropId games teams game onCoords =
     div
         ([ class "game", onDoubleClick (EditGame game) ] ++ DragDrop.draggable DragDropMsg (DraggableGame onCoords))
-        ([ div
+        [ div
             [ class "d-flex game-header" ]
             [ div
                 [ class "game-name flex-fill" ]
@@ -1152,20 +1006,36 @@ viewGame games teams game onCoords =
                 ]
                 [ text "✘" ]
             ]
-         ]
-            ++ List.indexedMap (\index gamePosition -> viewGamePosition games teams index gamePosition) game.gamePositions
-        )
+        , div [ class "game-body d-flex" ]
+            [ div
+                [ class "game-positions flex-fill" ]
+                (List.indexedMap (\index gamePosition -> viewGamePosition dragId dropId games teams game.id index gamePosition) game.gamePositions)
+            , div [ class "align-self-end ml-1" ] (viewResultConnectors game.id)
+            ]
+        ]
 
 
-viewGamePosition : List Game -> List Team -> Int -> GamePosition -> Html Msg
-viewGamePosition games teams position gamePosition =
+viewGamePosition : Maybe DraggableId -> Maybe DroppableId -> List Game -> List Team -> Int -> Int -> GamePosition -> Html Msg
+viewGamePosition dragId dropId games teams gameId position gamePosition =
     let
         positionClass =
             if position == 0 then
-                "game-top"
+                ( "game-top", True )
 
             else
-                "game-bottom"
+                ( "game-bottom", True )
+
+        dropTarget =
+            case ( dragId, dropId ) of
+                ( Just (DraggableResult _), Just (DroppableGamePosition gameIdAndPosition) ) ->
+                    if gameIdAndPosition == ( gameId, position ) then
+                        True
+
+                    else
+                        False
+
+                _ ->
+                    False
 
         positionText =
             case gamePosition.assignment of
@@ -1197,13 +1067,19 @@ viewGamePosition games teams position gamePosition =
                     "TBD"
     in
     div
-        [ class positionClass ]
+        ([ classList [ positionClass, ( "drop-target", dropTarget ) ] ] ++ DragDrop.droppable DragDropMsg (DroppableGamePosition ( gameId, position )))
         [ text positionText ]
 
 
-viewOutcomeNode : Html Msg
-viewOutcomeNode =
-    div [] []
+viewResultConnectors : Int -> List (Html Msg)
+viewResultConnectors gameId =
+    [ div ([ class "game-result-connector" ] ++ DragDrop.draggable DragDropMsg (DraggableResult ( gameId, Winner )))
+        [ span [ class "badge badge-pill badge-success" ] [ small [] [ text "W" ] ]
+        ]
+    , div ([ class "game-result-connector" ] ++ DragDrop.draggable DragDropMsg (DraggableResult ( gameId, Loser )))
+        [ span [ class "badge badge-pill badge-danger" ] [ small [] [ text "L" ] ]
+        ]
+    ]
 
 
 
