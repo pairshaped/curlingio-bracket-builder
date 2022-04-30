@@ -96,13 +96,18 @@ td {
 .game-result-connector {
   width: 20px;
   height: 25px;
-  padding: 4px 3px 2px 0;
+  padding: 4px 3px 2px 2px;
+  margin-left: -4px;
 }
 
 .game-result-connector-icon {
   width: 16px;
   height: 16px;
   border-radius: 10px;
+  font-size: 10px;
+  text-align: center;
+  padding-top: 1px;
+  color: white;
 }
 
 .game-result-connector-winner {
@@ -111,4 +116,8 @@ td {
 
 .game-result-connector-loser {
   background-color: rgba(190, 0, 0, 0.6);
+}
+
+.dragging-item {
+  background-color: yellow;
 }

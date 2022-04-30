@@ -488,8 +488,9 @@ trimMaybe str =
 We can pass in a game that should be excluded from the matching check, like the game we are currently editing, so that winner from that game is excluded.
 We can also pass in a game assignment that should be included, regardless of whether or not it's been assigned. For example, the current selected assignment in the dropdown.
 -}
-unassignedGameResults : List Game -> Maybe Int -> Maybe Int -> List Assignment
-unassignedGameResults games excludeGameId includeGameId =
+unassignedGameResults : List Game -> Maybe Int -> Maybe Assignment -> List Assignment
+unassignedGameResults games excludeGameId includeAssignment =
+    -- TODO: exclude and include params need to be implemented
     let
         winners =
             List.map (\game -> GameAssignment Winner game.id) games
@@ -1028,13 +1029,13 @@ viewEditGame model game =
                 _ ->
                     text ""
 
-        teamOptions : Int -> GamePosition -> List (Html Msg)
-        teamOptions index selectedGamePosition =
+        assignmentOptions : Int -> GamePosition -> List (Html Msg)
+        assignmentOptions index selectedGamePosition =
             [ option [] [] ]
                 ++ (unassignedTeams model.teams model.games (Just game)
                         |> List.map (teamOption index selectedGamePosition)
                    )
-                ++ (unassignedGameResults model.games Nothing Nothing
+                ++ (unassignedGameResults model.games (Just game.id) selectedGamePosition.assignment
                         |> List.map (gameOption index selectedGamePosition)
                    )
 
@@ -1047,7 +1048,7 @@ viewEditGame model game =
                     , id "editing-game"
                     , onInput (UpdateGamePosition game index)
                     ]
-                    (teamOptions index gamePosition)
+                    (assignmentOptions index gamePosition)
                 ]
     in
     div [ class "modal-content" ]
@@ -1172,7 +1173,7 @@ viewGame dragId dropId games teams game onCoords =
             [ div
                 [ class "game-positions flex-fill" ]
                 (List.indexedMap (\index gamePosition -> viewGamePosition dragId dropId games teams game.id index gamePosition) game.gamePositions)
-            , div [ class "align-self-end ml-1" ] (viewResultConnectors game.id)
+            , div [ class "align-self-end ml-1" ] (viewResultConnectors dragId game.id)
             ]
         ]
 
@@ -1233,13 +1234,36 @@ viewGamePosition dragId dropId games teams gameId position gamePosition =
         [ text label ]
 
 
-viewResultConnectors : Int -> List (Html Msg)
-viewResultConnectors gameId =
-    [ div ([ class "game-result-connector" ] ++ DragDrop.draggable DragDropMsg (DraggableResult ( gameId, Winner )))
-        [ div [ class "game-result-connector-icon game-result-connector-winner" ] []
+viewResultConnectors : Maybe DraggableId -> Int -> List (Html Msg)
+viewResultConnectors dragId gameId =
+    let
+        dragging result =
+            case dragId of
+                Just (DraggableResult ( id, result_ )) ->
+                    id == gameId && result_ == result
+
+                _ ->
+                    False
+    in
+    [ div
+        ([ classList
+            [ ( "game-result-connector", True )
+            , ( "dragging-item", dragging Winner )
+            ]
+         ]
+            ++ DragDrop.draggable DragDropMsg (DraggableResult ( gameId, Winner ))
+        )
+        [ div [ class "game-result-connector-icon game-result-connector-winner" ] [ text "W" ]
         ]
-    , div ([ class "game-result-connector" ] ++ DragDrop.draggable DragDropMsg (DraggableResult ( gameId, Loser )))
-        [ div [ class "game-result-connector-icon game-result-connector-loser" ] []
+    , div
+        ([ classList
+            [ ( "game-result-connector", True )
+            , ( "dragging-item", dragging Loser )
+            ]
+         ]
+            ++ DragDrop.draggable DragDropMsg (DraggableResult ( gameId, Loser ))
+        )
+        [ div [ class "game-result-connector-icon game-result-connector-loser" ] [ text "L" ]
         ]
     ]
 
