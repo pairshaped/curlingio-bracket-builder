@@ -489,36 +489,51 @@ We can pass in a game that should be excluded from the matching check, like the 
 We can also pass in a game assignment that should be included, regardless of whether or not it's been assigned. For example, the current selected assignment in the dropdown.
 -}
 unassignedGameResults : List Game -> Maybe Int -> Maybe Assignment -> List Assignment
-unassignedGameResults games excludeGameId includeAssignment =
+unassignedGameResults games currentGameId includeAssignment =
     -- TODO: exclude and include params need to be implemented
     let
-        winners =
-            List.map (\game -> GameAssignment Winner game.id) games
+        allAssignments =
+            let
+                winners =
+                    List.map (\game -> Just (GameAssignment Winner game.id)) games
 
-        losers =
-            List.map (\game -> GameAssignment Loser game.id) games
-
-        allResults =
+                losers =
+                    List.map (\game -> Just (GameAssignment Loser game.id)) games
+            in
             winners ++ losers
 
-        assignedResult : Game -> List Assignment
-        assignedResult game =
-            game.gamePositions
-                |> List.map
-                    (\gp ->
-                        case gp.assignment of
-                            Just (GameAssignment result gameId) ->
-                                Just (GameAssignment result gameId)
+        notCurrentGame assignment =
+            case assignment of
+                Just (GameAssignment result gameId) ->
+                    not (Just gameId == currentGameId)
 
-                            _ ->
-                                Nothing
-                    )
-                |> List.filterMap identity
+                _ ->
+                    True
 
-        assignedResults =
-            List.map (\game -> GameAssignment Winner game.id) games
+        notAssigned assignment =
+            case assignment of
+                Just (GameAssignment result gameId) ->
+                    let
+                        assignedToGamePosition gamePosition =
+                            assignment == gamePosition.assignment
+
+                        assignedToGame game =
+                            List.filter assignedToGamePosition game.gamePositions
+                                |> List.isEmpty
+                                |> not
+                    in
+                    -- Check to see if this assignment has already been made against any game, except the current game.
+                    List.filter assignedToGame games
+                        |> List.isEmpty
+
+                _ ->
+                    True
     in
-    allResults
+    allAssignments
+        |> List.filter notCurrentGame
+        |> List.filter notAssigned
+        |> (::) includeAssignment
+        |> List.filterMap identity
 
 
 
