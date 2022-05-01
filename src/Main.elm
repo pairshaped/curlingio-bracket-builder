@@ -1321,7 +1321,7 @@ viewSvgTest games =
     let
         lines =
             let
-                stringify connector =
+                label connector =
                     let
                         prefix =
                             case connector.result of
@@ -1333,7 +1333,7 @@ viewSvgTest games =
                     in
                     "Game " ++ String.fromInt connector.fromGameId ++ prefix ++ " goes to game " ++ String.fromInt connector.toGameId ++ ", position " ++ String.fromInt connector.toPosition
             in
-            List.map stringify (lineConnectors games)
+            List.map label (lineConnectors games)
     in
     -- svg
     --     [ Svg.Attributes.width "500", Svg.Attributes.height "500" ]
