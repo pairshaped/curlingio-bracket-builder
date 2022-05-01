@@ -12,6 +12,8 @@ import Json.Encode as Json
 import List.Extra
 import Set
 import String.Extra
+import Svg exposing (line, svg)
+import Svg.Attributes exposing (stroke, x1, x2, y1, y2)
 
 
 
@@ -97,6 +99,14 @@ type Result
 type Assignment
     = TeamAssignment Int
     | GameAssignment Result Int
+
+
+type alias LineConnector =
+    { fromGameId : Int
+    , result : Result
+    , toGameId : Int
+    , toPosition : Int
+    }
 
 
 initTeams : List Team
@@ -536,6 +546,28 @@ unassignedGameResults games currentGameId includeAssignment =
         |> List.filterMap identity
 
 
+lineConnectors : List Game -> List LineConnector
+lineConnectors games =
+    let
+        connectors : Game -> List (Maybe LineConnector)
+        connectors toGame =
+            let
+                connectorForPosition : Int -> GamePosition -> Maybe LineConnector
+                connectorForPosition toPosition gamePosition =
+                    case gamePosition.assignment of
+                        Just (GameAssignment result fromGameId) ->
+                            Just (LineConnector fromGameId result toGame.id toPosition)
+
+                        _ ->
+                            Nothing
+            in
+            List.indexedMap connectorForPosition toGame.gamePositions
+    in
+    List.map connectors games
+        |> List.concat
+        |> List.filterMap identity
+
+
 
 ---- UPDATE ----
 
@@ -894,6 +926,7 @@ view model =
 
               else
                 text ""
+            , viewSvgTest model.games
             ]
         , div [ classList [ ( "modal-backdrop", modalOpen ), ( "show", modalOpen ) ] ] []
         ]
@@ -1281,6 +1314,38 @@ viewResultConnectors dragId gameId =
         [ div [ class "game-result-connector-icon game-result-connector-loser" ] [ text "L" ]
         ]
     ]
+
+
+viewSvgTest : List Game -> Html Msg
+viewSvgTest games =
+    let
+        lines =
+            let
+                stringify connector =
+                    let
+                        prefix =
+                            case connector.result of
+                                Winner ->
+                                    " winner"
+
+                                Loser ->
+                                    " loser"
+                    in
+                    "Game " ++ String.fromInt connector.fromGameId ++ prefix ++ " goes to game " ++ String.fromInt connector.toGameId ++ ", position " ++ String.fromInt connector.toPosition
+            in
+            List.map stringify (lineConnectors games)
+    in
+    -- svg
+    --     [ Svg.Attributes.width "500", Svg.Attributes.height "500" ]
+    --     [ line
+    --         [ x1 "50", y1 "50", x2 "350", y2 "350", stroke "black" ]
+    --         []
+    --     ]
+    div [ class "mt-4" ]
+        [ h3 [] [ text "Connections" ]
+        , ul []
+            (List.map (\l -> li [] [ text l ]) lines)
+        ]
 
 
 
