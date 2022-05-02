@@ -1204,8 +1204,17 @@ viewCell model dragId dropId toCoords group row col =
 
 viewGame : Maybe DraggableId -> Maybe DroppableId -> List Game -> List Team -> Game -> Coords -> Html Msg
 viewGame dragId dropId games teams game onCoords =
+    let
+        dragging =
+            case dragId of
+                Just (DraggableGame coords) ->
+                    coords == game.coords
+
+                _ ->
+                    False
+    in
     div
-        ([ class "game", onDoubleClick (EditGame game) ] ++ DragDrop.draggable DragDropMsg (DraggableGame onCoords))
+        ([ classList [ ( "game", True ), ( "dragging-game", dragging ) ], onDoubleClick (EditGame game) ] ++ DragDrop.draggable DragDropMsg (DraggableGame onCoords))
         [ div
             [ class "d-flex game-header" ]
             [ div
@@ -1296,7 +1305,7 @@ viewResultConnectors dragId gameId =
     [ div
         ([ classList
             [ ( "game-result-connector", True )
-            , ( "dragging-item", dragging Winner )
+            , ( "dragging-connector", dragging Winner )
             ]
          ]
             ++ DragDrop.draggable DragDropMsg (DraggableResult ( gameId, Winner ))
@@ -1306,7 +1315,7 @@ viewResultConnectors dragId gameId =
     , div
         ([ classList
             [ ( "game-result-connector", True )
-            , ( "dragging-item", dragging Loser )
+            , ( "dragging-connector", dragging Loser )
             ]
          ]
             ++ DragDrop.draggable DragDropMsg (DraggableResult ( gameId, Loser ))
