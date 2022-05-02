@@ -30,6 +30,7 @@ port dragstart : Value -> Cmd msg
 type alias Model =
     { dragDrop : DragDrop.Model DraggableId DroppableId
     , groups : List Group
+    , gridSize : Int
     , cols : Int
     , teams : List Team
     , games : List Game
@@ -134,7 +135,8 @@ init : ( Model, Cmd Msg )
 init =
     ( { dragDrop = DragDrop.init
       , groups = [ Group 0 "A Event" 16 True, Group 1 "B Event" 8 True ]
-      , cols = 10
+      , gridSize = 50
+      , cols = 25
       , teams = initTeams
       , games =
             [ Game 1
@@ -398,7 +400,7 @@ addGame id games coords =
 minCols : List Game -> Int
 minCols games =
     games
-        |> List.map (\g -> g.coords.col + 2)
+        |> List.map (\g -> g.coords.col + 1)
         |> List.maximum
         |> Maybe.withDefault 10
 
@@ -622,7 +624,7 @@ update msg model =
                         , cols =
                             moveGame model.games fromCoords toCoords
                                 |> minCols
-                                |> Basics.max 10
+                                |> Basics.max 25
                                 |> (+) 1
                     }
 
@@ -655,12 +657,12 @@ update msg model =
 
         AddCol ->
             -- NOT DONE: Add columns automatically when a game is dropped on the last column
-            ( { model | cols = model.cols + 1 }
+            ( { model | cols = model.cols + 5 }
             , Cmd.none
             )
 
         RemoveCol ->
-            ( { model | cols = model.cols - 1 }
+            ( { model | cols = model.cols - 5 }
             , Cmd.none
             )
 
@@ -1176,20 +1178,23 @@ viewCell model dragId dropId toCoords group row col =
         onGame =
             findGameByCoords model.games onCoords
 
-        highlight =
+        highlighted =
             case ( dragId, dropId ) of
                 ( Just (DraggableGame _), Just (DroppableCell fromCoords) ) ->
                     if fromCoords == onCoords then
-                        [ class "drop-target" ]
+                        True
 
                     else
-                        []
+                        False
 
                 _ ->
-                    []
+                    False
     in
     td
-        (highlight
+        ([ style "width" (String.fromInt model.gridSize ++ "px")
+         , style "height" (String.fromInt model.gridSize ++ "px")
+         , classList [ ( "drop-target", highlighted ) ]
+         ]
             ++ DragDrop.droppable DragDropMsg (DroppableCell onCoords)
             ++ [ onDoubleClick (AddGame onCoords) ]
         )
@@ -1214,7 +1219,11 @@ viewGame dragId dropId games teams game onCoords =
                     False
     in
     div
-        ([ classList [ ( "game", True ), ( "dragging-game", dragging ) ], onDoubleClick (EditGame game) ] ++ DragDrop.draggable DragDropMsg (DraggableGame onCoords))
+        ([ classList [ ( "game", True ), ( "dragging-game", dragging ) ]
+         , onDoubleClick (EditGame game)
+         ]
+            ++ DragDrop.draggable DragDropMsg (DraggableGame onCoords)
+        )
         [ div
             [ class "d-flex game-header" ]
             [ div
