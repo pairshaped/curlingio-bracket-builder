@@ -13,7 +13,7 @@ import List.Extra
 import Set
 import String.Extra
 import Svg exposing (line, svg)
-import Svg.Attributes exposing (stroke, x1, x2, y1, y2)
+import Svg.Attributes exposing (stroke, strokeDasharray, strokeOpacity, x1, x2, y1, y2)
 
 
 
@@ -1386,6 +1386,8 @@ viewSvgLines dragId group games =
                 , y1 (String.fromInt (Tuple.second l.fromCoords))
                 , x2 (String.fromInt (Tuple.first l.toCoords))
                 , y2 (String.fromInt (Tuple.second l.toCoords))
+                , strokeOpacity "0.6"
+                , strokeDasharray "3"
                 , stroke
                     (case l.result of
                         Winner ->
