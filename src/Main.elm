@@ -106,10 +106,9 @@ type Assignment
 
 
 type alias LineConnector =
-    { fromGameId : Int
-    , result : Result
-    , toGameId : Int
-    , toPosition : Int
+    { result : Result
+    , fromCoords : ( Int, Int )
+    , toCoords : ( Int, Int )
     }
 
 
@@ -560,7 +559,44 @@ lineConnectors games =
                 connectorForPosition toPosition gamePosition =
                     case gamePosition.assignment of
                         Just (GameAssignment result fromGameId) ->
-                            Just (LineConnector fromGameId result toGame.id toPosition)
+                            let
+                                fromCoords =
+                                    case List.Extra.find (\g -> g.id == fromGameId) games of
+                                        Just fromGame ->
+                                            Just
+                                                ( fromGame.coords.col * gridSize + 175
+                                                , fromGame.coords.row
+                                                    * gridSize
+                                                    + (if result == Winner then
+                                                        30
+
+                                                       else
+                                                        50
+                                                      )
+                                                )
+
+                                        _ ->
+                                            Nothing
+
+                                toCoords =
+                                    Just
+                                        ( toGame.coords.col * gridSize + 1
+                                        , toGame.coords.row
+                                            * gridSize
+                                            + (if toPosition == 0 then
+                                                30
+
+                                               else
+                                                50
+                                              )
+                                        )
+                            in
+                            case ( fromCoords, toCoords ) of
+                                ( Just from, Just to ) ->
+                                    Just (LineConnector result from to)
+
+                                _ ->
+                                    Nothing
 
                         _ ->
                             Nothing
@@ -927,7 +963,6 @@ view model =
 
               else
                 text ""
-            , viewSvgTest model.games
             ]
         , div [ classList [ ( "modal-backdrop", modalOpen ), ( "show", modalOpen ) ] ] []
         ]
@@ -1153,7 +1188,8 @@ viewGroup model dragId dropId group =
             ]
         , div [ class "group" ]
             (if group.visible then
-                [ table
+                [ viewSvgLines dragId group groupGames
+                , table
                     []
                     (List.map (viewRow model dragId dropId group) (List.range 0 (group.rows - 1)))
                 , viewGames dragId dropId model.teams model.games groupGames
@@ -1338,35 +1374,33 @@ viewResultConnectors dragId gameId =
     ]
 
 
-viewSvgTest : List Game -> Html Msg
-viewSvgTest games =
+viewSvgLines : Maybe DraggableId -> Group -> List Game -> Html Msg
+viewSvgLines dragId group games =
     let
-        lines =
-            let
-                label connector =
-                    let
-                        prefix =
-                            case connector.result of
-                                Winner ->
-                                    " winner"
+        dragging =
+            not (dragId == Nothing)
 
-                                Loser ->
-                                    " loser"
-                    in
-                    "Game " ++ String.fromInt connector.fromGameId ++ prefix ++ " goes to game " ++ String.fromInt connector.toGameId ++ ", position " ++ String.fromInt connector.toPosition
-            in
-            List.map label (lineConnectors games)
+        viewSvgLine l =
+            line
+                [ x1 (String.fromInt (Tuple.first l.fromCoords))
+                , y1 (String.fromInt (Tuple.second l.fromCoords))
+                , x2 (String.fromInt (Tuple.first l.toCoords))
+                , y2 (String.fromInt (Tuple.second l.toCoords))
+                , stroke
+                    (case l.result of
+                        Winner ->
+                            "green"
+
+                        Loser ->
+                            "red"
+                    )
+                ]
+                []
     in
-    -- svg
-    --     [ Svg.Attributes.width "500", Svg.Attributes.height "500" ]
-    --     [ line
-    --         [ x1 "50", y1 "50", x2 "350", y2 "350", stroke "black" ]
-    --         []
-    --     ]
-    div [ class "mt-4" ]
-        [ h3 [] [ text "Connections" ]
-        , ul []
-            (List.map (\l -> li [] [ text l ]) lines)
+    div [ classList [ ( "group-lines", True ), ( "group-lines-while-dragging", dragging ) ] ]
+        [ svg
+            [ Svg.Attributes.width (String.fromInt ((minCols games + 1) * gridSize)), Svg.Attributes.height (String.fromInt ((minRows group games - 1) * gridSize)) ]
+            (List.map viewSvgLine (lineConnectors games))
         ]
 
 

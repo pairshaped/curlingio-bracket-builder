@@ -43,6 +43,15 @@ td {
   margin-bottom: 8px;
 }
 
+.group-lines {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.group-lines-while-dragging {
+  display: none;
+}
+
 
 .game {
   position: absolute;
