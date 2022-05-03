@@ -68,8 +68,8 @@ type alias Group =
 
 type alias Coords =
     { group : Int
-    , x : Int
-    , y : Int
+    , col : Int
+    , row : Int
     }
 
 
@@ -154,49 +154,49 @@ init =
                 , GamePosition 1 True (Just (TeamAssignment 4))
                 ]
                 Nothing
-                (Coords 0 0 100)
+                (Coords 0 0 2)
             , Game 3
                 (Just "5 vs 6")
                 [ GamePosition 0 False (Just (TeamAssignment 5))
                 , GamePosition 1 True (Just (TeamAssignment 6))
                 ]
                 Nothing
-                (Coords 0 0 200)
+                (Coords 0 0 4)
             , Game 4
                 (Just "7 vs 8")
                 [ GamePosition 0 False (Just (TeamAssignment 7))
                 , GamePosition 1 True (Just (TeamAssignment 8))
                 ]
                 Nothing
-                (Coords 0 0 300)
+                (Coords 0 0 6)
             , Game 5
                 (Just "9 vs 10")
                 [ GamePosition 0 False (Just (TeamAssignment 9))
                 , GamePosition 1 True (Just (TeamAssignment 10))
                 ]
                 Nothing
-                (Coords 0 0 400)
+                (Coords 0 0 8)
             , Game 6
                 (Just "11 vs 12")
                 [ GamePosition 0 False (Just (TeamAssignment 11))
                 , GamePosition 1 True (Just (TeamAssignment 12))
                 ]
                 Nothing
-                (Coords 0 0 500)
+                (Coords 0 0 10)
             , Game 7
                 (Just "13 vs 14")
                 [ GamePosition 0 False (Just (TeamAssignment 13))
                 , GamePosition 1 True (Just (TeamAssignment 14))
                 ]
                 Nothing
-                (Coords 0 0 600)
+                (Coords 0 0 12)
             , Game 8
                 (Just "15 vs 16")
                 [ GamePosition 0 False (Just (TeamAssignment 15))
                 , GamePosition 1 True (Just (TeamAssignment 16))
                 ]
                 Nothing
-                (Coords 0 0 700)
+                (Coords 0 0 14)
 
             -- Group A Round 2
             , Game 9
@@ -205,28 +205,28 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 2))
                 ]
                 Nothing
-                (Coords 0 200 50)
+                (Coords 0 4 1)
             , Game 10
                 (Just "Quarterfinal 2")
                 [ GamePosition 0 False (Just (GameAssignment Winner 3))
                 , GamePosition 1 True (Just (GameAssignment Winner 4))
                 ]
                 Nothing
-                (Coords 0 200 250)
+                (Coords 0 4 5)
             , Game 11
                 (Just "Quarterfinal 3")
                 [ GamePosition 0 False (Just (GameAssignment Winner 5))
                 , GamePosition 1 True (Just (GameAssignment Winner 6))
                 ]
                 Nothing
-                (Coords 0 200 450)
+                (Coords 0 4 9)
             , Game 12
                 (Just "Quarterfinal 4")
                 [ GamePosition 0 False (Just (GameAssignment Winner 7))
                 , GamePosition 1 True (Just (GameAssignment Winner 8))
                 ]
                 Nothing
-                (Coords 0 200 650)
+                (Coords 0 4 13)
 
             -- Group A Semifinal
             , Game 13
@@ -235,14 +235,14 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 10))
                 ]
                 Nothing
-                (Coords 0 400 150)
+                (Coords 0 8 3)
             , Game 14
                 (Just "Semifinal 2")
                 [ GamePosition 0 False (Just (GameAssignment Winner 11))
                 , GamePosition 1 True (Just (GameAssignment Winner 12))
                 ]
                 Nothing
-                (Coords 0 400 550)
+                (Coords 0 8 11)
 
             -- Group A Final
             , Game 15
@@ -251,7 +251,7 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 14))
                 ]
                 Nothing
-                (Coords 0 600 350)
+                (Coords 0 12 7)
 
             -- Group B
             , Game 16
@@ -267,21 +267,21 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Loser 4))
                 ]
                 Nothing
-                (Coords 1 0 100)
+                (Coords 1 0 2)
             , Game 18
                 (Just "B 3")
                 [ GamePosition 0 False (Just (GameAssignment Loser 5))
                 , GamePosition 1 True (Just (GameAssignment Loser 6))
                 ]
                 Nothing
-                (Coords 1 0 200)
+                (Coords 1 0 4)
             , Game 19
                 (Just "B 4")
                 [ GamePosition 0 False (Just (GameAssignment Loser 7))
                 , GamePosition 1 True (Just (GameAssignment Loser 8))
                 ]
                 Nothing
-                (Coords 1 0 300)
+                (Coords 1 0 6)
 
             -- Group B Round 2
             , Game 20
@@ -290,14 +290,14 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 17))
                 ]
                 Nothing
-                (Coords 1 200 50)
+                (Coords 1 4 1)
             , Game 21
                 (Just "B Semifinal 2")
                 [ GamePosition 0 False (Just (GameAssignment Winner 18))
                 , GamePosition 1 True (Just (GameAssignment Winner 19))
                 ]
                 Nothing
-                (Coords 1 200 250)
+                (Coords 1 4 5)
 
             -- Group B Semifinal
             , Game 22
@@ -306,7 +306,7 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 21))
                 ]
                 Nothing
-                (Coords 1 400 150)
+                (Coords 1 8 3)
             ]
       , overlay = Nothing
       , newGameCount = -1
@@ -402,7 +402,7 @@ addGame id games coords =
 minCols : List Game -> Int
 minCols games =
     games
-        |> List.map (\g -> (g.coords.x // gridSize) + 3)
+        |> List.map (\g -> g.coords.col + 3)
         |> List.maximum
         |> Maybe.withDefault 25
 
@@ -413,7 +413,7 @@ minRows : Group -> List Game -> Int
 minRows group games =
     games
         |> List.filter (\g -> g.coords.group == group.position)
-        |> List.map (\g -> (g.coords.y // gridSize) + 3)
+        |> List.map (\g -> g.coords.row + 3)
         |> List.maximum
         |> Maybe.withDefault 10
 
@@ -1176,7 +1176,7 @@ viewCell : Model -> Maybe DraggableId -> Maybe DroppableId -> Group -> Int -> In
 viewCell model dragId dropId group row col =
     let
         onCoords =
-            Coords group.position (col * gridSize) (row * gridSize)
+            Coords group.position col row
 
         onGame =
             findGameByCoords model.games onCoords
@@ -1222,8 +1222,8 @@ viewGame dragId dropId teams games game =
     in
     div
         ([ classList [ ( "game", True ), ( "dragging-game", dragging ) ]
-         , style "left" (String.fromInt game.coords.x ++ "px")
-         , style "top" (String.fromInt game.coords.y ++ "px")
+         , style "left" (String.fromInt (game.coords.col * gridSize) ++ "px")
+         , style "top" (String.fromInt (game.coords.row * gridSize) ++ "px")
          , onDoubleClick (EditGame game)
          ]
             ++ DragDrop.draggable DragDropMsg (DraggableGame game.id)
