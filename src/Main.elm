@@ -27,10 +27,13 @@ port dragstart : Value -> Cmd msg
 ---- MODEL ----
 
 
+gridSize =
+    50
+
+
 type alias Model =
     { dragDrop : DragDrop.Model DraggableId DroppableId
     , groups : List Group
-    , gridSize : Int
     , cols : Int
     , teams : List Team
     , games : List Game
@@ -46,7 +49,7 @@ type Overlay
 
 
 type DraggableId
-    = DraggableGame Coords
+    = DraggableGame Int
     | DraggableResult ( Int, Result )
 
 
@@ -55,18 +58,18 @@ type DroppableId
     | DroppableGamePosition ( Int, Int )
 
 
-type alias Coords =
-    { group : Int
-    , row : Int
-    , col : Int
-    }
-
-
 type alias Group =
     { position : Int
     , name : String
     , rows : Int
     , visible : Bool
+    }
+
+
+type alias Coords =
+    { group : Int
+    , x : Int
+    , y : Int
     }
 
 
@@ -135,7 +138,6 @@ init : ( Model, Cmd Msg )
 init =
     ( { dragDrop = DragDrop.init
       , groups = [ Group 0 "A Event" 16 True, Group 1 "B Event" 8 True ]
-      , gridSize = 50
       , cols = 25
       , teams = initTeams
       , games =
@@ -152,49 +154,49 @@ init =
                 , GamePosition 1 True (Just (TeamAssignment 4))
                 ]
                 Nothing
-                (Coords 0 2 0)
+                (Coords 0 0 100)
             , Game 3
                 (Just "5 vs 6")
                 [ GamePosition 0 False (Just (TeamAssignment 5))
                 , GamePosition 1 True (Just (TeamAssignment 6))
                 ]
                 Nothing
-                (Coords 0 4 0)
+                (Coords 0 0 200)
             , Game 4
                 (Just "7 vs 8")
                 [ GamePosition 0 False (Just (TeamAssignment 7))
                 , GamePosition 1 True (Just (TeamAssignment 8))
                 ]
                 Nothing
-                (Coords 0 6 0)
+                (Coords 0 0 300)
             , Game 5
                 (Just "9 vs 10")
                 [ GamePosition 0 False (Just (TeamAssignment 9))
                 , GamePosition 1 True (Just (TeamAssignment 10))
                 ]
                 Nothing
-                (Coords 0 8 0)
+                (Coords 0 0 400)
             , Game 6
                 (Just "11 vs 12")
                 [ GamePosition 0 False (Just (TeamAssignment 11))
                 , GamePosition 1 True (Just (TeamAssignment 12))
                 ]
                 Nothing
-                (Coords 0 10 0)
+                (Coords 0 0 500)
             , Game 7
                 (Just "13 vs 14")
                 [ GamePosition 0 False (Just (TeamAssignment 13))
                 , GamePosition 1 True (Just (TeamAssignment 14))
                 ]
                 Nothing
-                (Coords 0 12 0)
+                (Coords 0 0 600)
             , Game 8
                 (Just "15 vs 16")
                 [ GamePosition 0 False (Just (TeamAssignment 15))
                 , GamePosition 1 True (Just (TeamAssignment 16))
                 ]
                 Nothing
-                (Coords 0 14 0)
+                (Coords 0 0 700)
 
             -- Group A Round 2
             , Game 9
@@ -203,28 +205,28 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 2))
                 ]
                 Nothing
-                (Coords 0 1 2)
+                (Coords 0 200 50)
             , Game 10
                 (Just "Quarterfinal 2")
                 [ GamePosition 0 False (Just (GameAssignment Winner 3))
                 , GamePosition 1 True (Just (GameAssignment Winner 4))
                 ]
                 Nothing
-                (Coords 0 5 2)
+                (Coords 0 200 250)
             , Game 11
                 (Just "Quarterfinal 3")
                 [ GamePosition 0 False (Just (GameAssignment Winner 5))
                 , GamePosition 1 True (Just (GameAssignment Winner 6))
                 ]
                 Nothing
-                (Coords 0 9 2)
+                (Coords 0 200 450)
             , Game 12
                 (Just "Quarterfinal 4")
                 [ GamePosition 0 False (Just (GameAssignment Winner 7))
                 , GamePosition 1 True (Just (GameAssignment Winner 8))
                 ]
                 Nothing
-                (Coords 0 13 2)
+                (Coords 0 200 650)
 
             -- Group A Semifinal
             , Game 13
@@ -233,14 +235,14 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 10))
                 ]
                 Nothing
-                (Coords 0 3 4)
+                (Coords 0 400 150)
             , Game 14
                 (Just "Semifinal 2")
                 [ GamePosition 0 False (Just (GameAssignment Winner 11))
                 , GamePosition 1 True (Just (GameAssignment Winner 12))
                 ]
                 Nothing
-                (Coords 0 11 4)
+                (Coords 0 400 550)
 
             -- Group A Final
             , Game 15
@@ -249,7 +251,7 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 14))
                 ]
                 Nothing
-                (Coords 0 7 6)
+                (Coords 0 600 350)
 
             -- Group B
             , Game 16
@@ -265,21 +267,21 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Loser 4))
                 ]
                 Nothing
-                (Coords 1 2 0)
+                (Coords 1 0 100)
             , Game 18
                 (Just "B 3")
                 [ GamePosition 0 False (Just (GameAssignment Loser 5))
                 , GamePosition 1 True (Just (GameAssignment Loser 6))
                 ]
                 Nothing
-                (Coords 1 4 0)
+                (Coords 1 0 200)
             , Game 19
                 (Just "B 4")
                 [ GamePosition 0 False (Just (GameAssignment Loser 7))
                 , GamePosition 1 True (Just (GameAssignment Loser 8))
                 ]
                 Nothing
-                (Coords 1 6 0)
+                (Coords 1 0 300)
 
             -- Group B Round 2
             , Game 20
@@ -288,14 +290,14 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 17))
                 ]
                 Nothing
-                (Coords 1 1 2)
+                (Coords 1 200 50)
             , Game 21
                 (Just "B Semifinal 2")
                 [ GamePosition 0 False (Just (GameAssignment Winner 18))
                 , GamePosition 1 True (Just (GameAssignment Winner 19))
                 ]
                 Nothing
-                (Coords 1 5 2)
+                (Coords 1 200 250)
 
             -- Group B Semifinal
             , Game 22
@@ -304,7 +306,7 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 21))
                 ]
                 Nothing
-                (Coords 1 3 4)
+                (Coords 1 400 150)
             ]
       , overlay = Nothing
       , newGameCount = -1
@@ -326,9 +328,9 @@ findGameByCoords games coords =
 
 {-| Move a game on the grid from one set of coords to another.
 -}
-moveGame : List Game -> Coords -> Coords -> List Game
-moveGame games fromCoords toCoords =
-    List.Extra.updateIf (\game -> game.coords == fromCoords) (\game -> { game | coords = toCoords }) games
+moveGame : List Game -> Int -> Coords -> List Game
+moveGame games gameId coords =
+    List.Extra.updateIf (\game -> game.id == gameId) (\game -> { game | coords = coords }) games
 
 
 connectGameResult : List Game -> ( Int, Result ) -> ( Int, Int ) -> List Game
@@ -395,25 +397,25 @@ addGame id games coords =
             games
 
 
-{-| Find the minimum required rows for a group based on the placement of games within it, making sure there are enough rows for all of a groups games to be shown.
+{-| Find the minimum required cols based on the placement of games, making sure there are enough cols for all games to be shown.
 -}
 minCols : List Game -> Int
 minCols games =
     games
-        |> List.map (\g -> g.coords.col + 1)
+        |> List.map (\g -> (g.coords.x // gridSize) + 3)
         |> List.maximum
-        |> Maybe.withDefault 10
+        |> Maybe.withDefault 25
 
 
 {-| Find the minimum required rows for a group based on the placement of games within it, making sure there are enough rows for all of a groups games to be shown.
 -}
-minRowsForGroup : Group -> List Game -> Int
-minRowsForGroup group games =
+minRows : Group -> List Game -> Int
+minRows group games =
     games
         |> List.filter (\g -> g.coords.group == group.position)
-        |> List.map (\g -> g.coords.row + 2)
+        |> List.map (\g -> (g.coords.y // gridSize) + 3)
         |> List.maximum
-        |> Maybe.withDefault 8
+        |> Maybe.withDefault 10
 
 
 {-| Return a list of teams that haven't been assigned to a game yet.
@@ -604,10 +606,10 @@ update msg model =
                     DragDrop.update msg_ model.dragDrop
             in
             ( case result of
-                Just ( DraggableGame fromCoords, DroppableCell toCoords, _ ) ->
+                Just ( DraggableGame gameId, DroppableCell coords, _ ) ->
                     { model
                         | dragDrop = model_
-                        , games = moveGame model.games fromCoords toCoords
+                        , games = moveGame model.games gameId coords
                         , groups =
                             let
                                 updatedRowsForGroups : List Group -> List Game -> List Group
@@ -615,17 +617,17 @@ update msg model =
                                     let
                                         updatedRows : Group -> Group
                                         updatedRows group =
-                                            { group | rows = Basics.max 10 (minRowsForGroup group games + 1) }
+                                            { group | rows = Basics.max 10 (minRows group games) }
                                     in
                                     groups
                                         |> List.map updatedRows
                             in
-                            updatedRowsForGroups model.groups (moveGame model.games fromCoords toCoords)
+                            updatedRowsForGroups model.groups (moveGame model.games gameId coords)
                         , cols =
-                            moveGame model.games fromCoords toCoords
+                            moveGame model.games gameId coords
                                 |> minCols
-                                |> Basics.max 25
-                                |> (+) 1
+                                |> Basics.max 22
+                                |> (+) 3
                     }
 
                 Just ( DraggableResult from, DroppableGamePosition to, _ ) ->
@@ -906,9 +908,6 @@ view model =
         dropId =
             DragDrop.getDropId model.dragDrop
 
-        draggedTo =
-            DragDrop.getDroppablePosition model.dragDrop
-
         modalOpen =
             model.overlay /= Nothing
     in
@@ -921,7 +920,7 @@ view model =
                         [ text "Help" ]
                     ]
                 ]
-            , viewGroups model dragId dropId draggedTo
+            , viewGroups model dragId dropId
             , button [ class "btn btn-primary", onClick AddGroup ] [ text "Add Group" ]
             , if modalOpen then
                 viewOverlay model
@@ -1125,16 +1124,20 @@ viewEditGame model game =
         ]
 
 
-viewGroups : Model -> Maybe DraggableId -> Maybe DroppableId -> Maybe DragDrop.Position -> Html Msg
-viewGroups model dragId dropId toCoords =
+viewGroups : Model -> Maybe DraggableId -> Maybe DroppableId -> Html Msg
+viewGroups model dragId dropId =
     div []
-        (List.map (viewGroup model dragId dropId toCoords) model.groups)
+        (List.map (viewGroup model dragId dropId) model.groups)
 
 
-viewGroup : Model -> Maybe DraggableId -> Maybe DroppableId -> Maybe DragDrop.Position -> Group -> Html Msg
-viewGroup model dragId dropId toCoords group =
+viewGroup : Model -> Maybe DraggableId -> Maybe DroppableId -> Group -> Html Msg
+viewGroup model dragId dropId group =
+    let
+        groupGames =
+            List.filter (\g -> g.coords.group == group.position) model.games
+    in
     div
-        [ class "group" ]
+        [ class "group-container" ]
         [ div
             [ class "d-flex" ]
             [ div
@@ -1148,40 +1151,40 @@ viewGroup model dragId dropId toCoords group =
                 ]
                 [ text "✎" ]
             ]
-        , if group.visible then
-            table
-                []
-                (List.map (viewRow model dragId dropId toCoords group) (List.range 0 (group.rows - 1)))
+        , div [ class "group" ]
+            (if group.visible then
+                [ table
+                    []
+                    (List.map (viewRow model dragId dropId group) (List.range 0 (group.rows - 1)))
+                , viewGames dragId dropId model.teams model.games groupGames
+                ]
 
-          else
-            div [ class "text-muted group-hide" ] [ text "..." ]
+             else
+                [ div [ class "text-muted group-hide" ] [ text "..." ] ]
+            )
         ]
 
 
-viewRow : Model -> Maybe DraggableId -> Maybe DroppableId -> Maybe DragDrop.Position -> Group -> Int -> Html Msg
-viewRow model dragId dropId toCoords group row =
-    let
-        cellStart =
-            row * model.cols
-    in
+viewRow : Model -> Maybe DraggableId -> Maybe DroppableId -> Group -> Int -> Html Msg
+viewRow model dragId dropId group row =
     tr
         []
-        (List.map (viewCell model dragId dropId toCoords group row) (List.range 0 (model.cols - 1)))
+        (List.map (viewCell model dragId dropId group row) (List.range 0 (model.cols - 1)))
 
 
-viewCell : Model -> Maybe DraggableId -> Maybe DroppableId -> Maybe DragDrop.Position -> Group -> Int -> Int -> Html Msg
-viewCell model dragId dropId toCoords group row col =
+viewCell : Model -> Maybe DraggableId -> Maybe DroppableId -> Group -> Int -> Int -> Html Msg
+viewCell model dragId dropId group row col =
     let
         onCoords =
-            Coords group.position row col
+            Coords group.position (col * gridSize) (row * gridSize)
 
         onGame =
             findGameByCoords model.games onCoords
 
         highlighted =
             case ( dragId, dropId ) of
-                ( Just (DraggableGame _), Just (DroppableCell fromCoords) ) ->
-                    if fromCoords == onCoords then
+                ( Just (DraggableGame _), Just (DroppableCell coords) ) ->
+                    if coords == onCoords then
                         True
 
                     else
@@ -1191,38 +1194,39 @@ viewCell model dragId dropId toCoords group row col =
                     False
     in
     td
-        ([ style "width" (String.fromInt model.gridSize ++ "px")
-         , style "height" (String.fromInt model.gridSize ++ "px")
+        ([ style "width" (String.fromInt gridSize ++ "px")
+         , style "height" (String.fromInt gridSize ++ "px")
          , classList [ ( "drop-target", highlighted ) ]
          ]
             ++ DragDrop.droppable DragDropMsg (DroppableCell onCoords)
             ++ [ onDoubleClick (AddGame onCoords) ]
         )
-        [ case onGame of
-            Just game ->
-                viewGame dragId dropId model.games model.teams game onCoords
-
-            Nothing ->
-                text ""
-        ]
+        []
 
 
-viewGame : Maybe DraggableId -> Maybe DroppableId -> List Game -> List Team -> Game -> Coords -> Html Msg
-viewGame dragId dropId games teams game onCoords =
+viewGames : Maybe DraggableId -> Maybe DroppableId -> List Team -> List Game -> List Game -> Html Msg
+viewGames dragId dropId teams games groupGames =
+    div [ class "games" ] (List.map (viewGame dragId dropId teams games) groupGames)
+
+
+viewGame : Maybe DraggableId -> Maybe DroppableId -> List Team -> List Game -> Game -> Html Msg
+viewGame dragId dropId teams games game =
     let
         dragging =
             case dragId of
-                Just (DraggableGame coords) ->
-                    coords == game.coords
+                Just (DraggableGame gameId) ->
+                    gameId == game.id
 
                 _ ->
                     False
     in
     div
         ([ classList [ ( "game", True ), ( "dragging-game", dragging ) ]
+         , style "left" (String.fromInt game.coords.x ++ "px")
+         , style "top" (String.fromInt game.coords.y ++ "px")
          , onDoubleClick (EditGame game)
          ]
-            ++ DragDrop.draggable DragDropMsg (DraggableGame onCoords)
+            ++ DragDrop.draggable DragDropMsg (DraggableGame game.id)
         )
         [ div
             [ class "d-flex game-header" ]
@@ -1238,14 +1242,14 @@ viewGame dragId dropId games teams game onCoords =
         , div [ class "game-body d-flex" ]
             [ div
                 [ class "game-positions flex-fill" ]
-                (List.indexedMap (\index gamePosition -> viewGamePosition dragId dropId games teams game.id index gamePosition) game.gamePositions)
+                (List.indexedMap (\index gamePosition -> viewGamePosition dragId dropId teams games game.id index gamePosition) game.gamePositions)
             , div [ class "align-self-end ml-1" ] (viewResultConnectors dragId game.id)
             ]
         ]
 
 
-viewGamePosition : Maybe DraggableId -> Maybe DroppableId -> List Game -> List Team -> Int -> Int -> GamePosition -> Html Msg
-viewGamePosition dragId dropId games teams gameId position gamePosition =
+viewGamePosition : Maybe DraggableId -> Maybe DroppableId -> List Team -> List Game -> Int -> Int -> GamePosition -> Html Msg
+viewGamePosition dragId dropId teams games gameId position gamePosition =
     let
         positionClass =
             if position == 0 then

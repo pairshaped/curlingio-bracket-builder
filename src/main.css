@@ -15,8 +15,8 @@ h3 {
 }
 
 td {
-  min-width: 100px;
-  width: 100px;
+  min-width: 50px;
+  width: 50px;
   height: 50px;
   text-align: "center";
   padding: 0;
@@ -29,8 +29,12 @@ td {
   background-color: #aaa !important;
 }
 
-.group {
+.group-container {
   margin-bottom: 24px;
+}
+
+.group {
+  position: relative;
 }
 
 .group-name {
@@ -43,10 +47,9 @@ td {
 
 
 .game {
+  position: absolute;
   display: flex;
   flex-direction: column;
-  position: absolute;
-  top: 0;
   width: 180px;
   height: 65px;
   overflow: hidden;
