@@ -12,8 +12,8 @@ import Json.Encode as Json
 import List.Extra
 import Set
 import String.Extra
-import Svg exposing (line, svg)
-import Svg.Attributes exposing (stroke, strokeDasharray, strokeOpacity, x1, x2, y1, y2)
+import Svg exposing (line, polyline, svg)
+import Svg.Attributes exposing (fill, points, stroke, strokeDasharray, strokeOpacity, x1, x2, y1, y2)
 
 
 
@@ -45,7 +45,6 @@ type alias Model =
 type Overlay
     = EditingGame Game
     | EditingGroup Group
-    | ViewingHelp
 
 
 type DraggableId
@@ -568,10 +567,10 @@ lineConnectors games =
                                                 , fromGame.coords.row
                                                     * gridSize
                                                     + (if result == Winner then
-                                                        30
+                                                        32
 
                                                        else
-                                                        50
+                                                        57
                                                       )
                                                 )
 
@@ -584,10 +583,10 @@ lineConnectors games =
                                         , toGame.coords.row
                                             * gridSize
                                             + (if toPosition == 0 then
-                                                30
+                                                32
 
                                                else
-                                                50
+                                                57
                                               )
                                         )
                             in
@@ -614,7 +613,6 @@ lineConnectors games =
 
 type Msg
     = DragDropMsg (DragDrop.Msg DraggableId DroppableId)
-    | ToggleHelp
     | AddCol
     | RemoveCol
     | AddGroup
@@ -678,19 +676,6 @@ update msg model =
             , DragDrop.getDragstartEvent msg_
                 |> Maybe.map (.event >> dragstart)
                 |> Maybe.withDefault Cmd.none
-            )
-
-        ToggleHelp ->
-            ( { model
-                | overlay =
-                    case model.overlay of
-                        Just ViewingHelp ->
-                            Nothing
-
-                        _ ->
-                            Just ViewingHelp
-              }
-            , Cmd.none
             )
 
         AddCol ->
@@ -949,14 +934,7 @@ view model =
     in
     div [ classList [ ( "modal-open", modalOpen ) ] ]
         [ div [ class "p-3" ]
-            [ div [ class "d-flex justify-content-between" ]
-                [ h2 [] [ text "Curling I/O Bracket Builder Demo" ]
-                , div [ style "min-width" "100px", class "text-right" ]
-                    [ button [ class "btn btn-info btn-sm", onClick ToggleHelp ]
-                        [ text "Help" ]
-                    ]
-                ]
-            , viewGroups model dragId dropId
+            [ viewGroups model dragId dropId
             , button [ class "btn btn-primary", onClick AddGroup ] [ text "Add Group" ]
             , if modalOpen then
                 viewOverlay model
@@ -973,9 +951,6 @@ viewOverlay model =
     div [ class "modal", style "display" "block" ]
         [ div [ class "modal-dialog" ]
             [ case model.overlay of
-                Just ViewingHelp ->
-                    viewHelp
-
                 Just (EditingGame game) ->
                     viewEditGame model game
 
@@ -984,38 +959,6 @@ viewOverlay model =
 
                 Nothing ->
                     text ""
-            ]
-        ]
-
-
-viewHelp : Html Msg
-viewHelp =
-    div [ class "modal-content" ]
-        [ div [ class "modal-header" ]
-            [ h2 [ class "modal-title" ] [ text "Help" ] ]
-        , div [ class "modal-body" ]
-            [ h3 [] [ text "Games" ]
-            , ul []
-                [ li [] [ text "Drag and drop games anywhere you like." ]
-                , li [] [ text "Double click an empty area in a group to add a new game." ]
-                , li [] [ text "Double click on a game to edit it." ]
-                , li [] [ text "Click the ✘ in the top right corner of a game to remove it." ]
-                , li [] [ text "The grid will automatically grow or shrink as you move games near it's edges." ]
-                , li [] [ text "The green circles represent the potential winners of a game. Click and drag it to another game to assign who the winner plays next." ]
-                , li [] [ text "The red circles represent the potential losers of a game. Click and drag it to another game to assign who the loser plays next." ]
-                ]
-            , h3 [] [ text "Groups" ]
-            , ul []
-                [ li [] [ text "Click on a group name to temporarily hide it so you can better see other groups." ]
-                , li [] [ text "Click the ✎ icon next to a group name to edit its name." ]
-                ]
-            , h3 [] [ text "Saving" ]
-            , ul []
-                [ li [] [ text "Saving changes is currently disabled for this demo. Nothing you do will be saved / persisted when you reload the page." ]
-                ]
-            ]
-        , div [ class "modal-footer" ]
-            [ button [ class "btn btn-primary", onClick ToggleHelp ] [ text "Close" ]
             ]
         ]
 
@@ -1380,13 +1323,13 @@ viewSvgLines dragId group games =
         dragging =
             not (dragId == Nothing)
 
+        strPoint coords =
+            String.fromInt (Tuple.first coords) ++ "," ++ String.fromInt (Tuple.second coords) ++ " "
+
         viewSvgLine l =
-            line
-                [ x1 (String.fromInt (Tuple.first l.fromCoords))
-                , y1 (String.fromInt (Tuple.second l.fromCoords))
-                , x2 (String.fromInt (Tuple.first l.toCoords))
-                , y2 (String.fromInt (Tuple.second l.toCoords))
-                , strokeOpacity "0.6"
+            polyline
+                [ fill "none"
+                , strokeOpacity "0.5"
                 , strokeDasharray "3"
                 , stroke
                     (case l.result of
@@ -1395,6 +1338,12 @@ viewSvgLines dragId group games =
 
                         Loser ->
                             "red"
+                    )
+                , points
+                    (strPoint l.fromCoords
+                        ++ strPoint ( Tuple.first l.fromCoords + 10, Tuple.second l.fromCoords )
+                        ++ strPoint ( Tuple.first l.toCoords - 6, Tuple.second l.toCoords )
+                        ++ strPoint l.toCoords
                     )
                 ]
                 []
