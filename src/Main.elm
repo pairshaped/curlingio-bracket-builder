@@ -693,10 +693,11 @@ update msg model =
             let
                 nextGroupId =
                     List.length model.groups
+
+                newGroup =
+                    Group nextGroupId ("Group " ++ String.fromInt (nextGroupId + 1)) 8 True
             in
-            ( { model
-                | groups = model.groups ++ [ Group nextGroupId ("Group " ++ String.fromInt (nextGroupId + 1)) 8 True ]
-              }
+            ( { model | groups = model.groups ++ [ newGroup ] }
             , Cmd.none
             )
 
@@ -1131,7 +1132,7 @@ viewGroup model dragId dropId group =
             ]
         , div [ class "group" ]
             (if group.visible then
-                [ viewSvgLines dragId group groupGames
+                [ viewSvgLines group groupGames
                 , table
                     []
                     (List.map (viewRow model dragId dropId group) (List.range 0 (group.rows - 1)))
@@ -1180,7 +1181,7 @@ viewCell model dragId dropId group row col =
             ++ DragDrop.droppable DragDropMsg (DroppableCell onCoords)
             ++ [ onDoubleClick (AddGame onCoords) ]
         )
-        []
+        [ text "" ]
 
 
 viewGames : Maybe DraggableId -> Maybe DroppableId -> List Team -> List Game -> List Game -> Html Msg
@@ -1317,12 +1318,9 @@ viewResultConnectors dragId gameId =
     ]
 
 
-viewSvgLines : Maybe DraggableId -> Group -> List Game -> Html Msg
-viewSvgLines dragId group games =
+viewSvgLines : Group -> List Game -> Html Msg
+viewSvgLines group games =
     let
-        dragging =
-            not (dragId == Nothing)
-
         strPoint coords =
             String.fromInt (Tuple.first coords) ++ "," ++ String.fromInt (Tuple.second coords) ++ " "
 
@@ -1348,7 +1346,7 @@ viewSvgLines dragId group games =
                 ]
                 []
     in
-    div [ classList [ ( "group-lines", True ), ( "group-lines-while-dragging", dragging ) ] ]
+    div [ class "group-lines" ]
         [ svg
             [ Svg.Attributes.width (String.fromInt ((minCols games + 1) * gridSize)), Svg.Attributes.height (String.fromInt ((minRows group games - 1) * gridSize)) ]
             (List.map viewSvgLine (lineConnectors games))

@@ -47,11 +47,8 @@ td {
   position: absolute;
   left: 0;
   top: 0;
+  pointer-events: none;
 }
-.group-lines-while-dragging {
-  display: none;
-}
-
 
 .game {
   position: absolute;
@@ -68,7 +65,7 @@ td {
 }
 
 .dragging-game {
-  height: 15px; /* So we can drag on top of cells under the game that would otherwise be hidden */
+  height: 19px; /* So we can drag on top of cells under the game that would otherwise be hidden */
 }
 .dragging-game .game-delete {
   display: none;
