@@ -203,28 +203,28 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 2))
                 ]
                 Nothing
-                (Coords 0 4 1)
+                (Coords 0 5 1)
             , Game 10
                 (Just "Quarterfinal 2")
                 [ GamePosition 0 False (Just (GameAssignment Winner 3))
                 , GamePosition 1 True (Just (GameAssignment Winner 4))
                 ]
                 Nothing
-                (Coords 0 4 5)
+                (Coords 0 5 5)
             , Game 11
                 (Just "Quarterfinal 3")
                 [ GamePosition 0 False (Just (GameAssignment Winner 5))
                 , GamePosition 1 True (Just (GameAssignment Winner 6))
                 ]
                 Nothing
-                (Coords 0 4 9)
+                (Coords 0 5 9)
             , Game 12
                 (Just "Quarterfinal 4")
                 [ GamePosition 0 False (Just (GameAssignment Winner 7))
                 , GamePosition 1 True (Just (GameAssignment Winner 8))
                 ]
                 Nothing
-                (Coords 0 4 13)
+                (Coords 0 5 13)
 
             -- Group A Semifinal
             , Game 13
@@ -233,14 +233,14 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 10))
                 ]
                 Nothing
-                (Coords 0 8 3)
+                (Coords 0 10 3)
             , Game 14
                 (Just "Semifinal 2")
                 [ GamePosition 0 False (Just (GameAssignment Winner 11))
                 , GamePosition 1 True (Just (GameAssignment Winner 12))
                 ]
                 Nothing
-                (Coords 0 8 11)
+                (Coords 0 10 11)
 
             -- Group A Final
             , Game 15
@@ -249,7 +249,7 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 14))
                 ]
                 Nothing
-                (Coords 0 12 7)
+                (Coords 0 15 7)
 
             -- Group B
             , Game 16
@@ -288,14 +288,14 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 17))
                 ]
                 Nothing
-                (Coords 1 4 1)
+                (Coords 1 5 1)
             , Game 21
                 (Just "B Semifinal 2")
                 [ GamePosition 0 False (Just (GameAssignment Winner 18))
                 , GamePosition 1 True (Just (GameAssignment Winner 19))
                 ]
                 Nothing
-                (Coords 1 4 5)
+                (Coords 1 5 5)
 
             -- Group B Semifinal
             , Game 22
@@ -304,7 +304,7 @@ init =
                 , GamePosition 1 True (Just (GameAssignment Winner 21))
                 ]
                 Nothing
-                (Coords 1 8 3)
+                (Coords 1 10 3)
             ]
       , overlay = Nothing
       , newGameCount = -1
@@ -995,8 +995,32 @@ viewEditGroup model group =
                 ]
             ]
         , div [ class "modal-footer d-flex justify-content-between" ]
-            [ button [ onClick (RemoveGroup group), class "btn btn-danger mr-2", disabled hasNoGames ] [ text "Remove" ]
-            , button [ onClick (CloseEditGroup group), class "btn btn-primary", disabled hasNoName ] [ text "Close" ]
+            [ button
+                [ onClick (RemoveGroup group)
+                , class "btn btn-danger mr-2"
+                , disabled hasNoGames
+                , title
+                    (if hasNoGames then
+                        "Remove games from this group first"
+
+                     else
+                        ""
+                    )
+                ]
+                [ text "Remove" ]
+            , button
+                [ onClick (CloseEditGroup group)
+                , class "btn btn-primary"
+                , disabled hasNoName
+                , title
+                    (if hasNoName then
+                        "Name is required"
+
+                     else
+                        ""
+                    )
+                ]
+                [ text "Close" ]
             ]
         ]
 
