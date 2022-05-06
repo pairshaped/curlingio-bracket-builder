@@ -18,31 +18,77 @@
     { "id": 16, "name": "Ned"}
   ],
   "groups": [
-    { "position": 0, "name": "A Event", "rows": 16, "visible": true },
-    { "position": 1, "name": "B Event", "rows": 8, "visible": true }
+    { "position": 0, "name": "A Event" },
+    { "position": 1, "name": "B Event" }
   ],
   "games": [
     {
       "id": 1,
-      "name": "1 vs 2",
+      "name": "A1",
+      "coords": { "group": 0, "col": 0, "row": 0 },
       "gamePositions": [
         {
           "position": 0,
           "firstHammer": false,
-          "team_assignment": 1
+          "assignment": { "assignment_type": "team", "id": 1 }
         },
         {
           "position": 1,
           "firstHammer": true,
-          "team_assignment": 2
+          "assignment": { "assignment_type": "team", "id": 2 }
         }
-      ],
-      "game_winner": null,
-      "coords": {
-        "group": 0,
-        "col": 0,
-        "row": 0
-      }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "A2",
+      "coords": { "group": 0, "col": 0, "row": 2 },
+      "gamePositions": [
+        {
+          "position": 0,
+          "firstHammer": false,
+          "assignment": { "assignment_type": "team", "id": 3 }
+        },
+        {
+          "position": 1,
+          "firstHammer": true,
+          "assignment": { "assignment_type": "team", "id": 4 }
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "A Final",
+      "coords": { "group": 0, "col": 5, "row": 1 },
+      "gamePositions": [
+        {
+          "position": 0,
+          "firstHammer": false,
+          "assignment": { "assignment_type": "game", "result": "winner", "id": 1 }
+        },
+        {
+          "position": 1,
+          "firstHammer": true,
+          "assignment": { "assignment_type": "game", "result": "winner", "id": 2 }
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "B Final",
+      "coords": { "group": 1, "col": 0, "row": 0 },
+      "gamePositions": [
+        {
+          "position": 0,
+          "firstHammer": false,
+          "assignment": { "assignment_type": "game", "result": "loser", "id": 1 }
+        },
+        {
+          "position": 1,
+          "firstHammer": true,
+          "assignment": { "assignment_type": "game", "result": "loser", "id": 2 }
+        }
+      ]
     }
   ]
 }

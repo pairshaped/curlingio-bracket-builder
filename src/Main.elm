@@ -10,6 +10,7 @@ import Html5.DragDrop as DragDrop
 import Json.Decode as Decode
 import Json.Encode as Encode
 import List.Extra
+import RemoteData exposing (WebData)
 import Set
 import String.Extra
 import Svg exposing (line, polyline, svg)
@@ -44,9 +45,7 @@ type alias Model =
     { dragDrop : DragDrop.Model DraggableId DroppableId
     , overlay : Maybe Overlay
     , changed : Bool
-    , groups : List Group
-    , teams : List Team
-    , games : List Game
+    , bracket : Bracket
     }
 
 
@@ -147,43 +146,59 @@ initTeams =
     ]
 
 
+initBracket : Bracket
+initBracket =
+    { teams = initTeams
+    , groups =
+        [ Group 0 "Group 1" True ]
+    , games = []
+    }
+
+
+demoBracket : Bracket
+demoBracket =
+    { teams = initTeams
+    , groups =
+        [ Group 0 "A Event" True, Group 1 "B Event" True ]
+    , games =
+        [ Game 1
+            (Just "A1")
+            [ GamePosition 0 False (Just (TeamAssignment 1))
+            , GamePosition 1 True (Just (TeamAssignment 2))
+            ]
+            (Coords 0 0 0)
+        , Game 2
+            (Just "A2")
+            [ GamePosition 0 False (Just (TeamAssignment 3))
+            , GamePosition 1 True (Just (TeamAssignment 4))
+            ]
+            (Coords 0 0 2)
+
+        -- Group A Round 2
+        , Game 3
+            (Just "A Final")
+            [ GamePosition 0 False (Just (GameAssignment Winner 1))
+            , GamePosition 1 True (Just (GameAssignment Winner 2))
+            ]
+            (Coords 0 5 1)
+
+        -- Group B Rand 1
+        , Game 4
+            (Just "B Final")
+            [ GamePosition 0 False (Just (GameAssignment Loser 1))
+            , GamePosition 1 True (Just (GameAssignment Loser 2))
+            ]
+            (Coords 1 0 0)
+        ]
+    }
+
+
 init : ( Model, Cmd Msg )
 init =
     ( { dragDrop = DragDrop.init
       , overlay = Nothing
       , changed = False
-      , groups = [ Group 0 "A Event" True, Group 1 "B Event" True ]
-      , teams = initTeams
-      , games =
-            [ Game 1
-                (Just "A1")
-                [ GamePosition 0 False (Just (TeamAssignment 1))
-                , GamePosition 1 True (Just (TeamAssignment 2))
-                ]
-                (Coords 0 0 0)
-            , Game 2
-                (Just "A2")
-                [ GamePosition 0 False (Just (TeamAssignment 3))
-                , GamePosition 1 True (Just (TeamAssignment 4))
-                ]
-                (Coords 0 0 2)
-
-            -- Group A Round 2
-            , Game 3
-                (Just "A Final")
-                [ GamePosition 0 False (Just (GameAssignment Winner 1))
-                , GamePosition 1 True (Just (GameAssignment Winner 2))
-                ]
-                (Coords 0 5 1)
-
-            -- Group B Rand 1
-            , Game 4
-                (Just "B Final")
-                [ GamePosition 0 False (Just (GameAssignment Loser 1))
-                , GamePosition 1 True (Just (GameAssignment Loser 2))
-                ]
-                (Coords 1 0 0)
-            ]
+      , bracket = demoBracket
       }
     , Cmd.none
     )
@@ -596,9 +611,107 @@ gamesEncoder games =
 ---- DECODERS ----
 
 
-bracketDecoder : String -> Maybe Bracket
-bracketDecoder json =
-    Nothing
+bracketDecoder : Decode.Decoder Bracket
+bracketDecoder =
+    Decode.map3
+        Bracket
+        (Decode.field "teams" (Decode.list teamDecoder))
+        (Decode.field "groups" (Decode.list groupDecoder))
+        (Decode.field "games" (Decode.list gameDecoder))
+
+
+teamDecoder : Decode.Decoder Team
+teamDecoder =
+    Decode.map2
+        Team
+        (Decode.field "id" Decode.int)
+        (Decode.field "name" Decode.string)
+
+
+groupDecoder : Decode.Decoder Group
+groupDecoder =
+    Decode.map3
+        Group
+        (Decode.field "position" Decode.int)
+        (Decode.field "name" Decode.string)
+        (Decode.succeed True)
+
+
+gameDecoder : Decode.Decoder Game
+gameDecoder =
+    let
+        gamePositionDecoder : Decode.Decoder GamePosition
+        gamePositionDecoder =
+            let
+                assignmentDecoder : Decode.Decoder Assignment
+                assignmentDecoder =
+                    let
+                        assignmentFromType : String -> Decode.Decoder Assignment
+                        assignmentFromType str =
+                            case str of
+                                "game" ->
+                                    gameAssignmentDecoder
+
+                                "team" ->
+                                    teamAssignmentDecoder
+
+                                _ ->
+                                    Decode.fail ("Invalid assignment type: " ++ str)
+
+                        teamAssignmentDecoder : Decode.Decoder Assignment
+                        teamAssignmentDecoder =
+                            Decode.map
+                                TeamAssignment
+                                (Decode.field "id" Decode.int)
+
+                        gameAssignmentDecoder : Decode.Decoder Assignment
+                        gameAssignmentDecoder =
+                            let
+                                resultDecoder : Decode.Decoder GameResult
+                                resultDecoder =
+                                    let
+                                        resultFromString : String -> Decode.Decoder GameResult
+                                        resultFromString str =
+                                            case str of
+                                                "winner" ->
+                                                    Decode.succeed Winner
+
+                                                "loser" ->
+                                                    Decode.succeed Loser
+
+                                                _ ->
+                                                    Decode.fail ("Invalid result: " ++ str)
+                                    in
+                                    Decode.string |> Decode.andThen resultFromString
+                            in
+                            Decode.map2
+                                GameAssignment
+                                (Decode.field "result" resultDecoder)
+                                (Decode.field "id" Decode.int)
+                    in
+                    Decode.field "assignment_type" Decode.string
+                        |> Decode.andThen assignmentFromType
+            in
+            Decode.map3
+                GamePosition
+                (Decode.field "position" Decode.int)
+                (Decode.field "first_hammer" Decode.bool)
+                (Decode.maybe (Decode.field "assignment" assignmentDecoder))
+
+        coordsDecoder : Decode.Decoder Coords
+        coordsDecoder =
+            Decode.map3
+                Coords
+                (Decode.field "group" Decode.int)
+                (Decode.field "col" Decode.int)
+                (Decode.field "row" Decode.int)
+    in
+    Decode.map4
+        Game
+        (Decode.field "id" Decode.int)
+        (Decode.maybe (Decode.field "name" Decode.string))
+        (Decode.field "game_positions" (Decode.list gamePositionDecoder))
+        (Decode.field "coords" coordsDecoder)
 
 
 
@@ -637,18 +750,25 @@ update msg model =
             in
             ( case result of
                 Just ( DraggableGame gameId, DroppableCell coords, _ ) ->
+                    let
+                        updatedBracket bracket =
+                            { bracket | games = moveGame model.bracket.games gameId coords }
+                    in
                     { model
                         | dragDrop = model_
                         , changed = True
-                        , games = moveGame model.games gameId coords
+                        , bracket = updatedBracket model.bracket
                     }
 
                 Just ( DraggableResult from, DroppableGamePosition to, _ ) ->
-                    -- TODO: Team dragging.
+                    let
+                        updatedBracket bracket =
+                            { bracket | games = connectGameResult model.bracket.games from to }
+                    in
                     { model
                         | dragDrop = model_
                         , changed = True
-                        , games = connectGameResult model.games from to
+                        , bracket = updatedBracket model.bracket
                     }
 
                 _ ->
@@ -661,14 +781,17 @@ update msg model =
         AddGroup ->
             let
                 nextGroupId =
-                    List.length model.groups
+                    List.length model.bracket.groups
 
                 newGroup =
                     Group nextGroupId ("Group " ++ String.fromInt (nextGroupId + 1)) True
+
+                updatedBracket bracket =
+                    { bracket | groups = model.bracket.groups ++ [ newGroup ] }
             in
             ( { model
-                | groups = model.groups ++ [ newGroup ]
-                , changed = True
+                | changed = True
+                , bracket = updatedBracket model.bracket
               }
             , Cmd.none
             )
@@ -683,10 +806,13 @@ update msg model =
                 updatedGroup : Group
                 updatedGroup =
                     { group | visible = not group.visible }
+
+                updatedBracket bracket =
+                    { bracket | groups = updatedGroups model.bracket.groups updatedGroup }
             in
             ( { model
-                | groups = updatedGroups model.groups updatedGroup
-                , changed = True
+                | changed = True
+                , bracket = updatedBracket model.bracket
               }
             , Cmd.none
             )
@@ -702,19 +828,27 @@ update msg model =
             )
 
         CloseEditGroup group ->
+            let
+                updatedBracket bracket =
+                    { bracket | groups = updatedGroups model.bracket.groups group }
+            in
             ( { model
                 | overlay = Nothing
-                , groups = updatedGroups model.groups group
                 , changed = True
+                , bracket = updatedBracket model.bracket
               }
             , Cmd.none
             )
 
         RemoveGroup group ->
+            let
+                updatedBracket bracket =
+                    { bracket | groups = List.Extra.remove group model.bracket.groups }
+            in
             ( { model
                 | overlay = Nothing
-                , groups = List.Extra.remove group model.groups
                 , changed = True
+                , bracket = updatedBracket model.bracket
               }
             , Cmd.none
             )
@@ -723,20 +857,27 @@ update msg model =
             let
                 -- Assign a negative number. It doesn't matter what it is, as long as it never conflicts with any existing game ids.
                 newGameId =
-                    List.length model.games * -1
+                    List.length model.bracket.games * -1
+
+                updatedBracket bracket =
+                    { bracket | games = addGame newGameId model.bracket.games coords }
             in
             ( { model
-                | games = addGame newGameId model.games coords
-                , changed = True
+                | changed = True
+                , bracket = updatedBracket model.bracket
               }
             , Cmd.none
             )
 
         RemoveGame game ->
+            let
+                updatedBracket bracket =
+                    { bracket | games = List.Extra.remove game model.bracket.games }
+            in
             ( { model
                 | overlay = Nothing
-                , games = List.Extra.remove game model.games
                 , changed = True
+                , bracket = updatedBracket model.bracket
               }
             , Cmd.none
             )
@@ -787,7 +928,7 @@ update msg model =
                                         Just teamIdStr ->
                                             case String.toInt teamIdStr of
                                                 Just teamId ->
-                                                    case List.Extra.find (\t -> t.id == teamId) model.teams of
+                                                    case List.Extra.find (\t -> t.id == teamId) model.bracket.teams of
                                                         Just team ->
                                                             Just (TeamAssignment team.id)
 
@@ -806,7 +947,7 @@ update msg model =
                                         Just gameIdStr ->
                                             case String.toInt gameIdStr of
                                                 Just gameId ->
-                                                    case List.Extra.find (\g -> g.id == gameId) model.games of
+                                                    case List.Extra.find (\g -> g.id == gameId) model.bracket.games of
                                                         Just g ->
                                                             let
                                                                 typedGameResult =
@@ -834,7 +975,7 @@ update msg model =
                 updatedGames =
                     case typedAssignment of
                         Just (GameAssignment typedGameResult fromGameId) ->
-                            connectGameResult model.games ( fromGameId, typedGameResult ) ( game.id, position )
+                            connectGameResult model.bracket.games ( fromGameId, typedGameResult ) ( game.id, position )
 
                         Just (TeamAssignment teamId) ->
                             let
@@ -852,19 +993,22 @@ update msg model =
                                     else
                                         g
                             in
-                            List.map updatedGame model.games
+                            List.map updatedGame model.bracket.games
 
                         _ ->
-                            model.games
+                            model.bracket.games
 
                 editingGame =
                     List.Extra.find (\g -> g.id == game.id) updatedGames
                         |> Maybe.map EditingGame
+
+                updatedBracket bracket =
+                    { bracket | games = updatedGames }
             in
             ( { model
                 | overlay = editingGame
-                , games = updatedGames
                 , changed = True
+                , bracket = updatedBracket model.bracket
               }
             , Cmd.none
             )
@@ -876,42 +1020,45 @@ update msg model =
                 updatedGame =
                     case trimMaybe game.name of
                         Nothing ->
-                            assignGameName model.teams game
+                            assignGameName model.bracket.teams game
 
                         _ ->
                             game
+
+                updatedBracket bracket =
+                    { bracket | games = List.Extra.updateIf (\g -> g.coords == game.coords) (\g -> game) model.bracket.games }
             in
             ( { model
                 | overlay = Nothing
-                , games = List.Extra.updateIf (\g -> g.coords == game.coords) (\g -> game) model.games
                 , changed = True
+                , bracket = updatedBracket model.bracket
               }
             , Cmd.none
             )
 
         Save ->
-            ( { model | changed = False }, saveBracket (Bracket model.teams model.groups model.games) )
+            ( { model | changed = False }, saveBracket model.bracket )
 
         ConfirmRevert ->
-            ( { model
-                | overlay = Just RevertConfirmation
-              }
-            , Cmd.none
-            )
+            ( { model | overlay = Just RevertConfirmation }, Cmd.none )
 
         Revert ->
             -- TODO
-            ( { model | overlay = Nothing }, Cmd.none )
+            ( { model
+                | overlay = Nothing
+                , changed = False
+              }
+            , Cmd.none
+            )
 
         ConfirmClear ->
             ( { model | overlay = Just ClearConfirmation }, Cmd.none )
 
         Clear ->
-            -- TODO
             ( { model
                 | overlay = Nothing
-                , groups = [ Group 0 "A Event" True ]
-                , games = []
+                , changed = True
+                , bracket = initBracket
               }
             , Cmd.none
             )
@@ -1006,7 +1153,7 @@ viewEditGroup model group =
     let
         hasNoGames : Bool
         hasNoGames =
-            model.games
+            model.bracket.games
                 |> List.filter (\g -> g.coords.group == group.position)
                 |> List.isEmpty
                 |> not
@@ -1098,7 +1245,7 @@ viewEditGame model game =
                 gameLabel =
                     let
                         gameName id =
-                            List.Extra.find (\g -> g.id == id) model.games
+                            List.Extra.find (\g -> g.id == id) model.bracket.games
                                 |> Maybe.map (\g -> Maybe.withDefault "TBD" g.name)
                     in
                     case assignment of
@@ -1121,10 +1268,10 @@ viewEditGame model game =
         assignmentOptions : Int -> GamePosition -> List (Html Msg)
         assignmentOptions index selectedGamePosition =
             [ option [] [] ]
-                ++ (unassignedTeams model.teams model.games (Just game)
+                ++ (unassignedTeams model.bracket.teams model.bracket.games (Just game)
                         |> List.map (teamOption index selectedGamePosition)
                    )
-                ++ (unassignedGameResults model.games (Just game.id) selectedGamePosition.assignment
+                ++ (unassignedGameResults model.bracket.games (Just game.id) selectedGamePosition.assignment
                         |> List.map (gameOption index selectedGamePosition)
                    )
 
@@ -1199,14 +1346,14 @@ viewClearConfirmation =
 viewGroups : Model -> Maybe DraggableId -> Maybe DroppableId -> Html Msg
 viewGroups model dragId dropId =
     div []
-        (List.map (viewGroup model dragId dropId) model.groups)
+        (List.map (viewGroup model dragId dropId) model.bracket.groups)
 
 
 viewGroup : Model -> Maybe DraggableId -> Maybe DroppableId -> Group -> Html Msg
 viewGroup model dragId dropId group =
     let
         groupGames =
-            List.filter (\g -> g.coords.group == group.position) model.games
+            List.filter (\g -> g.coords.group == group.position) model.bracket.games
     in
     div
         [ class "group-container" ]
@@ -1228,8 +1375,8 @@ viewGroup model dragId dropId group =
                 [ viewSvgLines group groupGames
                 , table
                     []
-                    (List.map (viewRow model dragId dropId group) (List.range 0 (rowsForGroup group model.games - 1)))
-                , viewGames dragId dropId model.teams model.games groupGames
+                    (List.map (viewRow model dragId dropId group) (List.range 0 (rowsForGroup group model.bracket.games - 1)))
+                , viewGames dragId dropId model.bracket.teams model.bracket.games groupGames
                 ]
 
              else
@@ -1242,7 +1389,7 @@ viewRow : Model -> Maybe DraggableId -> Maybe DroppableId -> Group -> Int -> Htm
 viewRow model dragId dropId group row =
     tr
         []
-        (List.map (viewCell model dragId dropId group row) (List.range 0 (colsForGames model.games - 1)))
+        (List.map (viewCell model dragId dropId group row) (List.range 0 (colsForGames model.bracket.games - 1)))
 
 
 viewCell : Model -> Maybe DraggableId -> Maybe DroppableId -> Group -> Int -> Int -> Html Msg
@@ -1252,7 +1399,7 @@ viewCell model dragId dropId group row col =
             Coords group.position col row
 
         onGame =
-            findGameByCoords model.games onCoords
+            findGameByCoords model.bracket.games onCoords
 
         highlighted =
             case ( dragId, dropId ) of
