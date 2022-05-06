@@ -7,8 +7,8 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onDoubleClick, onInput)
 import Html5.DragDrop as DragDrop
-import Json.Decode exposing (Value)
-import Json.Encode as Json
+import Json.Decode as Decode
+import Json.Encode as Encode
 import List.Extra
 import Set
 import String.Extra
@@ -20,7 +20,16 @@ import Svg.Attributes exposing (fill, points, stroke, strokeDasharray, strokeOpa
 ---- PORTS ----
 
 
-port dragstart : Value -> Cmd msg
+port dragstart : Decode.Value -> Cmd msg
+
+
+port storeBracket : Encode.Value -> Cmd msg
+
+
+saveBracket : Bracket -> Cmd msg
+saveBracket bracket =
+    bracketEncoder bracket
+        |> storeBracket
 
 
 
@@ -33,23 +42,24 @@ gridSize =
 
 type alias Model =
     { dragDrop : DragDrop.Model DraggableId DroppableId
+    , overlay : Maybe Overlay
+    , changed : Bool
     , groups : List Group
-    , cols : Int
     , teams : List Team
     , games : List Game
-    , overlay : Maybe Overlay
-    , newGameCount : Int
     }
 
 
 type Overlay
     = EditingGame Game
     | EditingGroup Group
+    | RevertConfirmation
+    | ClearConfirmation
 
 
 type DraggableId
     = DraggableGame Int
-    | DraggableResult ( Int, Result )
+    | DraggableResult ( Int, GameResult )
 
 
 type DroppableId
@@ -57,10 +67,16 @@ type DroppableId
     | DroppableGamePosition ( Int, Int )
 
 
+type alias Bracket =
+    { teams : List Team
+    , groups : List Group
+    , games : List Game
+    }
+
+
 type alias Group =
     { position : Int
     , name : String
-    , rows : Int
     , visible : Bool
     }
 
@@ -76,7 +92,6 @@ type alias Game =
     { id : Int
     , name : Maybe String
     , gamePositions : List GamePosition
-    , gameWinner : Maybe Int
     , coords : Coords
     }
 
@@ -94,18 +109,18 @@ type alias GamePosition =
     }
 
 
-type Result
+type GameResult
     = Winner
     | Loser
 
 
 type Assignment
     = TeamAssignment Int
-    | GameAssignment Result Int
+    | GameAssignment GameResult Int
 
 
 type alias LineConnector =
-    { result : Result
+    { result : GameResult
     , fromCoords : ( Int, Int )
     , toCoords : ( Int, Int )
     }
@@ -135,179 +150,40 @@ initTeams =
 init : ( Model, Cmd Msg )
 init =
     ( { dragDrop = DragDrop.init
-      , groups = [ Group 0 "A Event" 16 True, Group 1 "B Event" 8 True ]
-      , cols = 25
+      , overlay = Nothing
+      , changed = False
+      , groups = [ Group 0 "A Event" True, Group 1 "B Event" True ]
       , teams = initTeams
       , games =
             [ Game 1
-                (Just "1 vs 2")
+                (Just "A1")
                 [ GamePosition 0 False (Just (TeamAssignment 1))
                 , GamePosition 1 True (Just (TeamAssignment 2))
                 ]
-                Nothing
                 (Coords 0 0 0)
             , Game 2
-                (Just "3 vs 4")
+                (Just "A2")
                 [ GamePosition 0 False (Just (TeamAssignment 3))
                 , GamePosition 1 True (Just (TeamAssignment 4))
                 ]
-                Nothing
                 (Coords 0 0 2)
-            , Game 3
-                (Just "5 vs 6")
-                [ GamePosition 0 False (Just (TeamAssignment 5))
-                , GamePosition 1 True (Just (TeamAssignment 6))
-                ]
-                Nothing
-                (Coords 0 0 4)
-            , Game 4
-                (Just "7 vs 8")
-                [ GamePosition 0 False (Just (TeamAssignment 7))
-                , GamePosition 1 True (Just (TeamAssignment 8))
-                ]
-                Nothing
-                (Coords 0 0 6)
-            , Game 5
-                (Just "9 vs 10")
-                [ GamePosition 0 False (Just (TeamAssignment 9))
-                , GamePosition 1 True (Just (TeamAssignment 10))
-                ]
-                Nothing
-                (Coords 0 0 8)
-            , Game 6
-                (Just "11 vs 12")
-                [ GamePosition 0 False (Just (TeamAssignment 11))
-                , GamePosition 1 True (Just (TeamAssignment 12))
-                ]
-                Nothing
-                (Coords 0 0 10)
-            , Game 7
-                (Just "13 vs 14")
-                [ GamePosition 0 False (Just (TeamAssignment 13))
-                , GamePosition 1 True (Just (TeamAssignment 14))
-                ]
-                Nothing
-                (Coords 0 0 12)
-            , Game 8
-                (Just "15 vs 16")
-                [ GamePosition 0 False (Just (TeamAssignment 15))
-                , GamePosition 1 True (Just (TeamAssignment 16))
-                ]
-                Nothing
-                (Coords 0 0 14)
 
             -- Group A Round 2
-            , Game 9
-                (Just "Quarterfinal 1")
+            , Game 3
+                (Just "A Final")
                 [ GamePosition 0 False (Just (GameAssignment Winner 1))
                 , GamePosition 1 True (Just (GameAssignment Winner 2))
                 ]
-                Nothing
                 (Coords 0 5 1)
-            , Game 10
-                (Just "Quarterfinal 2")
-                [ GamePosition 0 False (Just (GameAssignment Winner 3))
-                , GamePosition 1 True (Just (GameAssignment Winner 4))
-                ]
-                Nothing
-                (Coords 0 5 5)
-            , Game 11
-                (Just "Quarterfinal 3")
-                [ GamePosition 0 False (Just (GameAssignment Winner 5))
-                , GamePosition 1 True (Just (GameAssignment Winner 6))
-                ]
-                Nothing
-                (Coords 0 5 9)
-            , Game 12
-                (Just "Quarterfinal 4")
-                [ GamePosition 0 False (Just (GameAssignment Winner 7))
-                , GamePosition 1 True (Just (GameAssignment Winner 8))
-                ]
-                Nothing
-                (Coords 0 5 13)
 
-            -- Group A Semifinal
-            , Game 13
-                (Just "Semifinal 1")
-                [ GamePosition 0 False (Just (GameAssignment Winner 9))
-                , GamePosition 1 True (Just (GameAssignment Winner 10))
-                ]
-                Nothing
-                (Coords 0 10 3)
-            , Game 14
-                (Just "Semifinal 2")
-                [ GamePosition 0 False (Just (GameAssignment Winner 11))
-                , GamePosition 1 True (Just (GameAssignment Winner 12))
-                ]
-                Nothing
-                (Coords 0 10 11)
-
-            -- Group A Final
-            , Game 15
-                (Just "Final")
-                [ GamePosition 0 False (Just (GameAssignment Winner 13))
-                , GamePosition 1 True (Just (GameAssignment Winner 14))
-                ]
-                Nothing
-                (Coords 0 15 7)
-
-            -- Group B
-            , Game 16
-                (Just "B 1")
+            -- Group B Rand 1
+            , Game 4
+                (Just "B Final")
                 [ GamePosition 0 False (Just (GameAssignment Loser 1))
                 , GamePosition 1 True (Just (GameAssignment Loser 2))
                 ]
-                Nothing
                 (Coords 1 0 0)
-            , Game 17
-                (Just "B 2")
-                [ GamePosition 0 False (Just (GameAssignment Loser 3))
-                , GamePosition 1 True (Just (GameAssignment Loser 4))
-                ]
-                Nothing
-                (Coords 1 0 2)
-            , Game 18
-                (Just "B 3")
-                [ GamePosition 0 False (Just (GameAssignment Loser 5))
-                , GamePosition 1 True (Just (GameAssignment Loser 6))
-                ]
-                Nothing
-                (Coords 1 0 4)
-            , Game 19
-                (Just "B 4")
-                [ GamePosition 0 False (Just (GameAssignment Loser 7))
-                , GamePosition 1 True (Just (GameAssignment Loser 8))
-                ]
-                Nothing
-                (Coords 1 0 6)
-
-            -- Group B Round 2
-            , Game 20
-                (Just "B Semifinal 1")
-                [ GamePosition 0 False (Just (GameAssignment Winner 16))
-                , GamePosition 1 True (Just (GameAssignment Winner 17))
-                ]
-                Nothing
-                (Coords 1 5 1)
-            , Game 21
-                (Just "B Semifinal 2")
-                [ GamePosition 0 False (Just (GameAssignment Winner 18))
-                , GamePosition 1 True (Just (GameAssignment Winner 19))
-                ]
-                Nothing
-                (Coords 1 5 5)
-
-            -- Group B Semifinal
-            , Game 22
-                (Just "B Final")
-                [ GamePosition 0 False (Just (GameAssignment Winner 20))
-                , GamePosition 1 True (Just (GameAssignment Winner 21))
-                ]
-                Nothing
-                (Coords 1 10 3)
             ]
-      , overlay = Nothing
-      , newGameCount = -1
       }
     , Cmd.none
     )
@@ -331,7 +207,7 @@ moveGame games gameId coords =
     List.Extra.updateIf (\game -> game.id == gameId) (\game -> { game | coords = coords }) games
 
 
-connectGameResult : List Game -> ( Int, Result ) -> ( Int, Int ) -> List Game
+connectGameResult : List Game -> ( Int, GameResult ) -> ( Int, Int ) -> List Game
 connectGameResult games ( fromGameId, result ) ( toGameId, toPosition ) =
     let
         unassignedGamePosition gamePosition =
@@ -387,7 +263,6 @@ addGame id games coords =
                         [ GamePosition 0 False Nothing
                         , GamePosition 1 True Nothing
                         ]
-                        Nothing
                         coords
                    ]
 
@@ -397,23 +272,23 @@ addGame id games coords =
 
 {-| Find the minimum required cols based on the placement of games, making sure there are enough cols for all games to be shown.
 -}
-minCols : List Game -> Int
-minCols games =
+colsForGames : List Game -> Int
+colsForGames games =
     games
-        |> List.map (\g -> g.coords.col + 3)
+        |> List.map (\g -> g.coords.col + 5)
         |> List.maximum
-        |> Maybe.withDefault 25
+        |> Maybe.withDefault 10
 
 
 {-| Find the minimum required rows for a group based on the placement of games within it, making sure there are enough rows for all of a groups games to be shown.
 -}
-minRows : Group -> List Game -> Int
-minRows group games =
+rowsForGroup : Group -> List Game -> Int
+rowsForGroup group games =
     games
         |> List.filter (\g -> g.coords.group == group.position)
         |> List.map (\g -> g.coords.row + 3)
         |> List.maximum
-        |> Maybe.withDefault 10
+        |> Maybe.withDefault 4
 
 
 {-| Return a list of teams that haven't been assigned to a game yet.
@@ -608,13 +483,130 @@ lineConnectors games =
 
 
 
+---- ENCODERS ----
+
+
+bracketEncoder : Bracket -> Encode.Value
+bracketEncoder bracket =
+    Encode.object
+        [ ( "teams", teamsEncoder bracket.teams )
+        , ( "groups", groupsEncoder bracket.groups )
+        , ( "games", gamesEncoder bracket.games )
+        ]
+
+
+teamsEncoder : List Team -> Encode.Value
+teamsEncoder teams =
+    let
+        teamEncoder : Team -> Encode.Value
+        teamEncoder team =
+            Encode.object
+                [ ( "id", Encode.int team.id )
+                , ( "name", Encode.string team.name )
+                ]
+    in
+    Encode.list teamEncoder teams
+
+
+groupsEncoder : List Group -> Encode.Value
+groupsEncoder groups =
+    let
+        groupEncoder : Group -> Encode.Value
+        groupEncoder group =
+            Encode.object
+                [ ( "position", Encode.int group.position )
+                , ( "name", Encode.string group.name )
+                ]
+    in
+    Encode.list groupEncoder groups
+
+
+gamesEncoder : List Game -> Encode.Value
+gamesEncoder games =
+    let
+        gameEncoder : Game -> Encode.Value
+        gameEncoder game =
+            let
+                gamePositionEncoder : GamePosition -> Encode.Value
+                gamePositionEncoder gamePosition =
+                    let
+                        encodeAssignment : Maybe Assignment -> Encode.Value
+                        encodeAssignment assignment =
+                            case assignment of
+                                Just (TeamAssignment id) ->
+                                    Encode.object
+                                        [ ( "assignment_type", Encode.string "team" )
+                                        , ( "id", Encode.int id )
+                                        ]
+
+                                Just (GameAssignment result id) ->
+                                    let
+                                        resultEncoder : Encode.Value
+                                        resultEncoder =
+                                            Encode.string
+                                                (case result of
+                                                    Winner ->
+                                                        "winner"
+
+                                                    Loser ->
+                                                        "loser"
+                                                )
+                                    in
+                                    Encode.object
+                                        [ ( "assignment_type", Encode.string "game" )
+                                        , ( "result", resultEncoder )
+                                        , ( "id", Encode.int id )
+                                        ]
+
+                                Nothing ->
+                                    Encode.null
+                    in
+                    Encode.object
+                        [ ( "position", Encode.int gamePosition.position )
+                        , ( "first_hammer", Encode.bool gamePosition.firstHammer )
+                        , ( "assignment", encodeAssignment gamePosition.assignment )
+                        ]
+
+                coordsEncoder : Coords -> Encode.Value
+                coordsEncoder coords =
+                    Encode.object
+                        [ ( "group", Encode.int coords.group )
+                        , ( "col", Encode.int coords.col )
+                        , ( "row", Encode.int coords.row )
+                        ]
+            in
+            Encode.object
+                [ ( "id", Encode.int game.id )
+                , ( "name"
+                  , case game.name of
+                        Just name ->
+                            Encode.string name
+
+                        Nothing ->
+                            Encode.null
+                  )
+                , ( "game_positions", Encode.list gamePositionEncoder game.gamePositions )
+                , ( "coords", coordsEncoder game.coords )
+                ]
+    in
+    Encode.list gameEncoder games
+
+
+
+---- DECODERS ----
+
+
+bracketDecoder : String -> Maybe Bracket
+bracketDecoder json =
+    Nothing
+
+
+
 ---- UPDATE ----
 
 
 type Msg
     = DragDropMsg (DragDrop.Msg DraggableId DroppableId)
-    | AddCol
-    | RemoveCol
     | AddGroup
     | EditGroup Group
     | ToggleGroup Group
@@ -628,7 +620,11 @@ type Msg
     | UpdateGamePosition Game Int String
     | CloseEditGame Game
     | Save
+    | ConfirmRevert
     | Revert
+    | ConfirmClear
+    | Clear
+    | CancelConfirmation
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -643,31 +639,15 @@ update msg model =
                 Just ( DraggableGame gameId, DroppableCell coords, _ ) ->
                     { model
                         | dragDrop = model_
+                        , changed = True
                         , games = moveGame model.games gameId coords
-                        , groups =
-                            let
-                                updatedRowsForGroups : List Group -> List Game -> List Group
-                                updatedRowsForGroups groups games =
-                                    let
-                                        updatedRows : Group -> Group
-                                        updatedRows group =
-                                            { group | rows = Basics.max 10 (minRows group games) }
-                                    in
-                                    groups
-                                        |> List.map updatedRows
-                            in
-                            updatedRowsForGroups model.groups (moveGame model.games gameId coords)
-                        , cols =
-                            moveGame model.games gameId coords
-                                |> minCols
-                                |> Basics.max 22
-                                |> (+) 3
                     }
 
                 Just ( DraggableResult from, DroppableGamePosition to, _ ) ->
                     -- TODO: Team dragging.
                     { model
                         | dragDrop = model_
+                        , changed = True
                         , games = connectGameResult model.games from to
                     }
 
@@ -678,26 +658,18 @@ update msg model =
                 |> Maybe.withDefault Cmd.none
             )
 
-        AddCol ->
-            -- NOT DONE: Add columns automatically when a game is dropped on the last column
-            ( { model | cols = model.cols + 5 }
-            , Cmd.none
-            )
-
-        RemoveCol ->
-            ( { model | cols = model.cols - 5 }
-            , Cmd.none
-            )
-
         AddGroup ->
             let
                 nextGroupId =
                     List.length model.groups
 
                 newGroup =
-                    Group nextGroupId ("Group " ++ String.fromInt (nextGroupId + 1)) 8 True
+                    Group nextGroupId ("Group " ++ String.fromInt (nextGroupId + 1)) True
             in
-            ( { model | groups = model.groups ++ [ newGroup ] }
+            ( { model
+                | groups = model.groups ++ [ newGroup ]
+                , changed = True
+              }
             , Cmd.none
             )
 
@@ -712,7 +684,10 @@ update msg model =
                 updatedGroup =
                     { group | visible = not group.visible }
             in
-            ( { model | groups = updatedGroups model.groups updatedGroup }
+            ( { model
+                | groups = updatedGroups model.groups updatedGroup
+                , changed = True
+              }
             , Cmd.none
             )
 
@@ -730,6 +705,7 @@ update msg model =
             ( { model
                 | overlay = Nothing
                 , groups = updatedGroups model.groups group
+                , changed = True
               }
             , Cmd.none
             )
@@ -738,14 +714,20 @@ update msg model =
             ( { model
                 | overlay = Nothing
                 , groups = List.Extra.remove group model.groups
+                , changed = True
               }
             , Cmd.none
             )
 
         AddGame coords ->
+            let
+                -- Assign a negative number. It doesn't matter what it is, as long as it never conflicts with any existing game ids.
+                newGameId =
+                    List.length model.games * -1
+            in
             ( { model
-                | games = addGame model.newGameCount model.games coords
-                , newGameCount = model.newGameCount - 1
+                | games = addGame newGameId model.games coords
+                , changed = True
               }
             , Cmd.none
             )
@@ -754,6 +736,7 @@ update msg model =
             ( { model
                 | overlay = Nothing
                 , games = List.Extra.remove game model.games
+                , changed = True
               }
             , Cmd.none
             )
@@ -778,6 +761,7 @@ update msg model =
             in
             ( { model
                 | overlay = Just (EditingGame updatedGame)
+                , changed = True
               }
             , Cmd.none
             )
@@ -824,12 +808,6 @@ update msg model =
                                                 Just gameId ->
                                                     case List.Extra.find (\g -> g.id == gameId) model.games of
                                                         Just g ->
-                                                            -- Pattern match on position to assign to and whether it was a winner or loser from game
-                                                            -- TODO Do we want to deselect from other game's game positions, like in connectGameResult?
-                                                            -- fromGameId == g.id
-                                                            -- result == typedGameResult
-                                                            -- toGameId == game.id
-                                                            -- toPosition == position
                                                             let
                                                                 typedGameResult =
                                                                     case gameResult of
@@ -868,7 +846,11 @@ update msg model =
                                         gamePosition
 
                                 updatedGame g =
-                                    { g | gamePositions = List.map updatedGamePosition g.gamePositions }
+                                    if g.id == game.id then
+                                        { g | gamePositions = List.map updatedGamePosition g.gamePositions }
+
+                                    else
+                                        g
                             in
                             List.map updatedGame model.games
 
@@ -882,6 +864,7 @@ update msg model =
             ( { model
                 | overlay = editingGame
                 , games = updatedGames
+                , changed = True
               }
             , Cmd.none
             )
@@ -901,15 +884,40 @@ update msg model =
             ( { model
                 | overlay = Nothing
                 , games = List.Extra.updateIf (\g -> g.coords == game.coords) (\g -> game) model.games
+                , changed = True
               }
             , Cmd.none
             )
 
         Save ->
-            ( model, Cmd.none )
+            ( { model | changed = False }, saveBracket (Bracket model.teams model.groups model.games) )
+
+        ConfirmRevert ->
+            ( { model
+                | overlay = Just RevertConfirmation
+              }
+            , Cmd.none
+            )
 
         Revert ->
-            ( model, Cmd.none )
+            -- TODO
+            ( { model | overlay = Nothing }, Cmd.none )
+
+        ConfirmClear ->
+            ( { model | overlay = Just ClearConfirmation }, Cmd.none )
+
+        Clear ->
+            -- TODO
+            ( { model
+                | overlay = Nothing
+                , groups = [ Group 0 "A Event" True ]
+                , games = []
+              }
+            , Cmd.none
+            )
+
+        CancelConfirmation ->
+            ( { model | overlay = Nothing }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -941,7 +949,30 @@ view model =
                 viewOverlay model
 
               else
-                text ""
+                div [ class "save-buttons" ]
+                    [ button
+                        [ class "btn btn-primary mr-1"
+                        , disabled (not model.changed)
+                        , onClick Save
+                        ]
+                        [ text "Save" ]
+                    , button
+                        [ class "btn btn-secondary mr-1"
+                        , onClick ConfirmRevert
+                        ]
+                        [ text "Revert" ]
+                    , button
+                        [ class "btn btn-danger mr-1"
+                        , onClick ConfirmClear
+                        ]
+                        [ text "Clear" ]
+                    , a
+                        [ class "btn btn-info"
+                        , href "https://curling.io/docs/event-management/playoff-brackets"
+                        , target "_blank"
+                        ]
+                        [ text "Help" ]
+                    ]
             ]
         , div [ classList [ ( "modal-backdrop", modalOpen ), ( "show", modalOpen ) ] ] []
         ]
@@ -957,6 +988,12 @@ viewOverlay model =
 
                 Just (EditingGroup group) ->
                     viewEditGroup model group
+
+                Just RevertConfirmation ->
+                    viewRevertConfirmation
+
+                Just ClearConfirmation ->
+                    viewClearConfirmation
 
                 Nothing ->
                     text ""
@@ -1127,6 +1164,38 @@ viewEditGame model game =
         ]
 
 
+viewRevertConfirmation : Html Msg
+viewRevertConfirmation =
+    div [ class "modal-content" ]
+        [ div [ class "modal-header" ]
+            [ h5 [ class "modal-title" ] [ text "Confirm Revert" ] ]
+        , div [ class "modal-body" ]
+            [ p []
+                [ text "DANGER: This will revert all of your changes since the last save. Are you sure you want to continue?" ]
+            ]
+        , div [ class "modal-footer" ]
+            [ button [ onClick Revert, class "btn btn-danger mr-2" ] [ text "Continue" ]
+            , button [ onClick CancelConfirmation, class "btn btn-secondary mr-2" ] [ text "Cancel" ]
+            ]
+        ]
+
+
+viewClearConfirmation : Html Msg
+viewClearConfirmation =
+    div [ class "modal-content" ]
+        [ div [ class "modal-header" ]
+            [ h5 [ class "modal-title" ] [ text "Confirm Clear" ] ]
+        , div [ class "modal-body" ]
+            [ p []
+                [ text "DANGER: This will completely wipe the bracket so you can start over. Nothing will be saved until you click the Save button, but you will lose any changes made since the last save. Are you sure you want to continue?" ]
+            ]
+        , div [ class "modal-footer" ]
+            [ button [ onClick Clear, class "btn btn-danger mr-2" ] [ text "Continue" ]
+            , button [ onClick CancelConfirmation, class "btn btn-secondary mr-2" ] [ text "Cancel" ]
+            ]
+        ]
+
+
 viewGroups : Model -> Maybe DraggableId -> Maybe DroppableId -> Html Msg
 viewGroups model dragId dropId =
     div []
@@ -1159,7 +1228,7 @@ viewGroup model dragId dropId group =
                 [ viewSvgLines group groupGames
                 , table
                     []
-                    (List.map (viewRow model dragId dropId group) (List.range 0 (group.rows - 1)))
+                    (List.map (viewRow model dragId dropId group) (List.range 0 (rowsForGroup group model.games - 1)))
                 , viewGames dragId dropId model.teams model.games groupGames
                 ]
 
@@ -1173,7 +1242,7 @@ viewRow : Model -> Maybe DraggableId -> Maybe DroppableId -> Group -> Int -> Htm
 viewRow model dragId dropId group row =
     tr
         []
-        (List.map (viewCell model dragId dropId group row) (List.range 0 (model.cols - 1)))
+        (List.map (viewCell model dragId dropId group row) (List.range 0 (colsForGames model.games - 1)))
 
 
 viewCell : Model -> Maybe DraggableId -> Maybe DroppableId -> Group -> Int -> Int -> Html Msg
@@ -1372,7 +1441,7 @@ viewSvgLines group games =
     in
     div [ class "group-lines" ]
         [ svg
-            [ Svg.Attributes.width (String.fromInt ((minCols games + 1) * gridSize)), Svg.Attributes.height (String.fromInt ((minRows group games - 1) * gridSize)) ]
+            [ Svg.Attributes.width (String.fromInt ((colsForGames games + 1) * gridSize)), Svg.Attributes.height (String.fromInt ((rowsForGroup group games - 1) * gridSize)) ]
             (List.map viewSvgLine (lineConnectors games))
         ]
 

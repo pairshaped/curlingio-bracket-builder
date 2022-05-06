@@ -1,0 +1,48 @@
+{
+  "teams": [
+    { "id": 1, "name": "Homer"},
+    { "id": 2, "name": "Marge"},
+    { "id": 3, "name": "Bart"},
+    { "id": 4, "name": "Lisa"},
+    { "id": 5, "name": "Maggie"},
+    { "id": 6, "name": "Krusty"},
+    { "id": 7, "name": "Snowball"},
+    { "id": 8, "name": "Apu"},
+    { "id": 9, "name": "Barney"},
+    { "id": 10, "name": "Ralph"},
+    { "id": 11, "name": "Itchy"},
+    { "id": 12, "name": "Scratchy"},
+    { "id": 13, "name": "Millhouse"},
+    { "id": 14, "name": "Moe"},
+    { "id": 15, "name": "Monty"},
+    { "id": 16, "name": "Ned"}
+  ],
+  "groups": [
+    { "position": 0, "name": "A Event", "rows": 16, "visible": true },
+    { "position": 1, "name": "B Event", "rows": 8, "visible": true }
+  ],
+  "games": [
+    {
+      "id": 1,
+      "name": "1 vs 2",
+      "gamePositions": [
+        {
+          "position": 0,
+          "firstHammer": false,
+          "team_assignment": 1
+        },
+        {
+          "position": 1,
+          "firstHammer": true,
+          "team_assignment": 2
+        }
+      ],
+      "game_winner": null,
+      "coords": {
+        "group": 0,
+        "col": 0,
+        "row": 0
+      }
+    }
+  ]
+}
