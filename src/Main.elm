@@ -255,13 +255,6 @@ findGameByCoords games coords =
     List.Extra.find (\game -> game.coords == coords) games
 
 
-{-| Move a game on the grid from one set of coords to another.
--}
-moveGame : List Game -> Int -> Coords -> List Game
-moveGame games gameId coords =
-    List.Extra.updateIf (\game -> game.id == gameId) (\game -> { game | coords = coords }) games
-
-
 connectGameResult : List Game -> ( Int, GameResult ) -> ( Int, Int ) -> List Game
 connectGameResult games ( fromGameId, result ) ( toGameId, toPosition ) =
     let
@@ -300,31 +293,6 @@ connectGameResult games ( fromGameId, result ) ( toGameId, toPosition ) =
         |> List.map assignedGame
 
 
-updatedGroups : List Group -> Group -> List Group
-updatedGroups groups group =
-    List.Extra.updateIf (\g -> g.position == group.position) (\g -> group) groups
-
-
-{-| Add a game to the grid, with the assigned ID, but only if there's room.
--}
-addGame : Int -> List Game -> Coords -> List Game
-addGame id games coords =
-    -- Don't add games on top of each other. Only add a game if there's room.
-    case findGameByCoords games coords of
-        Nothing ->
-            games
-                ++ [ Game id
-                        Nothing
-                        [ GamePosition 0 False Nothing
-                        , GamePosition 1 True Nothing
-                        ]
-                        coords
-                   ]
-
-        _ ->
-            games
-
-
 {-| Find the minimum required cols based on the placement of games, making sure there are enough cols for all games to be shown.
 -}
 colsForGames : List Game -> Int
@@ -346,71 +314,8 @@ rowsForGroup group games =
         |> Maybe.withDefault 4
 
 
-{-| Return a list of teams that haven't been assigned to a game yet.
+{-| Trim a string, if we have a string
 -}
-unassignedTeams : List Team -> List Game -> Maybe Game -> List Team
-unassignedTeams teams games excludeGame =
-    let
-        gamesNotExcluded =
-            case excludeGame of
-                Just game ->
-                    games
-                        |> List.filter (\g -> g.id /= game.id)
-
-                Nothing ->
-                    games
-
-        assignedTo team g =
-            let
-                assignedToPosition p =
-                    case p.assignment of
-                        Just (TeamAssignment id) ->
-                            id == team.id
-
-                        _ ->
-                            False
-            in
-            List.any assignedToPosition g.gamePositions
-
-        unassigned team =
-            gamesNotExcluded
-                |> List.filter (assignedTo team)
-                |> List.isEmpty
-    in
-    List.filter unassigned teams
-
-
-assignGameName : List Team -> Game -> Game
-assignGameName teams game =
-    case game.name of
-        Nothing ->
-            let
-                teamName gamePosition =
-                    case gamePosition.assignment of
-                        Just (TeamAssignment id) ->
-                            List.Extra.find (\t -> t.id == id) teams
-                                |> Maybe.map (\t -> t.name)
-                                |> Maybe.withDefault "TBD"
-
-                        _ ->
-                            "TBD"
-            in
-            { game
-                | name =
-                    List.map teamName game.gamePositions
-                        |> String.join " vs "
-                        |> Just
-            }
-
-        _ ->
-            game
-
-
-assignGameNamesWhenPossible : List Team -> List Game -> List Game
-assignGameNamesWhenPossible teams games =
-    List.map (assignGameName teams) games
-
-
 trimMaybe : Maybe String -> Maybe String
 trimMaybe str =
     case str of
@@ -424,117 +329,6 @@ trimMaybe str =
 
         Nothing ->
             Nothing
-
-
-{-| Return a list of game results that haven't been assigned to another game yet.
-We can pass in a game that should be excluded from the matching check, like the game we are currently editing, so that winner from that game is excluded.
-We can also pass in a game assignment that should be included, regardless of whether or not it's been assigned. For example, the current selected assignment in the dropdown.
--}
-unassignedGameResults : List Game -> Maybe Int -> Maybe Assignment -> List Assignment
-unassignedGameResults games currentGameId includeAssignment =
-    -- TODO: exclude and include params need to be implemented
-    let
-        allAssignments =
-            let
-                winners =
-                    List.map (\game -> Just (GameAssignment Winner game.id)) games
-
-                losers =
-                    List.map (\game -> Just (GameAssignment Loser game.id)) games
-            in
-            winners ++ losers
-
-        notCurrentGame assignment =
-            case assignment of
-                Just (GameAssignment result gameId) ->
-                    not (Just gameId == currentGameId)
-
-                _ ->
-                    True
-
-        notAssigned assignment =
-            case assignment of
-                Just (GameAssignment result gameId) ->
-                    let
-                        assignedToGamePosition gamePosition =
-                            assignment == gamePosition.assignment
-
-                        assignedToGame game =
-                            List.filter assignedToGamePosition game.gamePositions
-                                |> List.isEmpty
-                                |> not
-                    in
-                    -- Check to see if this assignment has already been made against any game, except the current game.
-                    List.filter assignedToGame games
-                        |> List.isEmpty
-
-                _ ->
-                    True
-    in
-    allAssignments
-        |> List.filter notCurrentGame
-        |> List.filter notAssigned
-        |> (::) includeAssignment
-        |> List.filterMap identity
-
-
-lineConnectors : List Game -> List LineConnector
-lineConnectors games =
-    let
-        connectors : Game -> List (Maybe LineConnector)
-        connectors toGame =
-            let
-                connectorForPosition : Int -> GamePosition -> Maybe LineConnector
-                connectorForPosition toPosition gamePosition =
-                    case gamePosition.assignment of
-                        Just (GameAssignment result fromGameId) ->
-                            let
-                                fromCoords =
-                                    case List.Extra.find (\g -> g.id == fromGameId) games of
-                                        Just fromGame ->
-                                            Just
-                                                ( fromGame.coords.col * gridSize + 175
-                                                , fromGame.coords.row
-                                                    * gridSize
-                                                    + (if result == Winner then
-                                                        32
-
-                                                       else
-                                                        57
-                                                      )
-                                                )
-
-                                        _ ->
-                                            Nothing
-
-                                toCoords =
-                                    Just
-                                        ( toGame.coords.col * gridSize + 1
-                                        , toGame.coords.row
-                                            * gridSize
-                                            + (if toPosition == 0 then
-                                                32
-
-                                               else
-                                                57
-                                              )
-                                        )
-                            in
-                            case ( fromCoords, toCoords ) of
-                                ( Just from, Just to ) ->
-                                    Just (LineConnector result from to)
-
-                                _ ->
-                                    Nothing
-
-                        _ ->
-                            Nothing
-            in
-            List.indexedMap connectorForPosition toGame.gamePositions
-    in
-    List.map connectors games
-        |> List.concat
-        |> List.filterMap identity
 
 
 
@@ -792,7 +586,10 @@ update msg model =
                 Just ( DraggableGame gameId, DroppableCell coords, _ ) ->
                     let
                         updatedBracket bracket =
-                            { bracket | games = moveGame model.bracket.games gameId coords }
+                            { bracket
+                                | games =
+                                    List.Extra.updateIf (\game -> game.id == gameId) (\game -> { game | coords = coords }) model.bracket.games
+                            }
                     in
                     { model
                         | dragDrop = model_
@@ -847,8 +644,12 @@ update msg model =
                 updatedGroup =
                     { group | visible = not group.visible }
 
+                updatedGroups : List Group -> List Group
+                updatedGroups groups =
+                    List.Extra.updateIf (\g -> g.position == updatedGroup.position) (\g -> updatedGroup) groups
+
                 updatedBracket bracket =
-                    { bracket | groups = updatedGroups model.bracket.groups updatedGroup }
+                    { bracket | groups = updatedGroups model.bracket.groups }
             in
             ( { model
                 | changed = True
@@ -869,8 +670,12 @@ update msg model =
 
         CloseEditGroup group ->
             let
+                updatedGroups : List Group -> List Group
+                updatedGroups groups =
+                    List.Extra.updateIf (\g -> g.position == group.position) (\g -> group) groups
+
                 updatedBracket bracket =
-                    { bracket | groups = updatedGroups model.bracket.groups group }
+                    { bracket | groups = updatedGroups model.bracket.groups }
             in
             ( { model
                 | overlay = Nothing
@@ -895,12 +700,31 @@ update msg model =
 
         AddGame coords ->
             let
-                -- Assign a negative number. It doesn't matter what it is, as long as it never conflicts with any existing game ids.
-                newGameId =
-                    List.length model.bracket.games * -1
+                -- Add a game to the grid, with the assigned ID, but only if there's room.
+                addGame : List Game -> List Game
+                addGame games =
+                    -- Don't add games on top of each other. Only add a game if there's room.
+                    case findGameByCoords games coords of
+                        Nothing ->
+                            let
+                                -- Assign a negative number. It doesn't matter what it is, as long as it never conflicts with any existing game ids.
+                                newGameId =
+                                    List.length games * -1
+                            in
+                            games
+                                ++ [ Game newGameId
+                                        Nothing
+                                        [ GamePosition 0 False Nothing
+                                        , GamePosition 1 True Nothing
+                                        ]
+                                        coords
+                                   ]
+
+                        _ ->
+                            games
 
                 updatedBracket bracket =
-                    { bracket | games = addGame newGameId model.bracket.games coords }
+                    { bracket | games = addGame model.bracket.games }
             in
             ( { model
                 | changed = True
@@ -1055,16 +879,6 @@ update msg model =
 
         CloseEditGame game ->
             let
-                -- Assign a name based on teams, if we have teams but no user specified name.
-                updatedGame : Game
-                updatedGame =
-                    case trimMaybe game.name of
-                        Nothing ->
-                            assignGameName model.bracket.teams game
-
-                        _ ->
-                            game
-
                 updatedBracket bracket =
                     { bracket | games = List.Extra.updateIf (\g -> g.coords == game.coords) (\g -> game) model.bracket.games }
             in
@@ -1252,6 +1066,85 @@ viewEditGroup model group =
 viewEditGame : Model -> Game -> Html Msg
 viewEditGame model game =
     let
+        -- Return a list of teams that haven't been assigned to a game yet.
+        unassignedTeams : List Team -> List Game -> List Team
+        unassignedTeams teams games =
+            let
+                gamesNotExcluded =
+                    games
+                        |> List.filter (\g -> g.id /= game.id)
+
+                assignedTo team g =
+                    let
+                        assignedToPosition p =
+                            case p.assignment of
+                                Just (TeamAssignment id) ->
+                                    id == team.id
+
+                                _ ->
+                                    False
+                    in
+                    List.any assignedToPosition g.gamePositions
+
+                unassigned team =
+                    gamesNotExcluded
+                        |> List.filter (assignedTo team)
+                        |> List.isEmpty
+            in
+            List.filter unassigned teams
+
+        -- Return a list of game results that haven't been assigned to another game yet.
+        -- Pass in the currently selected assigninment to be included.
+        unassignedGameResults : List Game -> List Assignment
+        unassignedGameResults games =
+            -- TODO: exclude and include params need to be implemented
+            let
+                allAssignments =
+                    let
+                        winners =
+                            List.map (\g -> Just (GameAssignment Winner g.id)) games
+
+                        losers =
+                            List.map (\g -> Just (GameAssignment Loser g.id)) games
+                    in
+                    winners ++ losers
+
+                notCurrentGame assignment =
+                    case assignment of
+                        Just (GameAssignment result gameId) ->
+                            not (gameId == game.id)
+
+                        _ ->
+                            True
+
+                notAlreadyAssigned assignment =
+                    case assignment of
+                        Just (GameAssignment result gameId) ->
+                            let
+                                assignedToGamePosition gamePosition =
+                                    assignment == gamePosition.assignment
+
+                                assignedToGame g =
+                                    if g.id == game.id then
+                                        False
+
+                                    else
+                                        List.filter assignedToGamePosition g.gamePositions
+                                            |> List.isEmpty
+                                            |> not
+                            in
+                            -- Check to see if this assignment has already been made against any game, except the current game.
+                            List.filter assignedToGame games
+                                |> List.isEmpty
+
+                        _ ->
+                            True
+            in
+            allAssignments
+                |> List.filter notCurrentGame
+                |> List.filter notAlreadyAssigned
+                |> List.filterMap identity
+
         teamOption : Int -> GamePosition -> Team -> Html Msg
         teamOption index selectedGamePosition team =
             let
@@ -1308,10 +1201,10 @@ viewEditGame model game =
         assignmentOptions : Int -> GamePosition -> List (Html Msg)
         assignmentOptions index selectedGamePosition =
             [ option [] [] ]
-                ++ (unassignedTeams model.bracket.teams model.bracket.games (Just game)
+                ++ (unassignedTeams model.bracket.teams model.bracket.games
                         |> List.map (teamOption index selectedGamePosition)
                    )
-                ++ (unassignedGameResults model.bracket.games (Just game.id) selectedGamePosition.assignment
+                ++ (unassignedGameResults model.bracket.games
                         |> List.map (gameOption index selectedGamePosition)
                    )
 
@@ -1601,6 +1494,64 @@ viewResultConnectors dragId gameId =
 viewSvgLines : Group -> List Game -> Html Msg
 viewSvgLines group games =
     let
+        lineConnectors : List LineConnector
+        lineConnectors =
+            let
+                connectors : Game -> List (Maybe LineConnector)
+                connectors toGame =
+                    let
+                        connectorForPosition : Int -> GamePosition -> Maybe LineConnector
+                        connectorForPosition toPosition gamePosition =
+                            case gamePosition.assignment of
+                                Just (GameAssignment result fromGameId) ->
+                                    let
+                                        fromCoords =
+                                            case List.Extra.find (\g -> g.id == fromGameId) games of
+                                                Just fromGame ->
+                                                    Just
+                                                        ( fromGame.coords.col * gridSize + 175
+                                                        , fromGame.coords.row
+                                                            * gridSize
+                                                            + (if result == Winner then
+                                                                32
+
+                                                               else
+                                                                57
+                                                              )
+                                                        )
+
+                                                _ ->
+                                                    Nothing
+
+                                        toCoords =
+                                            Just
+                                                ( toGame.coords.col * gridSize + 1
+                                                , toGame.coords.row
+                                                    * gridSize
+                                                    + (if toPosition == 0 then
+                                                        32
+
+                                                       else
+                                                        57
+                                                      )
+                                                )
+                                    in
+                                    case ( fromCoords, toCoords ) of
+                                        ( Just from, Just to ) ->
+                                            Just (LineConnector result from to)
+
+                                        _ ->
+                                            Nothing
+
+                                _ ->
+                                    Nothing
+                    in
+                    List.indexedMap connectorForPosition toGame.gamePositions
+            in
+            List.map connectors games
+                |> List.concat
+                |> List.filterMap identity
+
         strPoint coords =
             String.fromInt (Tuple.first coords) ++ "," ++ String.fromInt (Tuple.second coords) ++ " "
 
@@ -1629,7 +1580,7 @@ viewSvgLines group games =
     div [ class "group-lines" ]
         [ svg
             [ Svg.Attributes.width (String.fromInt ((colsForGames games + 1) * gridSize)), Svg.Attributes.height (String.fromInt ((rowsForGroup group games - 1) * gridSize)) ]
-            (List.map viewSvgLine (lineConnectors games))
+            (List.map viewSvgLine lineConnectors)
         ]
 
 
