@@ -24,13 +24,13 @@ import Svg.Attributes exposing (fill, points, stroke, strokeDasharray, strokeOpa
 port dragstart : Decode.Value -> Cmd msg
 
 
-port storeBracket : Encode.Value -> Cmd msg
+port sendBracket : Encode.Value -> Cmd msg
 
 
-saveBracket : Bracket -> Cmd msg
-saveBracket bracket =
-    bracketEncoder bracket
-        |> storeBracket
+port requestBracket : String -> Cmd msg
+
+
+port receiveBracket : (Decode.Value -> msg) -> Sub msg
 
 
 
@@ -238,9 +238,9 @@ init =
     ( { dragDrop = DragDrop.init
       , overlay = Nothing
       , changed = False
-      , bracket = demoBracket
+      , bracket = emptyBracket
       }
-    , Cmd.none
+    , requestBracket ""
     )
 
 
@@ -329,6 +329,18 @@ trimMaybe str =
 
         Nothing ->
             Nothing
+
+
+saveBracket : Bracket -> Cmd msg
+saveBracket bracket =
+    bracketEncoder bracket
+        |> sendBracket
+
+
+restoreBracket : Bracket -> Cmd msg
+restoreBracket bracket =
+    bracketEncoder bracket
+        |> sendBracket
 
 
 
@@ -569,6 +581,7 @@ type Msg
     | Save
     | ConfirmRevert
     | Revert
+    | ReceivedBracketData Decode.Value
     | ConfirmClear
     | Clear
     | CancelConfirmation
@@ -897,11 +910,20 @@ update msg model =
             ( { model | overlay = Just RevertConfirmation }, Cmd.none )
 
         Revert ->
-            -- TODO
             ( { model
                 | overlay = Nothing
                 , changed = False
               }
+            , requestBracket ""
+            )
+
+        ReceivedBracketData data ->
+            ( case Decode.decodeValue bracketDecoder data of
+                Ok bracket ->
+                    { model | bracket = bracket }
+
+                Err error ->
+                    { model | bracket = demoBracket }
             , Cmd.none
             )
 
@@ -923,7 +945,7 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    receiveBracket ReceivedBracketData
 
 
 
