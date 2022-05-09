@@ -173,22 +173,62 @@ demoBracket =
             , GamePosition 1 True (Just (TeamAssignment 4))
             ]
             (Coords 0 0 2)
+        , Game 3
+            (Just "A3")
+            [ GamePosition 0 False (Just (TeamAssignment 5))
+            , GamePosition 1 True (Just (TeamAssignment 6))
+            ]
+            (Coords 0 0 4)
+        , Game 4
+            (Just "A4")
+            [ GamePosition 0 False (Just (TeamAssignment 7))
+            , GamePosition 1 True (Just (TeamAssignment 8))
+            ]
+            (Coords 0 0 6)
 
         -- Group A Round 2
-        , Game 3
-            (Just "A Final")
+        , Game 5
+            (Just "A Semi-Final 1")
             [ GamePosition 0 False (Just (GameAssignment Winner 1))
             , GamePosition 1 True (Just (GameAssignment Winner 2))
             ]
             (Coords 0 5 1)
+        , Game 6
+            (Just "A Semi-Final 2")
+            [ GamePosition 0 False (Just (GameAssignment Winner 3))
+            , GamePosition 1 True (Just (GameAssignment Winner 4))
+            ]
+            (Coords 0 5 5)
 
-        -- Group B Rand 1
-        , Game 4
-            (Just "B Final")
+        -- Group A Round 3
+        , Game 7
+            (Just "A Final")
+            [ GamePosition 0 False (Just (GameAssignment Winner 5))
+            , GamePosition 1 True (Just (GameAssignment Winner 6))
+            ]
+            (Coords 0 10 3)
+
+        -- Group B Round 1
+        , Game 8
+            (Just "B1")
             [ GamePosition 0 False (Just (GameAssignment Loser 1))
             , GamePosition 1 True (Just (GameAssignment Loser 2))
             ]
             (Coords 1 0 0)
+        , Game 9
+            (Just "B2")
+            [ GamePosition 0 False (Just (GameAssignment Loser 3))
+            , GamePosition 1 True (Just (GameAssignment Loser 4))
+            ]
+            (Coords 1 0 2)
+
+        -- Group B Round 2
+        , Game 10
+            (Just "B Final")
+            [ GamePosition 0 False (Just (GameAssignment Winner 8))
+            , GamePosition 1 True (Just (GameAssignment Winner 9))
+            ]
+            (Coords 1 5 1)
         ]
     }
 
