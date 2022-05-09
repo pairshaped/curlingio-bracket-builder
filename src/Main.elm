@@ -146,8 +146,8 @@ initTeams =
     ]
 
 
-initBracket : Bracket
-initBracket =
+emptyBracket : Bracket
+emptyBracket =
     { teams = initTeams
     , groups =
         [ Group 0 "Group 1" True ]
@@ -1058,7 +1058,7 @@ update msg model =
             ( { model
                 | overlay = Nothing
                 , changed = True
-                , bracket = initBracket
+                , bracket = emptyBracket
               }
             , Cmd.none
             )
@@ -1578,10 +1578,10 @@ viewSvgLines group games =
                             "red"
                     )
                 , points
-                    (strPoint l.fromCoords
-                        ++ strPoint ( Tuple.first l.fromCoords + 10, Tuple.second l.fromCoords )
-                        ++ strPoint ( Tuple.first l.toCoords - 6, Tuple.second l.toCoords )
-                        ++ strPoint l.toCoords
+                    (strPoint ( Tuple.first l.fromCoords + 6, Tuple.second l.fromCoords )
+                        ++ strPoint ( Tuple.first l.fromCoords + 11, Tuple.second l.fromCoords )
+                        ++ strPoint ( Tuple.first l.toCoords - 8, Tuple.second l.toCoords )
+                        ++ strPoint ( Tuple.first l.toCoords - 3, Tuple.second l.toCoords )
                     )
                 ]
                 []
