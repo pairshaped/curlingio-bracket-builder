@@ -1,97 +1,197 @@
-{ "brackets": [
-  {
-    "id" : 1,
-    "teams": [
-      { "id": 1, "name": "Homer"},
-      { "id": 2, "name": "Marge"},
-      { "id": 3, "name": "Bart"},
-      { "id": 4, "name": "Lisa"},
-      { "id": 5, "name": "Maggie"},
-      { "id": 6, "name": "Krusty"},
-      { "id": 7, "name": "Snowball"},
-      { "id": 8, "name": "Apu"},
-      { "id": 9, "name": "Barney"},
-      { "id": 10, "name": "Ralph"},
-      { "id": 11, "name": "Itchy"},
-      { "id": 12, "name": "Scratchy"},
-      { "id": 13, "name": "Millhouse"},
-      { "id": 14, "name": "Moe"},
-      { "id": 15, "name": "Monty"},
-      { "id": 16, "name": "Ned"}
-    ],
-    "groups": [
-      { "position": 0, "name": "A Event" },
-      { "position": 1, "name": "B Event" }
-    ],
-    "games": [
-      {
-        "id": 1,
-        "name": "A1",
-        "coords": { "group": 0, "col": 0, "row": 0 },
-        "game_positions": [
-          {
-            "position": 0,
-            "first_hammer": false,
-            "assignment": { "assignment_type": "team", "id": 1 }
-          },
-          {
-            "position": 1,
-            "first_hammer": true,
-            "assignment": { "assignment_type": "team", "id": 2 }
+{
+  "brackets": [
+    {
+      "id": 1,
+      "teams": [
+        {
+          "id": 1,
+          "name": "Homer"
+        },
+        {
+          "id": 2,
+          "name": "Marge"
+        },
+        {
+          "id": 3,
+          "name": "Bart"
+        },
+        {
+          "id": 4,
+          "name": "Lisa"
+        },
+        {
+          "id": 5,
+          "name": "Maggie"
+        },
+        {
+          "id": 6,
+          "name": "Krusty"
+        },
+        {
+          "id": 7,
+          "name": "Snowball"
+        },
+        {
+          "id": 8,
+          "name": "Apu"
+        },
+        {
+          "id": 9,
+          "name": "Barney"
+        },
+        {
+          "id": 10,
+          "name": "Ralph"
+        },
+        {
+          "id": 11,
+          "name": "Itchy"
+        },
+        {
+          "id": 12,
+          "name": "Scratchy"
+        },
+        {
+          "id": 13,
+          "name": "Millhouse"
+        },
+        {
+          "id": 14,
+          "name": "Moe"
+        },
+        {
+          "id": 15,
+          "name": "Monty"
+        },
+        {
+          "id": 16,
+          "name": "Ned"
+        }
+      ],
+      "groups": [
+        {
+          "position": 0,
+          "name": "A Event"
+        },
+        {
+          "position": 1,
+          "name": "B Event"
+        }
+      ],
+      "games": [
+        {
+          "id": 1,
+          "name": "A1",
+          "game_positions": [
+            {
+              "position": 0,
+              "first_hammer": false,
+              "assignment": {
+                "assignment_type": "team",
+                "id": 1
+              }
+            },
+            {
+              "position": 1,
+              "first_hammer": true,
+              "assignment": {
+                "assignment_type": "team",
+                "id": 2
+              }
+            }
+          ],
+          "coords": {
+            "group": 0,
+            "col": 0,
+            "row": 0
           }
-        ]
-      },
-      {
-        "id": 2,
-        "name": "A2",
-        "coords": { "group": 0, "col": 0, "row": 2 },
-        "game_positions": [
-          {
-            "position": 0,
-            "first_hammer": false,
-            "assignment": { "assignment_type": "team", "id": 3 }
-          },
-          {
-            "position": 1,
-            "first_hammer": true,
-            "assignment": { "assignment_type": "team", "id": 4 }
+        },
+        {
+          "id": 2,
+          "name": "A2",
+          "game_positions": [
+            {
+              "position": 0,
+              "first_hammer": false,
+              "assignment": {
+                "assignment_type": "team",
+                "id": 3
+              }
+            },
+            {
+              "position": 1,
+              "first_hammer": true,
+              "assignment": {
+                "assignment_type": "team",
+                "id": 4
+              }
+            }
+          ],
+          "coords": {
+            "group": 0,
+            "col": 0,
+            "row": 2
           }
-        ]
-      },
-      {
-        "id": 3,
-        "name": "A Final",
-        "coords": { "group": 0, "col": 5, "row": 1 },
-        "game_positions": [
-          {
-            "position": 0,
-            "first_hammer": false,
-            "assignment": { "assignment_type": "game", "result": "winner", "id": 1 }
-          },
-          {
-            "position": 1,
-            "first_hammer": true,
-            "assignment": { "assignment_type": "game", "result": "winner", "id": 2 }
+        },
+        {
+          "id": 3,
+          "name": "A Final",
+          "game_positions": [
+            {
+              "position": 0,
+              "first_hammer": false,
+              "assignment": {
+                "assignment_type": "game",
+                "result": "winner",
+                "id": 1
+              }
+            },
+            {
+              "position": 1,
+              "first_hammer": true,
+              "assignment": {
+                "assignment_type": "game",
+                "result": "winner",
+                "id": 2
+              }
+            }
+          ],
+          "coords": {
+            "group": 0,
+            "col": 5,
+            "row": 1
           }
-        ]
-      },
-      {
-        "id": 4,
-        "name": "B Final",
-        "coords": { "group": 1, "col": 0, "row": 0 },
-        "game_positions": [
-          {
-            "position": 0,
-            "first_hammer": false,
-            "assignment": { "assignment_type": "game", "result": "loser", "id": 1 }
-          },
-          {
-            "position": 1,
-            "first_hammer": true,
-            "assignment": { "assignment_type": "game", "result": "loser", "id": 2 }
+        },
+        {
+          "id": 4,
+          "name": "B Final",
+          "game_positions": [
+            {
+              "position": 0,
+              "first_hammer": false,
+              "assignment": {
+                "assignment_type": "game",
+                "result": "loser",
+                "id": 1
+              }
+            },
+            {
+              "position": 1,
+              "first_hammer": true,
+              "assignment": {
+                "assignment_type": "game",
+                "result": "loser",
+                "id": 2
+              }
+            }
+          ],
+          "coords": {
+            "group": 1,
+            "col": 0,
+            "row": 0
           }
-        ]
-      }
-    ]
-  }
-]}
+        }
+      ]
+    }
+  ]
+}

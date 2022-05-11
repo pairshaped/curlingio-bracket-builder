@@ -238,7 +238,7 @@ init { demoMode, url } =
       , dragDrop = DragDrop.init
       , overlay = Nothing
       , changed = False
-      , bracket = NotAsked
+      , bracket = Loading
       }
     , loadBracket demoMode url
     )
@@ -331,8 +331,8 @@ trimMaybe str =
             Nothing
 
 
-saveBracket : Bool -> WebData Bracket -> Cmd msg
-saveBracket demoMode bracketResult =
+saveBracket : Bool -> String -> WebData Bracket -> Cmd Msg
+saveBracket demoMode url bracketResult =
     case bracketResult of
         Success bracket ->
             bracketEncoder bracket
@@ -340,17 +340,24 @@ saveBracket demoMode bracketResult =
                         sendBracketToLocalStorage
 
                     else
-                        sendBracketToServer
+                        sendBracketToServer url (Just bracket.id)
                    )
 
         _ ->
             Cmd.none
 
 
-sendBracketToServer : Encode.Value -> Cmd msg
-sendBracketToServer bracket =
-    -- TODO
-    Cmd.none
+sendBracketToServer : String -> Maybe Int -> Encode.Value -> Cmd Msg
+sendBracketToServer url maybeId bracketJson =
+    Http.request
+        { method = "PATCH"
+        , headers = []
+        , url = url
+        , body = Http.jsonBody bracketJson
+        , expect = Http.expectJson Saved bracketDecoder
+        , timeout = Nothing
+        , tracker = Nothing
+        }
 
 
 loadBracket : Bool -> String -> Cmd Msg
@@ -627,6 +634,7 @@ type Msg
     | UpdateGamePosition Game Int String
     | CloseEditGame Game
     | Save
+    | Saved (Result Http.Error Bracket)
     | ConfirmRevert
     | Revert
     | ReceivedBracketFromServer (WebData Bracket)
@@ -950,8 +958,15 @@ update msg model =
 
         Save ->
             ( { model | changed = False }
-            , saveBracket model.demoMode model.bracket
+            , saveBracket model.demoMode model.url model.bracket
             )
+
+        Saved (Ok bracketJson) ->
+            ( { model | bracket = RemoteData.succeed bracketJson }, Cmd.none )
+
+        Saved (Err error) ->
+            -- TODO: Error message that save failed
+            ( model, Cmd.none )
 
         ConfirmRevert ->
             ( { model | overlay = Just RevertConfirmation }, Cmd.none )
@@ -960,6 +975,7 @@ update msg model =
             ( { model
                 | overlay = Nothing
                 , changed = False
+                , bracket = Loading
               }
             , loadBracket model.demoMode model.url
             )
