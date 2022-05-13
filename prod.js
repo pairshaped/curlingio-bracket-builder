@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.bd,
-		impl.bx,
-		impl.bt,
+		impl.be,
+		impl.by,
+		impl.bu,
 		function() { return function() {} }
 	);
 });
@@ -2704,7 +2704,7 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		G: func(record.G),
+		E: func(record.E),
 		an: record.an,
 		ak: record.ak
 	}
@@ -2974,7 +2974,7 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.G;
+		var message = !tag ? value : tag < 3 ? value.a : value.E;
 		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.an;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
@@ -3928,11 +3928,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.bd,
-		impl.bx,
-		impl.bt,
+		impl.be,
+		impl.by,
+		impl.bu,
 		function(sendToApp, initialModel) {
-			var view = impl.by;
+			var view = impl.bz;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3964,12 +3964,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.bd,
-		impl.bx,
-		impl.bt,
+		impl.be,
+		impl.by,
+		impl.bu,
 		function(sendToApp, initialModel) {
 			var divertHrefToApp = impl.al && impl.al(sendToApp)
-			var view = impl.by;
+			var view = impl.bz;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3977,12 +3977,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.a_);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.a$);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.bv) && (_VirtualDom_doc.title = title = doc.bv);
+				(title !== doc.bw) && (_VirtualDom_doc.title = title = doc.bw);
 			});
 		}
 	);
@@ -4038,8 +4038,8 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.bj;
-	var onUrlRequest = impl.bk;
+	var onUrlChange = impl.bk;
+	var onUrlRequest = impl.bl;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
@@ -4069,13 +4069,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		bd: function(flags)
+		be: function(flags)
 		{
-			return A3(impl.bd, flags, _Browser_getUrl(), key);
+			return A3(impl.be, flags, _Browser_getUrl(), key);
 		},
+		bz: impl.bz,
 		by: impl.by,
-		bx: impl.bx,
-		bt: impl.bt
+		bu: impl.bu
 	});
 }
 
@@ -4141,17 +4141,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { ba: 'hidden', a0: 'visibilitychange' }
+		? { bb: 'hidden', a1: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { ba: 'mozHidden', a0: 'mozvisibilitychange' }
+		? { bb: 'mozHidden', a1: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { ba: 'msHidden', a0: 'msvisibilitychange' }
+		? { bb: 'msHidden', a1: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { ba: 'webkitHidden', a0: 'webkitvisibilitychange' }
-		: { ba: 'hidden', a0: 'visibilitychange' };
+		? { bb: 'webkitHidden', a1: 'webkitvisibilitychange' }
+		: { bb: 'hidden', a1: 'visibilitychange' };
 }
 
 
@@ -4233,10 +4233,10 @@ function _Browser_getViewport()
 {
 	return {
 		aO: _Browser_getScene(),
-		aS: {
-			aU: _Browser_window.pageXOffset,
-			aV: _Browser_window.pageYOffset,
-			aT: _Browser_doc.documentElement.clientWidth,
+		aT: {
+			aV: _Browser_window.pageXOffset,
+			aW: _Browser_window.pageYOffset,
+			aU: _Browser_doc.documentElement.clientWidth,
 			av: _Browser_doc.documentElement.clientHeight
 		}
 	};
@@ -4247,7 +4247,7 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		aT: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		aU: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
 		av: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
@@ -4272,13 +4272,13 @@ function _Browser_getViewportOf(id)
 	{
 		return {
 			aO: {
-				aT: node.scrollWidth,
+				aU: node.scrollWidth,
 				av: node.scrollHeight
 			},
-			aS: {
-				aU: node.scrollLeft,
-				aV: node.scrollTop,
-				aT: node.clientWidth,
+			aT: {
+				aV: node.scrollLeft,
+				aW: node.scrollTop,
+				aU: node.clientWidth,
 				av: node.clientHeight
 			}
 		};
@@ -4310,16 +4310,16 @@ function _Browser_getElement(id)
 		var y = _Browser_window.pageYOffset;
 		return {
 			aO: _Browser_getScene(),
-			aS: {
-				aU: x,
-				aV: y,
-				aT: _Browser_doc.documentElement.clientWidth,
+			aT: {
+				aV: x,
+				aW: y,
+				aU: _Browser_doc.documentElement.clientWidth,
 				av: _Browser_doc.documentElement.clientHeight
 			},
-			a3: {
-				aU: x + rect.left,
-				aV: y + rect.top,
-				aT: rect.width,
+			a4: {
+				aV: x + rect.left,
+				aW: y + rect.top,
+				aU: rect.width,
 				av: rect.height
 			}
 		};
@@ -4372,18 +4372,18 @@ var _Http_toTask = F3(function(router, toTask, request)
 		xhr.addEventListener('error', function() { done($elm$http$Http$NetworkError_); });
 		xhr.addEventListener('timeout', function() { done($elm$http$Http$Timeout_); });
 		xhr.addEventListener('load', function() { done(_Http_toResponse(request.ar.b, xhr)); });
-		$elm$core$Maybe$isJust(request.bw) && _Http_track(router, xhr, request.bw.a);
+		$elm$core$Maybe$isJust(request.bx) && _Http_track(router, xhr, request.bx.a);
 
 		try {
-			xhr.open(request.bf, request.C, true);
+			xhr.open(request.bg, request.aS, true);
 		} catch (e) {
-			return done($elm$http$Http$BadUrl_(request.C));
+			return done($elm$http$Http$BadUrl_(request.aS));
 		}
 
 		_Http_configureRequest(xhr, request);
 
-		request.a_.a && xhr.setRequestHeader('Content-Type', request.a_.a);
-		xhr.send(request.a_.b);
+		request.a$.a && xhr.setRequestHeader('Content-Type', request.a$.a);
+		xhr.send(request.a$.b);
 
 		return function() { xhr.c = true; xhr.abort(); };
 	});
@@ -4394,13 +4394,13 @@ var _Http_toTask = F3(function(router, toTask, request)
 
 function _Http_configureRequest(xhr, request)
 {
-	for (var headers = request.a9; headers.b; headers = headers.b) // WHILE_CONS
+	for (var headers = request.ba; headers.b; headers = headers.b) // WHILE_CONS
 	{
 		xhr.setRequestHeader(headers.a.a, headers.a.b);
 	}
-	xhr.timeout = request.bu.a || 0;
+	xhr.timeout = request.bv.a || 0;
 	xhr.responseType = request.ar.d;
-	xhr.withCredentials = request.aY;
+	xhr.withCredentials = request.aZ;
 }
 
 
@@ -4421,10 +4421,10 @@ function _Http_toResponse(toBody, xhr)
 function _Http_toMetadata(xhr)
 {
 	return {
-		C: xhr.responseURL,
-		bq: xhr.status,
-		br: xhr.statusText,
-		a9: _Http_parseHeaders(xhr.getAllResponseHeaders())
+		aS: xhr.responseURL,
+		br: xhr.status,
+		bs: xhr.statusText,
+		ba: _Http_parseHeaders(xhr.getAllResponseHeaders())
 	};
 }
 
@@ -4519,18 +4519,22 @@ function _Http_track(router, xhr, tracker)
 	xhr.upload.addEventListener('progress', function(event) {
 		if (xhr.c) { return; }
 		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Sending({
-			bp: event.loaded,
+			bq: event.loaded,
 			aP: event.total
 		}))));
 	});
 	xhr.addEventListener('progress', function(event) {
 		if (xhr.c) { return; }
 		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Receiving({
-			bm: event.loaded,
+			bn: event.loaded,
 			aP: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
 		}))));
 	});
-}var $elm$core$List$cons = _List_cons;
+}var $elm$core$Maybe$Just = function (a) {
+	return {$: 0, a: a};
+};
+var $elm$core$Maybe$Nothing = {$: 1};
+var $elm$core$List$cons = _List_cons;
 var $elm$core$Elm$JsArray$foldr = _JsArray_foldr;
 var $elm$core$Array$foldr = F3(
 	function (func, baseCase, _v0) {
@@ -4633,10 +4637,6 @@ var $elm$json$Json$Decode$OneOf = function (a) {
 };
 var $elm$core$Basics$False = 1;
 var $elm$core$Basics$add = _Basics_add;
-var $elm$core$Maybe$Just = function (a) {
-	return {$: 0, a: a};
-};
-var $elm$core$Maybe$Nothing = {$: 1};
 var $elm$core$String$all = _String_all;
 var $elm$core$Basics$and = _Basics_and;
 var $elm$core$Basics$append = _Utils_append;
@@ -5322,7 +5322,7 @@ var $krisajenkins$remotedata$RemoteData$Success = function (a) {
 };
 var $author$project$Main$Group = F3(
 	function (position, name, visible) {
-		return {f: name, p: position, ag: visible};
+		return {f: name, p: position, ah: visible};
 	});
 var $author$project$Main$Team = F2(
 	function (id, name) {
@@ -5347,23 +5347,21 @@ var $author$project$Main$emptyBracket = function (id) {
 				A3($author$project$Main$Group, 0, 'Group 1', true)
 			]),
 		a: id,
-		N: $author$project$Main$initTeams
+		L: $author$project$Main$initTeams
 	};
 };
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging = {$: 0};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$init = $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging;
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $author$project$Main$requestBracketFromLocalStorage = _Platform_outgoingPort('requestBracketFromLocalStorage', $elm$json$Json$Encode$string);
 var $author$project$Main$ReceivedBracketFromServer = function (a) {
 	return {$: 17, a: a};
 };
 var $author$project$Main$Bracket = F4(
 	function (id, teams, groups, games) {
-		return {c: games, o: groups, a: id, N: teams};
+		return {c: games, o: groups, a: id, L: teams};
 	});
 var $author$project$Main$Coords = F3(
 	function (group, col, row) {
-		return {P: col, W: group, R: row};
+		return {N: col, W: group, P: row};
 	});
 var $author$project$Main$Game = F4(
 	function (id, name, coords, gamePositions) {
@@ -6085,7 +6083,7 @@ var $elm$http$Http$resolve = F2(
 			case 3:
 				var metadata = response.a;
 				return $elm$core$Result$Err(
-					$elm$http$Http$BadStatus(metadata.bq));
+					$elm$http$Http$BadStatus(metadata.br));
 			default:
 				var body = response.b;
 				return A2(
@@ -6169,7 +6167,7 @@ var $elm$http$Http$updateReqs = F3(
 					return A2(
 						$elm$core$Task$andThen,
 						function (pid) {
-							var _v4 = req.bw;
+							var _v4 = req.bx;
 							if (_v4.$ === 1) {
 								return A3($elm$http$Http$updateReqs, router, otherCmds, reqs);
 							} else {
@@ -6256,14 +6254,14 @@ var $elm$http$Http$cmdMap = F2(
 			var r = cmd.a;
 			return $elm$http$Http$Request(
 				{
-					aY: r.aY,
-					a_: r.a_,
+					aZ: r.aZ,
+					a$: r.a$,
 					ar: A2(_Http_mapExpect, func, r.ar),
-					a9: r.a9,
-					bf: r.bf,
-					bu: r.bu,
-					bw: r.bw,
-					C: r.C
+					ba: r.ba,
+					bg: r.bg,
+					bv: r.bv,
+					bx: r.bx,
+					aS: r.aS
 				});
 		}
 	});
@@ -6286,44 +6284,67 @@ var $elm$http$Http$subscription = _Platform_leaf('Http');
 var $elm$http$Http$request = function (r) {
 	return $elm$http$Http$command(
 		$elm$http$Http$Request(
-			{aY: false, a_: r.a_, ar: r.ar, a9: r.a9, bf: r.bf, bu: r.bu, bw: r.bw, C: r.C}));
+			{aZ: false, a$: r.a$, ar: r.ar, ba: r.ba, bg: r.bg, bv: r.bv, bx: r.bx, aS: r.aS}));
 };
 var $elm$http$Http$get = function (r) {
 	return $elm$http$Http$request(
-		{a_: $elm$http$Http$emptyBody, ar: r.ar, a9: _List_Nil, bf: 'GET', bu: $elm$core$Maybe$Nothing, bw: $elm$core$Maybe$Nothing, C: r.C});
+		{a$: $elm$http$Http$emptyBody, ar: r.ar, ba: _List_Nil, bg: 'GET', bv: $elm$core$Maybe$Nothing, bx: $elm$core$Maybe$Nothing, aS: r.aS});
 };
-var $author$project$Main$requestBracketFromServer = function (url) {
-	return $elm$http$Http$get(
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Main$requestBracketFromLocalStorage = _Platform_outgoingPort('requestBracketFromLocalStorage', $elm$json$Json$Encode$string);
+var $author$project$Main$loadBracket = function (_v0) {
+	var demoMode = _v0.T;
+	var baseUrl = _v0.ae;
+	var id = _v0.a;
+	var bracketUrl = function () {
+		if (!id.$) {
+			var id_ = id.a;
+			return _Utils_ap(
+				baseUrl,
+				$elm$core$String$fromInt(id_));
+		} else {
+			return baseUrl + 'new';
+		}
+	}();
+	var requestBracketFromServer = $elm$http$Http$get(
 		{
 			ar: A2(
 				$elm$http$Http$expectJson,
 				A2($elm$core$Basics$composeR, $krisajenkins$remotedata$RemoteData$fromResult, $author$project$Main$ReceivedBracketFromServer),
 				$author$project$Main$bracketDecoder),
-			C: url
+			aS: bracketUrl
 		});
+	return demoMode ? $author$project$Main$requestBracketFromLocalStorage('') : requestBracketFromServer;
 };
-var $author$project$Main$loadBracket = F2(
-	function (demoMode, url) {
-		return demoMode ? $author$project$Main$requestBracketFromLocalStorage('') : $author$project$Main$requestBracketFromServer(url);
-	});
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Main$init = function (_v0) {
-	var demoMode = _v0.F;
-	var url = _v0.C;
-	var newBracket = _v0.ai;
+var $author$project$Main$init = function (flags) {
 	return _Utils_Tuple2(
 		{
-			b: newBracket ? $krisajenkins$remotedata$RemoteData$Success(
-				$author$project$Main$emptyBracket($elm$core$Maybe$Nothing)) : $krisajenkins$remotedata$RemoteData$Loading,
+			b: function () {
+				var _v0 = flags.a;
+				if (!_v0.$) {
+					return $krisajenkins$remotedata$RemoteData$Loading;
+				} else {
+					return $krisajenkins$remotedata$RemoteData$Success(
+						$author$project$Main$emptyBracket($elm$core$Maybe$Nothing));
+				}
+			}(),
 			h: false,
-			F: demoMode,
-			J: $norpan$elm_html5_drag_drop$Html5$DragDrop$init,
-			l: $elm$core$Maybe$Nothing,
-			C: url
+			H: $norpan$elm_html5_drag_drop$Html5$DragDrop$init,
+			U: flags,
+			l: $elm$core$Maybe$Nothing
 		},
-		newBracket ? $elm$core$Platform$Cmd$none : A2($author$project$Main$loadBracket, demoMode, url));
+		function () {
+			var _v1 = flags.a;
+			if (!_v1.$) {
+				return $author$project$Main$loadBracket(flags);
+			} else {
+				return $elm$core$Platform$Cmd$none;
+			}
+		}());
 };
+var $elm$json$Json$Decode$null = _Json_decodeNull;
 var $author$project$Main$ReceivedBracketFromLocalStorage = function (a) {
 	return {$: 18, a: a};
 };
@@ -6597,7 +6618,7 @@ var $author$project$Main$demoBracket = {
 			A3($author$project$Main$Group, 1, 'B Event', true)
 		]),
 	a: $elm$core$Maybe$Just(1),
-	N: $author$project$Main$initTeams
+	L: $author$project$Main$initTeams
 };
 var $author$project$Main$dragstart = _Platform_outgoingPort('dragstart', $elm$core$Basics$identity);
 var $elm_community$list_extra$List$Extra$find = F2(
@@ -6635,7 +6656,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragstartEvent = function (msg
 		var dragId = msg.a;
 		var event = msg.b;
 		return $elm$core$Maybe$Just(
-			{a2: dragId, a4: event});
+			{a3: dragId, a5: event});
 	} else {
 		return $elm$core$Maybe$Nothing;
 	}
@@ -6693,6 +6714,9 @@ var $elm_community$list_extra$List$Extra$remove = F2(
 				A2($elm_community$list_extra$List$Extra$remove, x, ys));
 		}
 	});
+var $author$project$Main$Saved = function (a) {
+	return {$: 14, a: a};
+};
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$json$Json$Encode$int = _Json_wrap;
 var $elm$json$Json$Encode$list = F2(
@@ -6786,10 +6810,10 @@ var $author$project$Main$gamesEncoder = function (games) {
 						$elm$json$Json$Encode$int(coords.W)),
 						_Utils_Tuple2(
 						'col',
-						$elm$json$Json$Encode$int(coords.P)),
+						$elm$json$Json$Encode$int(coords.N)),
 						_Utils_Tuple2(
 						'row',
-						$elm$json$Json$Encode$int(coords.R))
+						$elm$json$Json$Encode$int(coords.P))
 					]));
 		};
 		return $elm$json$Json$Encode$object(
@@ -6866,7 +6890,7 @@ var $author$project$Main$bracketEncoder = function (bracket) {
 				}()),
 				_Utils_Tuple2(
 				'teams',
-				$author$project$Main$teamsEncoder(bracket.N)),
+				$author$project$Main$teamsEncoder(bracket.L)),
 				_Utils_Tuple2(
 				'groups',
 				$author$project$Main$groupsEncoder(bracket.o)),
@@ -6875,41 +6899,49 @@ var $author$project$Main$bracketEncoder = function (bracket) {
 				$author$project$Main$gamesEncoder(bracket.c))
 			]));
 };
-var $author$project$Main$sendBracketToLocalStorage = _Platform_outgoingPort('sendBracketToLocalStorage', $elm$core$Basics$identity);
-var $author$project$Main$Saved = function (a) {
-	return {$: 14, a: a};
-};
 var $elm$http$Http$jsonBody = function (value) {
 	return A2(
 		_Http_pair,
 		'application/json',
 		A2($elm$json$Json$Encode$encode, 0, value));
 };
-var $author$project$Main$sendBracketToServer = F3(
-	function (url, maybeId, bracketJson) {
-		return $elm$http$Http$request(
-			{
-				a_: $elm$http$Http$jsonBody(bracketJson),
-				ar: A2($elm$http$Http$expectJson, $author$project$Main$Saved, $author$project$Main$bracketDecoder),
-				a9: _List_Nil,
-				bf: function () {
-					if (!maybeId.$) {
-						var id = maybeId.a;
-						return 'PATCH';
-					} else {
-						return 'POST';
-					}
-				}(),
-				bu: $elm$core$Maybe$Nothing,
-				bw: $elm$core$Maybe$Nothing,
-				C: url
-			});
-	});
-var $author$project$Main$saveBracket = F3(
-	function (demoMode, url, bracketResult) {
+var $author$project$Main$sendBracketToLocalStorage = _Platform_outgoingPort('sendBracketToLocalStorage', $elm$core$Basics$identity);
+var $author$project$Main$saveBracket = F2(
+	function (_v0, bracketResult) {
+		var demoMode = _v0.T;
+		var baseUrl = _v0.ae;
+		var id = _v0.a;
+		var bracketUrl = function () {
+			if (!id.$) {
+				var id_ = id.a;
+				return _Utils_ap(
+					baseUrl,
+					$elm$core$String$fromInt(id_));
+			} else {
+				return baseUrl;
+			}
+		}();
+		var sendBracketToServer = function (bracketJson) {
+			return $elm$http$Http$request(
+				{
+					a$: $elm$http$Http$jsonBody(bracketJson),
+					ar: A2($elm$http$Http$expectJson, $author$project$Main$Saved, $author$project$Main$bracketDecoder),
+					ba: _List_Nil,
+					bg: function () {
+						if (!id.$) {
+							return 'PATCH';
+						} else {
+							return 'POST';
+						}
+					}(),
+					bv: $elm$core$Maybe$Nothing,
+					bx: $elm$core$Maybe$Nothing,
+					aS: bracketUrl
+				});
+		};
 		if (bracketResult.$ === 3) {
 			var bracket = bracketResult.a;
-			return (demoMode ? $author$project$Main$sendBracketToLocalStorage : A2($author$project$Main$sendBracketToServer, url, bracket.a))(
+			return (demoMode ? $author$project$Main$sendBracketToLocalStorage : sendBracketToServer)(
 				$author$project$Main$bracketEncoder(bracket));
 		} else {
 			return $elm$core$Platform$Cmd$none;
@@ -7058,7 +7090,7 @@ var $author$project$Main$update = F2(
 		switch (msg.$) {
 			case 0:
 				var msg_ = msg.a;
-				var _v1 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, model.J);
+				var _v1 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, model.H);
 				var model_ = _v1.a;
 				var result = _v1.b;
 				return _Utils_Tuple2(
@@ -7093,7 +7125,7 @@ var $author$project$Main$update = F2(
 											{
 												b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
 												h: true,
-												J: model_
+												H: model_
 											});
 									} else {
 										break _v2$2;
@@ -7115,7 +7147,7 @@ var $author$project$Main$update = F2(
 											{
 												b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
 												h: true,
-												J: model_
+												H: model_
 											});
 									} else {
 										break _v2$2;
@@ -7127,7 +7159,7 @@ var $author$project$Main$update = F2(
 						}
 						return _Utils_update(
 							model,
-							{J: model_});
+							{H: model_});
 					}(),
 					A2(
 						$elm$core$Maybe$withDefault,
@@ -7137,7 +7169,7 @@ var $author$project$Main$update = F2(
 							A2(
 								$elm$core$Basics$composeR,
 								function ($) {
-									return $.a4;
+									return $.a5;
 								},
 								$author$project$Main$dragstart),
 							$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragstartEvent(msg_))));
@@ -7180,7 +7212,7 @@ var $author$project$Main$update = F2(
 				var group = msg.a;
 				var updatedGroup = _Utils_update(
 					group,
-					{ag: !group.ag});
+					{ah: !group.ah});
 				var updatedGroups = function (groups) {
 					return A3(
 						$elm_community$list_extra$List$Extra$updateIf,
@@ -7383,7 +7415,7 @@ var $author$project$Main$update = F2(
 												function (t) {
 													return _Utils_eq(t.a, teamId);
 												},
-												bracket.N);
+												bracket.L);
 											if (!_v13.$) {
 												var team = _v13.a;
 												return $elm$core$Maybe$Just(
@@ -7513,7 +7545,7 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{h: false}),
-					A3($author$project$Main$saveBracket, model.F, model.C, model.b));
+					A2($author$project$Main$saveBracket, model.U, model.b));
 			case 14:
 				if (!msg.a.$) {
 					var bracketJson = msg.a.a;
@@ -7541,7 +7573,7 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{b: $krisajenkins$remotedata$RemoteData$Loading, h: false, l: $elm$core$Maybe$Nothing}),
-					A2($author$project$Main$loadBracket, model.F, model.C));
+					$author$project$Main$loadBracket(model.U));
 			case 17:
 				var result = msg.a;
 				return _Utils_Tuple2(
@@ -7566,7 +7598,7 @@ var $author$project$Main$update = F2(
 							return _Utils_update(
 								model,
 								{
-									b: model.F ? $krisajenkins$remotedata$RemoteData$Success($author$project$Main$demoBracket) : $krisajenkins$remotedata$RemoteData$Success(
+									b: model.U.T ? $krisajenkins$remotedata$RemoteData$Success($author$project$Main$demoBracket) : $krisajenkins$remotedata$RemoteData$Success(
 										$author$project$Main$emptyBracket($elm$core$Maybe$Nothing))
 								});
 						}
@@ -7753,7 +7785,7 @@ var $author$project$Main$rowsForGroup = F2(
 				A2(
 					$elm$core$List$map,
 					function (g) {
-						return g.i.R + 3;
+						return g.i.P + 3;
 					},
 					A2(
 						$elm$core$List$filter,
@@ -7813,7 +7845,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions = F3(
 			A2(
 				$elm$json$Json$Decode$map,
 				function (msg) {
-					return {G: msg, ak: preventDefault, an: stopPropagation};
+					return {E: msg, ak: preventDefault, an: stopPropagation};
 				},
 				decoder));
 	});
@@ -7869,7 +7901,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$Drop = F2(
 	});
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$Position = F4(
 	function (width, height, x, y) {
-		return {av: height, aT: width, aU: x, aV: y};
+		return {av: height, aU: width, aV: x, aW: y};
 	});
 var $elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
@@ -8156,11 +8188,11 @@ var $author$project$Main$viewGame = F5(
 						A2(
 						$elm$html$Html$Attributes$style,
 						'left',
-						$elm$core$String$fromInt(game.i.P * $author$project$Main$gridSize) + 'px'),
+						$elm$core$String$fromInt(game.i.N * $author$project$Main$gridSize) + 'px'),
 						A2(
 						$elm$html$Html$Attributes$style,
 						'top',
-						$elm$core$String$fromInt(game.i.R * $author$project$Main$gridSize) + 'px'),
+						$elm$core$String$fromInt(game.i.P * $author$project$Main$gridSize) + 'px'),
 						$elm$html$Html$Events$onDoubleClick(
 						$author$project$Main$EditGame(game))
 					]),
@@ -8254,7 +8286,7 @@ var $author$project$Main$colsForGames = function (games) {
 			A2(
 				$elm$core$List$map,
 				function (g) {
-					return g.i.P + 5;
+					return g.i.N + 5;
 				},
 				games)));
 };
@@ -8399,8 +8431,8 @@ var $author$project$Main$viewSvgLines = F2(
 							var fromGameId = _v1.b;
 							var toCoords = $elm$core$Maybe$Just(
 								_Utils_Tuple2(
-									(toGame.i.P * $author$project$Main$gridSize) + 1,
-									(toGame.i.R * $author$project$Main$gridSize) + ((!toPosition) ? 32 : 57)));
+									(toGame.i.N * $author$project$Main$gridSize) + 1,
+									(toGame.i.P * $author$project$Main$gridSize) + ((!toPosition) ? 32 : 57)));
 							var fromCoords = function () {
 								var _v3 = A2(
 									$elm_community$list_extra$List$Extra$find,
@@ -8412,8 +8444,8 @@ var $author$project$Main$viewSvgLines = F2(
 									var fromGame = _v3.a;
 									return $elm$core$Maybe$Just(
 										_Utils_Tuple2(
-											(fromGame.i.P * $author$project$Main$gridSize) + 175,
-											(fromGame.i.R * $author$project$Main$gridSize) + ((!result) ? 32 : 57)));
+											(fromGame.i.N * $author$project$Main$gridSize) + 175,
+											(fromGame.i.P * $author$project$Main$gridSize) + ((!result) ? 32 : 57)));
 								} else {
 									return $elm$core$Maybe$Nothing;
 								}
@@ -8516,7 +8548,7 @@ var $author$project$Main$viewGroup = F4(
 						[
 							$elm$html$Html$Attributes$class('group')
 						]),
-					group.ag ? _List_fromArray(
+					group.ah ? _List_fromArray(
 						[
 							A2($author$project$Main$viewSvgLines, group, groupGames),
 							A2(
@@ -8529,7 +8561,7 @@ var $author$project$Main$viewGroup = F4(
 									$elm$core$List$range,
 									0,
 									A2($author$project$Main$rowsForGroup, group, bracket.c) - 1))),
-							A5($author$project$Main$viewGames, dragId, dropId, bracket.N, bracket.c, groupGames)
+							A5($author$project$Main$viewGames, dragId, dropId, bracket.L, bracket.c, groupGames)
 						]) : _List_fromArray(
 						[
 							A2(
@@ -8905,7 +8937,7 @@ var $author$project$Main$viewEditGame = F2(
 						A2(
 							$elm$core$List$map,
 							A2(teamOption, index, selectedGamePosition),
-							A2(unassignedTeams, bracket.N, bracket.c)),
+							A2(unassignedTeams, bracket.L, bracket.c)),
 						A2(
 							$elm$core$List$map,
 							A2(gameOption, index, selectedGamePosition),
@@ -9285,7 +9317,7 @@ var $author$project$Main$viewOverlay = F2(
 var $author$project$Main$viewOnceLoaded = F2(
 	function (_v0, bracket) {
 		var overlay = _v0.l;
-		var dragDrop = _v0.J;
+		var dragDrop = _v0.H;
 		var changed = _v0.h;
 		var modalOpen = !_Utils_eq(overlay, $elm$core$Maybe$Nothing);
 		var dropId = $norpan$elm_html5_drag_drop$Html5$DragDrop$getDropId(dragDrop);
@@ -9436,22 +9468,30 @@ var $author$project$Main$view = function (model) {
 	}
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
-	{bd: $author$project$Main$init, bt: $author$project$Main$subscriptions, bx: $author$project$Main$update, by: $author$project$Main$view});
+	{be: $author$project$Main$init, bu: $author$project$Main$subscriptions, by: $author$project$Main$update, bz: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
 	A2(
 		$elm$json$Json$Decode$andThen,
-		function (url) {
+		function (id) {
 			return A2(
 				$elm$json$Json$Decode$andThen,
-				function (newBracket) {
+				function (demoMode) {
 					return A2(
 						$elm$json$Json$Decode$andThen,
-						function (demoMode) {
+						function (baseUrl) {
 							return $elm$json$Json$Decode$succeed(
-								{F: demoMode, ai: newBracket, C: url});
+								{ae: baseUrl, T: demoMode, a: id});
 						},
-						A2($elm$json$Json$Decode$field, 'demoMode', $elm$json$Json$Decode$bool));
+						A2($elm$json$Json$Decode$field, 'baseUrl', $elm$json$Json$Decode$string));
 				},
-				A2($elm$json$Json$Decode$field, 'newBracket', $elm$json$Json$Decode$bool));
+				A2($elm$json$Json$Decode$field, 'demoMode', $elm$json$Json$Decode$bool));
 		},
-		A2($elm$json$Json$Decode$field, 'url', $elm$json$Json$Decode$string)))(0)}});}(this));
+		A2(
+			$elm$json$Json$Decode$field,
+			'id',
+			$elm$json$Json$Decode$oneOf(
+				_List_fromArray(
+					[
+						$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+						A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$int)
+					])))))(0)}});}(this));
