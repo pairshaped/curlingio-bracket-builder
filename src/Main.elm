@@ -59,8 +59,9 @@ type alias Flags =
 
 
 type Overlay
-    = EditingGame Game
+    = EditingBracketName
     | EditingGroup Group
+    | EditingGame Game
     | RevertConfirmation
     | ClearConfirmation
 
@@ -76,7 +77,7 @@ type DroppableId
 
 
 type alias Bracket =
-    { id : Maybe Int
+    { name : String
     , teams : List Team
     , groups : List Group
     , games : List Game
@@ -148,9 +149,9 @@ initTeams =
     ]
 
 
-emptyBracket : Maybe Int -> Bracket
-emptyBracket id =
-    { id = id
+emptyBracket : Bracket
+emptyBracket =
+    { name = "Playoff Bracket"
     , teams = initTeams
     , groups =
         [ Group 0 "Group 1" True ]
@@ -160,7 +161,7 @@ emptyBracket id =
 
 demoBracket : Bracket
 demoBracket =
-    { id = Just 1
+    { name = "Playoff Bracket"
     , teams = initTeams
     , groups =
         [ Group 0 "A Event" True, Group 1 "B Event" True ]
@@ -249,7 +250,7 @@ init flags =
                     Loading
 
                 Nothing ->
-                    Success (emptyBracket Nothing)
+                    Success emptyBracket
       }
     , case flags.id of
         Just _ ->
@@ -422,14 +423,7 @@ loadBracket { demoMode, baseUrl, id } =
 bracketEncoder : Bracket -> Encode.Value
 bracketEncoder bracket =
     Encode.object
-        [ ( "id"
-          , case bracket.id of
-                Just id ->
-                    Encode.int id
-
-                Nothing ->
-                    Encode.null
-          )
+        [ ( "name", Encode.string bracket.name )
         , ( "teams", teamsEncoder bracket.teams )
         , ( "groups", groupsEncoder bracket.groups )
         , ( "games", gamesEncoder bracket.games )
@@ -560,7 +554,7 @@ bracketDecoder : Decode.Decoder Bracket
 bracketDecoder =
     Decode.map4
         Bracket
-        (Decode.maybe (Decode.field "id" Decode.int))
+        (Decode.field "name" Decode.string)
         (Decode.field "teams" (Decode.list teamDecoder))
         (Decode.field "groups" (Decode.list groupDecoder))
         (Decode.field "games" (Decode.list gameDecoder))
@@ -666,6 +660,9 @@ gameDecoder =
 
 type Msg
     = DragDropMsg (DragDrop.Msg DraggableId DroppableId)
+    | EditBracketName
+    | UpdateBracketName String
+    | CloseEditBracketName
     | AddGroup
     | EditGroup Group
     | ToggleGroup Group
@@ -728,6 +725,31 @@ update msg model =
             , DragDrop.getDragstartEvent msg_
                 |> Maybe.map (.event >> dragstart)
                 |> Maybe.withDefault Cmd.none
+            )
+
+        EditBracketName ->
+            ( { model | overlay = Just EditingBracketName }
+            , Cmd.none
+            )
+
+        UpdateBracketName name ->
+            let
+                updatedBracket bracket =
+                    { bracket | name = name }
+            in
+            ( { model
+                | bracket = RemoteData.map updatedBracket model.bracket
+                , changed = True
+              }
+            , Cmd.none
+            )
+
+        CloseEditBracketName ->
+            ( { model
+                | overlay = Nothing
+                , changed = True
+              }
+            , Cmd.none
             )
 
         AddGroup ->
@@ -1042,7 +1064,7 @@ update msg model =
                                 Success demoBracket
 
                             else
-                                Success (emptyBracket Nothing)
+                                Success emptyBracket
                     }
             , Cmd.none
             )
@@ -1051,19 +1073,10 @@ update msg model =
             ( { model | overlay = Just ClearConfirmation }, Cmd.none )
 
         Clear ->
-            let
-                bracketId =
-                    case model.bracket of
-                        Success bracket ->
-                            bracket.id
-
-                        _ ->
-                            Nothing
-            in
             ( { model
                 | overlay = Nothing
                 , changed = True
-                , bracket = Success (emptyBracket bracketId)
+                , bracket = Success emptyBracket
               }
             , Cmd.none
             )
@@ -1111,7 +1124,8 @@ viewOnceLoaded { overlay, dragDrop, changed } bracket =
     in
     div [ classList [ ( "modal-open", modalOpen ) ] ]
         [ div [ class "p-3" ]
-            [ viewGroups bracket dragId dropId
+            [ viewBracketName bracket.name
+            , viewGroups bracket dragId dropId
             , button [ class "btn btn-primary", onClick AddGroup ] [ text "Add Group" ]
             , if modalOpen then
                 viewOverlay overlay bracket
@@ -1151,11 +1165,14 @@ viewOverlay overlay bracket =
     div [ class "modal", style "display" "block" ]
         [ div [ class "modal-dialog" ]
             [ case overlay of
-                Just (EditingGame game) ->
-                    viewEditGame bracket game
+                Just EditingBracketName ->
+                    viewEditBracketName bracket.name
 
                 Just (EditingGroup group) ->
                     viewEditGroup bracket group
+
+                Just (EditingGame game) ->
+                    viewEditGame bracket game
 
                 Just RevertConfirmation ->
                     viewRevertConfirmation
@@ -1165,6 +1182,46 @@ viewOverlay overlay bracket =
 
                 Nothing ->
                     text ""
+            ]
+        ]
+
+
+viewEditBracketName : String -> Html Msg
+viewEditBracketName name =
+    let
+        hasNoName : Bool
+        hasNoName =
+            String.trim name == ""
+    in
+    div [ class "modal-content" ]
+        [ div [ class "modal-header" ]
+            [ h5 [ class "modal-title" ] [ text "Bracket Name" ] ]
+        , div [ class "modal-body" ]
+            [ div
+                [ class "form-group" ]
+                [ input
+                    [ class "form-control"
+                    , id "editing-bracket-name"
+                    , value name
+                    , onInput UpdateBracketName
+                    ]
+                    []
+                ]
+            ]
+        , div [ class "modal-footer d-flex justify-content-between" ]
+            [ button
+                [ onClick CloseEditBracketName
+                , class "btn btn-primary"
+                , disabled hasNoName
+                , title
+                    (if hasNoName then
+                        "Name is required"
+
+                     else
+                        ""
+                    )
+                ]
+                [ text "Close" ]
             ]
         ]
 
@@ -1185,12 +1242,11 @@ viewEditGroup bracket group =
     in
     div [ class "modal-content" ]
         [ div [ class "modal-header" ]
-            [ h5 [ class "modal-title" ] [ text "Edit Group" ] ]
+            [ h5 [ class "modal-title" ] [ text "Group Name" ] ]
         , div [ class "modal-body" ]
             [ div
                 [ class "form-group" ]
-                [ label [ for "editing-group-name" ] [ text "Group Name" ]
-                , input
+                [ input
                     [ class "form-control"
                     , id "editing-group-name"
                     , value group.name
@@ -1440,6 +1496,21 @@ viewClearConfirmation =
             [ button [ onClick Clear, class "btn btn-danger mr-2" ] [ text "Continue" ]
             , button [ onClick CancelConfirmation, class "btn btn-secondary mr-2" ] [ text "Cancel" ]
             ]
+        ]
+
+
+viewBracketName : String -> Html Msg
+viewBracketName name =
+    div
+        [ class "d-flex bracket-name" ]
+        [ h2
+            [ onClick EditBracketName ]
+            [ text name ]
+        , h2
+            [ class "ml-2"
+            , onClick EditBracketName
+            ]
+            [ text "✎" ]
         ]
 
 

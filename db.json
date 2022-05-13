@@ -2,6 +2,7 @@
   "brackets": [
     {
       "id": 1,
+      "name": "Playoff Bracket",
       "teams": [
         {
           "id": 1,

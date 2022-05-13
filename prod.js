@@ -4936,25 +4936,25 @@ var $elm$core$Array$treeFromBuilder = F2(
 	});
 var $elm$core$Array$builderToArray = F2(
 	function (reverseNodeList, builder) {
-		if (!builder.d) {
+		if (!builder.f) {
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.g),
+				$elm$core$Elm$JsArray$length(builder.i),
 				$elm$core$Array$shiftStep,
 				$elm$core$Elm$JsArray$empty,
-				builder.g);
+				builder.i);
 		} else {
-			var treeLen = builder.d * $elm$core$Array$branchFactor;
+			var treeLen = builder.f * $elm$core$Array$branchFactor;
 			var depth = $elm$core$Basics$floor(
 				A2($elm$core$Basics$logBase, $elm$core$Array$branchFactor, treeLen - 1));
-			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.j) : builder.j;
-			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.d);
+			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.k) : builder.k;
+			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.f);
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.g) + treeLen,
+				$elm$core$Elm$JsArray$length(builder.i) + treeLen,
 				A2($elm$core$Basics$max, 5, depth * $elm$core$Array$shiftStep),
 				tree,
-				builder.g);
+				builder.i);
 		}
 	});
 var $elm$core$Basics$idiv = _Basics_idiv;
@@ -4967,7 +4967,7 @@ var $elm$core$Array$initializeHelp = F5(
 				return A2(
 					$elm$core$Array$builderToArray,
 					false,
-					{j: nodeList, d: (len / $elm$core$Array$branchFactor) | 0, g: tail});
+					{k: nodeList, f: (len / $elm$core$Array$branchFactor) | 0, i: tail});
 			} else {
 				var leaf = $elm$core$Array$Leaf(
 					A3($elm$core$Elm$JsArray$initialize, $elm$core$Array$branchFactor, fromIndex, fn));
@@ -5322,11 +5322,11 @@ var $krisajenkins$remotedata$RemoteData$Success = function (a) {
 };
 var $author$project$Main$Group = F3(
 	function (position, name, visible) {
-		return {f: name, p: position, ah: visible};
+		return {d: name, p: position, ah: visible};
 	});
 var $author$project$Main$Team = F2(
 	function (id, name) {
-		return {a: id, f: name};
+		return {a: id, d: name};
 	});
 var $author$project$Main$initTeams = _List_fromArray(
 	[
@@ -5339,25 +5339,23 @@ var $author$project$Main$initTeams = _List_fromArray(
 		A2($author$project$Main$Team, 7, 'Snowball'),
 		A2($author$project$Main$Team, 8, 'Apu')
 	]);
-var $author$project$Main$emptyBracket = function (id) {
-	return {
-		c: _List_Nil,
-		o: _List_fromArray(
-			[
-				A3($author$project$Main$Group, 0, 'Group 1', true)
-			]),
-		a: id,
-		L: $author$project$Main$initTeams
-	};
+var $author$project$Main$emptyBracket = {
+	c: _List_Nil,
+	o: _List_fromArray(
+		[
+			A3($author$project$Main$Group, 0, 'Group 1', true)
+		]),
+	d: 'Playoff Bracket',
+	L: $author$project$Main$initTeams
 };
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging = {$: 0};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$init = $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging;
 var $author$project$Main$ReceivedBracketFromServer = function (a) {
-	return {$: 17, a: a};
+	return {$: 20, a: a};
 };
 var $author$project$Main$Bracket = F4(
-	function (id, teams, groups, games) {
-		return {c: games, o: groups, a: id, L: teams};
+	function (name, teams, groups, games) {
+		return {c: games, o: groups, d: name, L: teams};
 	});
 var $author$project$Main$Coords = F3(
 	function (group, col, row) {
@@ -5365,7 +5363,7 @@ var $author$project$Main$Coords = F3(
 	});
 var $author$project$Main$Game = F4(
 	function (id, name, coords, gamePositions) {
-		return {i: coords, q: gamePositions, a: id, f: name};
+		return {j: coords, q: gamePositions, a: id, d: name};
 	});
 var $author$project$Main$GameAssignment = F2(
 	function (a, b) {
@@ -5477,8 +5475,7 @@ var $author$project$Main$teamDecoder = A3(
 var $author$project$Main$bracketDecoder = A5(
 	$elm$json$Json$Decode$map4,
 	$author$project$Main$Bracket,
-	$elm$json$Json$Decode$maybe(
-		A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int)),
+	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
 	A2(
 		$elm$json$Json$Decode$field,
 		'teams',
@@ -6326,14 +6323,13 @@ var $author$project$Main$init = function (flags) {
 				if (!_v0.$) {
 					return $krisajenkins$remotedata$RemoteData$Loading;
 				} else {
-					return $krisajenkins$remotedata$RemoteData$Success(
-						$author$project$Main$emptyBracket($elm$core$Maybe$Nothing));
+					return $krisajenkins$remotedata$RemoteData$Success($author$project$Main$emptyBracket);
 				}
 			}(),
-			h: false,
+			e: false,
 			H: $norpan$elm_html5_drag_drop$Html5$DragDrop$init,
 			U: flags,
-			l: $elm$core$Maybe$Nothing
+			h: $elm$core$Maybe$Nothing
 		},
 		function () {
 			var _v1 = flags.a;
@@ -6346,21 +6342,22 @@ var $author$project$Main$init = function (flags) {
 };
 var $elm$json$Json$Decode$null = _Json_decodeNull;
 var $author$project$Main$ReceivedBracketFromLocalStorage = function (a) {
-	return {$: 18, a: a};
+	return {$: 21, a: a};
 };
 var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $author$project$Main$receiveBracketFromLocalStorage = _Platform_incomingPort('receiveBracketFromLocalStorage', $elm$json$Json$Decode$value);
 var $author$project$Main$subscriptions = function (model) {
 	return $author$project$Main$receiveBracketFromLocalStorage($author$project$Main$ReceivedBracketFromLocalStorage);
 };
-var $author$project$Main$ClearConfirmation = {$: 3};
+var $author$project$Main$ClearConfirmation = {$: 4};
+var $author$project$Main$EditingBracketName = {$: 0};
 var $author$project$Main$EditingGame = function (a) {
-	return {$: 0, a: a};
+	return {$: 2, a: a};
 };
 var $author$project$Main$EditingGroup = function (a) {
 	return {$: 1, a: a};
 };
-var $author$project$Main$RevertConfirmation = {$: 2};
+var $author$project$Main$RevertConfirmation = {$: 3};
 var $author$project$Main$connectGameResult = F3(
 	function (games, _v0, _v1) {
 		var fromGameId = _v0.a;
@@ -6617,7 +6614,7 @@ var $author$project$Main$demoBracket = {
 			A3($author$project$Main$Group, 0, 'A Event', true),
 			A3($author$project$Main$Group, 1, 'B Event', true)
 		]),
-	a: $elm$core$Maybe$Just(1),
+	d: 'Playoff Bracket',
 	L: $author$project$Main$initTeams
 };
 var $author$project$Main$dragstart = _Platform_outgoingPort('dragstart', $elm$core$Basics$identity);
@@ -6647,7 +6644,7 @@ var $author$project$Main$findGameByCoords = F2(
 		return A2(
 			$elm_community$list_extra$List$Extra$find,
 			function (game) {
-				return _Utils_eq(game.i, coords);
+				return _Utils_eq(game.j, coords);
 			},
 			games);
 	});
@@ -6715,7 +6712,7 @@ var $elm_community$list_extra$List$Extra$remove = F2(
 		}
 	});
 var $author$project$Main$Saved = function (a) {
-	return {$: 14, a: a};
+	return {$: 17, a: a};
 };
 var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$json$Json$Encode$int = _Json_wrap;
@@ -6825,7 +6822,7 @@ var $author$project$Main$gamesEncoder = function (games) {
 					_Utils_Tuple2(
 					'name',
 					function () {
-						var _v0 = game.f;
+						var _v0 = game.d;
 						if (!_v0.$) {
 							var name = _v0.a;
 							return $elm$json$Json$Encode$string(name);
@@ -6838,7 +6835,7 @@ var $author$project$Main$gamesEncoder = function (games) {
 					A2($elm$json$Json$Encode$list, gamePositionEncoder, game.q)),
 					_Utils_Tuple2(
 					'coords',
-					coordsEncoder(game.i))
+					coordsEncoder(game.j))
 				]));
 	};
 	return A2($elm$json$Json$Encode$list, gameEncoder, games);
@@ -6853,7 +6850,7 @@ var $author$project$Main$groupsEncoder = function (groups) {
 					$elm$json$Json$Encode$int(group.p)),
 					_Utils_Tuple2(
 					'name',
-					$elm$json$Json$Encode$string(group.f))
+					$elm$json$Json$Encode$string(group.d))
 				]));
 	};
 	return A2($elm$json$Json$Encode$list, groupEncoder, groups);
@@ -6868,7 +6865,7 @@ var $author$project$Main$teamsEncoder = function (teams) {
 					$elm$json$Json$Encode$int(team.a)),
 					_Utils_Tuple2(
 					'name',
-					$elm$json$Json$Encode$string(team.f))
+					$elm$json$Json$Encode$string(team.d))
 				]));
 	};
 	return A2($elm$json$Json$Encode$list, teamEncoder, teams);
@@ -6878,16 +6875,8 @@ var $author$project$Main$bracketEncoder = function (bracket) {
 		_List_fromArray(
 			[
 				_Utils_Tuple2(
-				'id',
-				function () {
-					var _v0 = bracket.a;
-					if (!_v0.$) {
-						var id = _v0.a;
-						return $elm$json$Json$Encode$int(id);
-					} else {
-						return $elm$json$Json$Encode$null;
-					}
-				}()),
+				'name',
+				$elm$json$Json$Encode$string(bracket.d)),
 				_Utils_Tuple2(
 				'teams',
 				$author$project$Main$teamsEncoder(bracket.L)),
@@ -7115,7 +7104,7 @@ var $author$project$Main$update = F2(
 														function (game) {
 															return _Utils_update(
 																game,
-																{i: coords});
+																{j: coords});
 														},
 														bracket.c)
 												});
@@ -7124,7 +7113,7 @@ var $author$project$Main$update = F2(
 											model,
 											{
 												b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-												h: true,
+												e: true,
 												H: model_
 											});
 									} else {
@@ -7146,7 +7135,7 @@ var $author$project$Main$update = F2(
 											model,
 											{
 												b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-												h: true,
+												e: true,
 												H: model_
 											});
 									} else {
@@ -7174,6 +7163,35 @@ var $author$project$Main$update = F2(
 								$author$project$Main$dragstart),
 							$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragstartEvent(msg_))));
 			case 1:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							h: $elm$core$Maybe$Just($author$project$Main$EditingBracketName)
+						}),
+					$elm$core$Platform$Cmd$none);
+			case 2:
+				var name = msg.a;
+				var updatedBracket = function (bracket) {
+					return _Utils_update(
+						bracket,
+						{d: name});
+				};
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
+							e: true
+						}),
+					$elm$core$Platform$Cmd$none);
+			case 3:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{e: true, h: $elm$core$Maybe$Nothing}),
+					$elm$core$Platform$Cmd$none);
+			case 4:
 				var updatedBracket = function (bracket) {
 					var nextGroupId = $elm$core$List$length(bracket.o);
 					var newGroup = A3(
@@ -7195,20 +7213,20 @@ var $author$project$Main$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true
+							e: true
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 2:
+			case 5:
 				var group = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							l: $elm$core$Maybe$Just(
+							h: $elm$core$Maybe$Just(
 								$author$project$Main$EditingGroup(group))
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 3:
+			case 6:
 				var group = msg.a;
 				var updatedGroup = _Utils_update(
 					group,
@@ -7236,24 +7254,24 @@ var $author$project$Main$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true
+							e: true
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 4:
+			case 7:
 				var group = msg.a;
 				var name = msg.b;
 				var updatedGroup = _Utils_update(
 					group,
-					{f: name});
+					{d: name});
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							l: $elm$core$Maybe$Just(
+							h: $elm$core$Maybe$Just(
 								$author$project$Main$EditingGroup(updatedGroup))
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 5:
+			case 8:
 				var group = msg.a;
 				var updatedGroups = function (groups) {
 					return A3(
@@ -7278,11 +7296,11 @@ var $author$project$Main$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true,
-							l: $elm$core$Maybe$Nothing
+							e: true,
+							h: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 6:
+			case 9:
 				var group = msg.a;
 				var updatedBracket = function (bracket) {
 					return _Utils_update(
@@ -7296,11 +7314,11 @@ var $author$project$Main$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true,
-							l: $elm$core$Maybe$Nothing
+							e: true,
+							h: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 7:
+			case 10:
 				var coords = msg.a;
 				var addGame = function (games) {
 					var _v5 = A2($author$project$Main$findGameByCoords, coords, games);
@@ -7337,10 +7355,10 @@ var $author$project$Main$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true
+							e: true
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 8:
+			case 11:
 				var game = msg.a;
 				var updatedBracket = function (bracket) {
 					return _Utils_update(
@@ -7354,21 +7372,21 @@ var $author$project$Main$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true,
-							l: $elm$core$Maybe$Nothing
+							e: true,
+							h: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 9:
+			case 12:
 				var game = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							l: $elm$core$Maybe$Just(
+							h: $elm$core$Maybe$Just(
 								$author$project$Main$EditingGame(game))
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 10:
+			case 13:
 				var game = msg.a;
 				var name = msg.b;
 				var maybeName = function () {
@@ -7380,17 +7398,17 @@ var $author$project$Main$update = F2(
 				}();
 				var updatedGame = _Utils_update(
 					game,
-					{f: maybeName});
+					{d: maybeName});
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							h: true,
-							l: $elm$core$Maybe$Just(
+							e: true,
+							h: $elm$core$Maybe$Just(
 								$author$project$Main$EditingGame(updatedGame))
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 11:
+			case 14:
 				var game = msg.a;
 				var position = msg.b;
 				var assignment = msg.c;
@@ -7511,10 +7529,10 @@ var $author$project$Main$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true
+							e: true
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 12:
+			case 15:
 				var game = msg.a;
 				var updatedBracket = function (bracket) {
 					return _Utils_update(
@@ -7523,7 +7541,7 @@ var $author$project$Main$update = F2(
 							c: A3(
 								$elm_community$list_extra$List$Extra$updateIf,
 								function (g) {
-									return _Utils_eq(g.i, game.i);
+									return _Utils_eq(g.j, game.j);
 								},
 								function (g) {
 									return game;
@@ -7536,17 +7554,17 @@ var $author$project$Main$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true,
-							l: $elm$core$Maybe$Nothing
+							e: true,
+							h: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 13:
+			case 16:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{h: false}),
+						{e: false}),
 					A2($author$project$Main$saveBracket, model.U, model.b));
-			case 14:
+			case 17:
 				if (!msg.a.$) {
 					var bracketJson = msg.a.a;
 					return _Utils_Tuple2(
@@ -7560,28 +7578,28 @@ var $author$project$Main$update = F2(
 					var error = msg.a.a;
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
-			case 15:
+			case 18:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							l: $elm$core$Maybe$Just($author$project$Main$RevertConfirmation)
+							h: $elm$core$Maybe$Just($author$project$Main$RevertConfirmation)
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 16:
+			case 19:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{b: $krisajenkins$remotedata$RemoteData$Loading, h: false, l: $elm$core$Maybe$Nothing}),
+						{b: $krisajenkins$remotedata$RemoteData$Loading, e: false, h: $elm$core$Maybe$Nothing}),
 					$author$project$Main$loadBracket(model.U));
-			case 17:
+			case 20:
 				var result = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{b: result}),
 					$elm$core$Platform$Cmd$none);
-			case 18:
+			case 21:
 				var data = msg.a;
 				return _Utils_Tuple2(
 					function () {
@@ -7598,45 +7616,34 @@ var $author$project$Main$update = F2(
 							return _Utils_update(
 								model,
 								{
-									b: model.U.T ? $krisajenkins$remotedata$RemoteData$Success($author$project$Main$demoBracket) : $krisajenkins$remotedata$RemoteData$Success(
-										$author$project$Main$emptyBracket($elm$core$Maybe$Nothing))
+									b: model.U.T ? $krisajenkins$remotedata$RemoteData$Success($author$project$Main$demoBracket) : $krisajenkins$remotedata$RemoteData$Success($author$project$Main$emptyBracket)
 								});
 						}
 					}(),
 					$elm$core$Platform$Cmd$none);
-			case 19:
+			case 22:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							l: $elm$core$Maybe$Just($author$project$Main$ClearConfirmation)
+							h: $elm$core$Maybe$Just($author$project$Main$ClearConfirmation)
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 20:
-				var bracketId = function () {
-					var _v19 = model.b;
-					if (_v19.$ === 3) {
-						var bracket = _v19.a;
-						return bracket.a;
-					} else {
-						return $elm$core$Maybe$Nothing;
-					}
-				}();
+			case 23:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							b: $krisajenkins$remotedata$RemoteData$Success(
-								$author$project$Main$emptyBracket(bracketId)),
-							h: true,
-							l: $elm$core$Maybe$Nothing
+							b: $krisajenkins$remotedata$RemoteData$Success($author$project$Main$emptyBracket),
+							e: true,
+							h: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
 			default:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{l: $elm$core$Maybe$Nothing}),
+						{h: $elm$core$Maybe$Nothing}),
 					$elm$core$Platform$Cmd$none);
 		}
 	});
@@ -7669,10 +7676,10 @@ var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$Main$AddGroup = {$: 1};
-var $author$project$Main$ConfirmClear = {$: 19};
-var $author$project$Main$ConfirmRevert = {$: 15};
-var $author$project$Main$Save = {$: 13};
+var $author$project$Main$AddGroup = {$: 4};
+var $author$project$Main$ConfirmClear = {$: 22};
+var $author$project$Main$ConfirmRevert = {$: 18};
+var $author$project$Main$Save = {$: 16};
 var $elm$html$Html$a = _VirtualDom_node('a');
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$core$List$filter = F2(
@@ -7760,11 +7767,45 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		$elm$json$Json$Decode$succeed(msg));
 };
 var $elm$html$Html$Attributes$target = $elm$html$Html$Attributes$stringProperty('target');
+var $author$project$Main$EditBracketName = {$: 1};
+var $elm$html$Html$h2 = _VirtualDom_node('h2');
+var $author$project$Main$viewBracketName = function (name) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('d-flex bracket-name')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$h2,
+				_List_fromArray(
+					[
+						$elm$html$Html$Events$onClick($author$project$Main$EditBracketName)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(name)
+					])),
+				A2(
+				$elm$html$Html$h2,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('ml-2'),
+						$elm$html$Html$Events$onClick($author$project$Main$EditBracketName)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('✎')
+					]))
+			]));
+};
 var $author$project$Main$EditGroup = function (a) {
-	return {$: 2, a: a};
+	return {$: 5, a: a};
 };
 var $author$project$Main$ToggleGroup = function (a) {
-	return {$: 3, a: a};
+	return {$: 6, a: a};
 };
 var $elm$core$List$maximum = function (list) {
 	if (list.b) {
@@ -7785,12 +7826,12 @@ var $author$project$Main$rowsForGroup = F2(
 				A2(
 					$elm$core$List$map,
 					function (g) {
-						return g.i.P + 3;
+						return g.j.P + 3;
 					},
 					A2(
 						$elm$core$List$filter,
 						function (g) {
-							return _Utils_eq(g.i.W, group.p);
+							return _Utils_eq(g.j.W, group.p);
 						},
 						games))));
 	});
@@ -7802,10 +7843,10 @@ var $author$project$Main$DraggableGame = function (a) {
 	return {$: 0, a: a};
 };
 var $author$project$Main$EditGame = function (a) {
-	return {$: 9, a: a};
+	return {$: 12, a: a};
 };
 var $author$project$Main$RemoveGame = function (a) {
-	return {$: 8, a: a};
+	return {$: 11, a: a};
 };
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnd = {$: 1};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragStart = F2(
@@ -8005,7 +8046,7 @@ var $author$project$Main$viewGamePosition = F7(
 						teams);
 					if (!_v2.$) {
 						var team = _v2.a;
-						return team.f;
+						return team.d;
 					} else {
 						return 'TBD';
 					}
@@ -8022,7 +8063,7 @@ var $author$project$Main$viewGamePosition = F7(
 							games);
 						if (!_v5.$) {
 							var g = _v5.a;
-							return 'W: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.f);
+							return 'W: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.d);
 						} else {
 							return 'TBD';
 						}
@@ -8038,7 +8079,7 @@ var $author$project$Main$viewGamePosition = F7(
 							games);
 						if (!_v8.$) {
 							var g = _v8.a;
-							return 'L: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.f);
+							return 'L: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.d);
 						} else {
 							return 'TBD';
 						}
@@ -8188,11 +8229,11 @@ var $author$project$Main$viewGame = F5(
 						A2(
 						$elm$html$Html$Attributes$style,
 						'left',
-						$elm$core$String$fromInt(game.i.N * $author$project$Main$gridSize) + 'px'),
+						$elm$core$String$fromInt(game.j.N * $author$project$Main$gridSize) + 'px'),
 						A2(
 						$elm$html$Html$Attributes$style,
 						'top',
-						$elm$core$String$fromInt(game.i.P * $author$project$Main$gridSize) + 'px'),
+						$elm$core$String$fromInt(game.j.P * $author$project$Main$gridSize) + 'px'),
 						$elm$html$Html$Events$onDoubleClick(
 						$author$project$Main$EditGame(game))
 					]),
@@ -8219,7 +8260,7 @@ var $author$project$Main$viewGame = F5(
 							_List_fromArray(
 								[
 									$elm$html$Html$text(
-									A2($elm$core$Maybe$withDefault, 'TDB', game.f))
+									A2($elm$core$Maybe$withDefault, 'TDB', game.d))
 								])),
 							A2(
 							$elm$html$Html$div,
@@ -8286,13 +8327,13 @@ var $author$project$Main$colsForGames = function (games) {
 			A2(
 				$elm$core$List$map,
 				function (g) {
-					return g.i.N + 5;
+					return g.j.N + 5;
 				},
 				games)));
 };
 var $elm$html$Html$tr = _VirtualDom_node('tr');
 var $author$project$Main$AddGame = function (a) {
-	return {$: 7, a: a};
+	return {$: 10, a: a};
 };
 var $author$project$Main$DroppableCell = function (a) {
 	return {$: 0, a: a};
@@ -8431,8 +8472,8 @@ var $author$project$Main$viewSvgLines = F2(
 							var fromGameId = _v1.b;
 							var toCoords = $elm$core$Maybe$Just(
 								_Utils_Tuple2(
-									(toGame.i.N * $author$project$Main$gridSize) + 1,
-									(toGame.i.P * $author$project$Main$gridSize) + ((!toPosition) ? 32 : 57)));
+									(toGame.j.N * $author$project$Main$gridSize) + 1,
+									(toGame.j.P * $author$project$Main$gridSize) + ((!toPosition) ? 32 : 57)));
 							var fromCoords = function () {
 								var _v3 = A2(
 									$elm_community$list_extra$List$Extra$find,
@@ -8444,8 +8485,8 @@ var $author$project$Main$viewSvgLines = F2(
 									var fromGame = _v3.a;
 									return $elm$core$Maybe$Just(
 										_Utils_Tuple2(
-											(fromGame.i.N * $author$project$Main$gridSize) + 175,
-											(fromGame.i.P * $author$project$Main$gridSize) + ((!result) ? 32 : 57)));
+											(fromGame.j.N * $author$project$Main$gridSize) + 175,
+											(fromGame.j.P * $author$project$Main$gridSize) + ((!result) ? 32 : 57)));
 								} else {
 									return $elm$core$Maybe$Nothing;
 								}
@@ -8498,7 +8539,7 @@ var $author$project$Main$viewGroup = F4(
 		var groupGames = A2(
 			$elm$core$List$filter,
 			function (g) {
-				return _Utils_eq(g.i.W, group.p);
+				return _Utils_eq(g.j.W, group.p);
 			},
 			bracket.c);
 		return A2(
@@ -8527,7 +8568,7 @@ var $author$project$Main$viewGroup = F4(
 								]),
 							_List_fromArray(
 								[
-									$elm$html$Html$text('☷ ' + group.f)
+									$elm$html$Html$text('☷ ' + group.d)
 								])),
 							A2(
 							$elm$html$Html$div,
@@ -8587,8 +8628,8 @@ var $author$project$Main$viewGroups = F3(
 				A3($author$project$Main$viewGroup, bracket, dragId, dropId),
 				bracket.o));
 	});
-var $author$project$Main$CancelConfirmation = {$: 21};
-var $author$project$Main$Clear = {$: 20};
+var $author$project$Main$CancelConfirmation = {$: 24};
+var $author$project$Main$Clear = {$: 23};
 var $elm$html$Html$h5 = _VirtualDom_node('h5');
 var $author$project$Main$viewClearConfirmation = A2(
 	$elm$html$Html$div,
@@ -8665,49 +8706,12 @@ var $author$project$Main$viewClearConfirmation = A2(
 						]))
 				]))
 		]));
-var $author$project$Main$CloseEditGame = function (a) {
-	return {$: 12, a: a};
+var $author$project$Main$CloseEditBracketName = {$: 3};
+var $author$project$Main$UpdateBracketName = function (a) {
+	return {$: 2, a: a};
 };
-var $author$project$Main$UpdateGameName = F2(
-	function (a, b) {
-		return {$: 10, a: a, b: b};
-	});
-var $author$project$Main$UpdateGamePosition = F3(
-	function (a, b, c) {
-		return {$: 11, a: a, b: b, c: c};
-	});
-var $elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
-var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
 var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
 var $elm$html$Html$input = _VirtualDom_node('input');
-var $elm$core$List$isEmpty = function (xs) {
-	if (!xs.b) {
-		return true;
-	} else {
-		return false;
-	}
-};
-var $elm$html$Html$label = _VirtualDom_node('label');
 var $elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -8735,10 +8739,135 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 			$elm$html$Html$Events$alwaysStop,
 			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
+var $elm$html$Html$Attributes$title = $elm$html$Html$Attributes$stringProperty('title');
+var $elm$core$String$trim = _String_trim;
+var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
+var $author$project$Main$viewEditBracketName = function (name) {
+	var hasNoName = $elm$core$String$trim(name) === '';
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('modal-content')
+			]),
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('modal-header')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$h5,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('modal-title')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Bracket Name')
+							]))
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('modal-body')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('form-group')
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$input,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('form-control'),
+										$elm$html$Html$Attributes$id('editing-bracket-name'),
+										$elm$html$Html$Attributes$value(name),
+										$elm$html$Html$Events$onInput($author$project$Main$UpdateBracketName)
+									]),
+								_List_Nil)
+							]))
+					])),
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('modal-footer d-flex justify-content-between')
+					]),
+				_List_fromArray(
+					[
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Main$CloseEditBracketName),
+								$elm$html$Html$Attributes$class('btn btn-primary'),
+								$elm$html$Html$Attributes$disabled(hasNoName),
+								$elm$html$Html$Attributes$title(
+								hasNoName ? 'Name is required' : '')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Close')
+							]))
+					]))
+			]));
+};
+var $author$project$Main$CloseEditGame = function (a) {
+	return {$: 15, a: a};
+};
+var $author$project$Main$UpdateGameName = F2(
+	function (a, b) {
+		return {$: 13, a: a, b: b};
+	});
+var $author$project$Main$UpdateGamePosition = F3(
+	function (a, b, c) {
+		return {$: 14, a: a, b: b, c: c};
+	});
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
+var $elm$core$List$isEmpty = function (xs) {
+	if (!xs.b) {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $elm$html$Html$label = _VirtualDom_node('label');
 var $elm$html$Html$option = _VirtualDom_node('option');
 var $elm$html$Html$select = _VirtualDom_node('select');
 var $elm$html$Html$Attributes$selected = $elm$html$Html$Attributes$boolProperty('selected');
-var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$viewEditGame = F2(
 	function (bracket, game) {
 		var unassignedTeams = F2(
@@ -8846,7 +8975,7 @@ var $author$project$Main$viewEditGame = F2(
 						]),
 					_List_fromArray(
 						[
-							$elm$html$Html$text(team.f)
+							$elm$html$Html$text(team.d)
 						]));
 			});
 		var gameOption = F3(
@@ -8859,7 +8988,7 @@ var $author$project$Main$viewEditGame = F2(
 						return A2(
 							$elm$core$Maybe$map,
 							function (g) {
-								return A2($elm$core$Maybe$withDefault, 'TBD', g.f);
+								return A2($elm$core$Maybe$withDefault, 'TBD', g.d);
 							},
 							A2(
 								$elm_community$list_extra$List$Extra$find,
@@ -9036,7 +9165,7 @@ var $author$project$Main$viewEditGame = F2(
 												$elm$html$Html$Attributes$class('form-control'),
 												$elm$html$Html$Attributes$id('editing-game-name'),
 												$elm$html$Html$Attributes$value(
-												A2($elm$core$Maybe$withDefault, '', game.f)),
+												A2($elm$core$Maybe$withDefault, '', game.d)),
 												$elm$html$Html$Events$onInput(
 												$author$project$Main$UpdateGameName(game))
 											]),
@@ -9068,25 +9197,23 @@ var $author$project$Main$viewEditGame = F2(
 				]));
 	});
 var $author$project$Main$CloseEditGroup = function (a) {
-	return {$: 5, a: a};
+	return {$: 8, a: a};
 };
 var $author$project$Main$RemoveGroup = function (a) {
-	return {$: 6, a: a};
+	return {$: 9, a: a};
 };
 var $author$project$Main$UpdateGroupName = F2(
 	function (a, b) {
-		return {$: 4, a: a, b: b};
+		return {$: 7, a: a, b: b};
 	});
-var $elm$html$Html$Attributes$title = $elm$html$Html$Attributes$stringProperty('title');
-var $elm$core$String$trim = _String_trim;
 var $author$project$Main$viewEditGroup = F2(
 	function (bracket, group) {
-		var hasNoName = $elm$core$String$trim(group.f) === '';
+		var hasNoName = $elm$core$String$trim(group.d) === '';
 		var hasNoGames = !$elm$core$List$isEmpty(
 			A2(
 				$elm$core$List$filter,
 				function (g) {
-					return _Utils_eq(g.i.W, group.p);
+					return _Utils_eq(g.j.W, group.p);
 				},
 				bracket.c));
 		return A2(
@@ -9113,7 +9240,7 @@ var $author$project$Main$viewEditGroup = F2(
 								]),
 							_List_fromArray(
 								[
-									$elm$html$Html$text('Edit Group')
+									$elm$html$Html$text('Group Name')
 								]))
 						])),
 					A2(
@@ -9133,22 +9260,12 @@ var $author$project$Main$viewEditGroup = F2(
 							_List_fromArray(
 								[
 									A2(
-									$elm$html$Html$label,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$for('editing-group-name')
-										]),
-									_List_fromArray(
-										[
-											$elm$html$Html$text('Group Name')
-										])),
-									A2(
 									$elm$html$Html$input,
 									_List_fromArray(
 										[
 											$elm$html$Html$Attributes$class('form-control'),
 											$elm$html$Html$Attributes$id('editing-group-name'),
-											$elm$html$Html$Attributes$value(group.f),
+											$elm$html$Html$Attributes$value(group.d),
 											$elm$html$Html$Events$onInput(
 											$author$project$Main$UpdateGroupName(group))
 										]),
@@ -9196,7 +9313,7 @@ var $author$project$Main$viewEditGroup = F2(
 						]))
 				]));
 	});
-var $author$project$Main$Revert = {$: 16};
+var $author$project$Main$Revert = {$: 19};
 var $author$project$Main$viewRevertConfirmation = A2(
 	$elm$html$Html$div,
 	_List_fromArray(
@@ -9295,16 +9412,19 @@ var $author$project$Main$viewOverlay = F2(
 							if (!overlay.$) {
 								switch (overlay.a.$) {
 									case 0:
-										var game = overlay.a.a;
-										return A2($author$project$Main$viewEditGame, bracket, game);
+										var _v1 = overlay.a;
+										return $author$project$Main$viewEditBracketName(bracket.d);
 									case 1:
 										var group = overlay.a.a;
 										return A2($author$project$Main$viewEditGroup, bracket, group);
 									case 2:
-										var _v1 = overlay.a;
+										var game = overlay.a.a;
+										return A2($author$project$Main$viewEditGame, bracket, game);
+									case 3:
+										var _v2 = overlay.a;
 										return $author$project$Main$viewRevertConfirmation;
 									default:
-										var _v2 = overlay.a;
+										var _v3 = overlay.a;
 										return $author$project$Main$viewClearConfirmation;
 								}
 							} else {
@@ -9316,9 +9436,9 @@ var $author$project$Main$viewOverlay = F2(
 	});
 var $author$project$Main$viewOnceLoaded = F2(
 	function (_v0, bracket) {
-		var overlay = _v0.l;
+		var overlay = _v0.h;
 		var dragDrop = _v0.H;
-		var changed = _v0.h;
+		var changed = _v0.e;
 		var modalOpen = !_Utils_eq(overlay, $elm$core$Maybe$Nothing);
 		var dropId = $norpan$elm_html5_drag_drop$Html5$DragDrop$getDropId(dragDrop);
 		var dragId = $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId(dragDrop);
@@ -9342,6 +9462,7 @@ var $author$project$Main$viewOnceLoaded = F2(
 						]),
 					_List_fromArray(
 						[
+							$author$project$Main$viewBracketName(bracket.d),
 							A3($author$project$Main$viewGroups, bracket, dragId, dropId),
 							A2(
 							$elm$html$Html$button,

@@ -37,6 +37,10 @@ td {
   margin-bottom: 24px;
 }
 
+.bracket-name {
+  cursor: pointer;
+}
+
 .group {
   position: relative;
 }
