@@ -4,7 +4,7 @@ import * as serviceWorker from './serviceWorker';
 
 var app = Elm.Main.init({
   node: document.getElementById('root'),
-  flags: { demoMode: false, baseUrl: "http://localhost:3000/api/brackets/", id: 1 }
+  flags: { demoMode: true, baseUrl: "http://localhost:3000/api/brackets/", id: 1 }
 });
 app.ports.dragstart.subscribe(function (event) {
   event.dataTransfer.setData("text", "");
