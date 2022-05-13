@@ -43,12 +43,18 @@ gridSize =
 
 
 type alias Model =
-    { demoMode : Bool
-    , url : String
+    { flags : Flags
     , dragDrop : DragDrop.Model DraggableId DroppableId
     , overlay : Maybe Overlay
     , changed : Bool
     , bracket : WebData Bracket
+    }
+
+
+type alias Flags =
+    { demoMode : Bool
+    , baseUrl : String
+    , id : Maybe Int
     }
 
 
@@ -70,7 +76,7 @@ type DroppableId
 
 
 type alias Bracket =
-    { id : Int
+    { id : Maybe Int
     , teams : List Team
     , groups : List Group
     , games : List Game
@@ -142,9 +148,9 @@ initTeams =
     ]
 
 
-emptyBracket : Bracket
-emptyBracket =
-    { id = 1
+emptyBracket : Maybe Int -> Bracket
+emptyBracket id =
+    { id = id
     , teams = initTeams
     , groups =
         [ Group 0 "Group 1" True ]
@@ -154,7 +160,7 @@ emptyBracket =
 
 demoBracket : Bracket
 demoBracket =
-    { id = 1
+    { id = Just 1
     , teams = initTeams
     , groups =
         [ Group 0 "A Event" True, Group 1 "B Event" True ]
@@ -231,16 +237,26 @@ demoBracket =
     }
 
 
-init : { demoMode : Bool, url : String } -> ( Model, Cmd Msg )
-init { demoMode, url } =
-    ( { demoMode = demoMode
-      , url = url
+init : Flags -> ( Model, Cmd Msg )
+init flags =
+    ( { flags = flags
       , dragDrop = DragDrop.init
       , overlay = Nothing
       , changed = False
-      , bracket = Loading
+      , bracket =
+            case flags.id of
+                Just _ ->
+                    Loading
+
+                Nothing ->
+                    Success (emptyBracket Nothing)
       }
-    , loadBracket demoMode url
+    , case flags.id of
+        Just _ ->
+            loadBracket flags
+
+        Nothing ->
+            Cmd.none
     )
 
 
@@ -331,8 +347,35 @@ trimMaybe str =
             Nothing
 
 
-saveBracket : Bool -> String -> WebData Bracket -> Cmd Msg
-saveBracket demoMode url bracketResult =
+saveBracket : Flags -> WebData Bracket -> Cmd Msg
+saveBracket { demoMode, baseUrl, id } bracketResult =
+    let
+        bracketUrl =
+            case id of
+                Just id_ ->
+                    baseUrl ++ String.fromInt id_
+
+                Nothing ->
+                    baseUrl
+
+        sendBracketToServer : Encode.Value -> Cmd Msg
+        sendBracketToServer bracketJson =
+            Http.request
+                { method =
+                    case id of
+                        Just _ ->
+                            "PATCH"
+
+                        Nothing ->
+                            "POST"
+                , headers = []
+                , url = bracketUrl
+                , body = Http.jsonBody bracketJson
+                , expect = Http.expectJson Saved bracketDecoder
+                , timeout = Nothing
+                , tracker = Nothing
+                }
+    in
     case bracketResult of
         Success bracket ->
             bracketEncoder bracket
@@ -340,41 +383,36 @@ saveBracket demoMode url bracketResult =
                         sendBracketToLocalStorage
 
                     else
-                        sendBracketToServer url (Just bracket.id)
+                        sendBracketToServer
                    )
 
         _ ->
             Cmd.none
 
 
-sendBracketToServer : String -> Maybe Int -> Encode.Value -> Cmd Msg
-sendBracketToServer url maybeId bracketJson =
-    Http.request
-        { method = "PATCH"
-        , headers = []
-        , url = url
-        , body = Http.jsonBody bracketJson
-        , expect = Http.expectJson Saved bracketDecoder
-        , timeout = Nothing
-        , tracker = Nothing
-        }
+loadBracket : Flags -> Cmd Msg
+loadBracket { demoMode, baseUrl, id } =
+    let
+        bracketUrl =
+            case id of
+                Just id_ ->
+                    baseUrl ++ String.fromInt id_
 
+                Nothing ->
+                    baseUrl ++ "new"
 
-loadBracket : Bool -> String -> Cmd Msg
-loadBracket demoMode url =
+        requestBracketFromServer : Cmd Msg
+        requestBracketFromServer =
+            Http.get
+                { url = bracketUrl
+                , expect = expectJson (RemoteData.fromResult >> ReceivedBracketFromServer) bracketDecoder
+                }
+    in
     if demoMode then
         requestBracketFromLocalStorage ""
 
     else
-        requestBracketFromServer url
-
-
-requestBracketFromServer : String -> Cmd Msg
-requestBracketFromServer url =
-    Http.get
-        { url = url
-        , expect = expectJson (RemoteData.fromResult >> ReceivedBracketFromServer) bracketDecoder
-        }
+        requestBracketFromServer
 
 
 
@@ -384,7 +422,14 @@ requestBracketFromServer url =
 bracketEncoder : Bracket -> Encode.Value
 bracketEncoder bracket =
     Encode.object
-        [ ( "id", Encode.int bracket.id )
+        [ ( "id"
+          , case bracket.id of
+                Just id ->
+                    Encode.int id
+
+                Nothing ->
+                    Encode.null
+          )
         , ( "teams", teamsEncoder bracket.teams )
         , ( "groups", groupsEncoder bracket.groups )
         , ( "games", gamesEncoder bracket.games )
@@ -515,7 +560,7 @@ bracketDecoder : Decode.Decoder Bracket
 bracketDecoder =
     Decode.map4
         Bracket
-        (Decode.field "id" Decode.int)
+        (Decode.maybe (Decode.field "id" Decode.int))
         (Decode.field "teams" (Decode.list teamDecoder))
         (Decode.field "groups" (Decode.list groupDecoder))
         (Decode.field "games" (Decode.list gameDecoder))
@@ -958,7 +1003,7 @@ update msg model =
 
         Save ->
             ( { model | changed = False }
-            , saveBracket model.demoMode model.url model.bracket
+            , saveBracket model.flags model.bracket
             )
 
         Saved (Ok bracketJson) ->
@@ -977,7 +1022,7 @@ update msg model =
                 , changed = False
                 , bracket = Loading
               }
-            , loadBracket model.demoMode model.url
+            , loadBracket model.flags
             )
 
         ReceivedBracketFromServer result ->
@@ -993,11 +1038,11 @@ update msg model =
                 Err error ->
                     { model
                         | bracket =
-                            if model.demoMode then
+                            if model.flags.demoMode then
                                 Success demoBracket
 
                             else
-                                Success emptyBracket
+                                Success (emptyBracket Nothing)
                     }
             , Cmd.none
             )
@@ -1006,10 +1051,19 @@ update msg model =
             ( { model | overlay = Just ClearConfirmation }, Cmd.none )
 
         Clear ->
+            let
+                bracketId =
+                    case model.bracket of
+                        Success bracket ->
+                            bracket.id
+
+                        _ ->
+                            Nothing
+            in
             ( { model
                 | overlay = Nothing
                 , changed = True
-                , bracket = Success emptyBracket
+                , bracket = Success (emptyBracket bracketId)
               }
             , Cmd.none
             )
@@ -1701,7 +1755,7 @@ viewSvgLines group games =
 ---- PROGRAM ----
 
 
-main : Program { demoMode : Bool, url : String } Model Msg
+main : Program Flags Model Msg
 main =
     Browser.element
         { view = view
