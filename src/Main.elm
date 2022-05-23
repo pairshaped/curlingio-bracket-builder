@@ -47,6 +47,7 @@ type alias Model =
     , dragDrop : DragDrop.Model DraggableId DroppableId
     , overlay : Maybe Overlay
     , changed : Bool
+    , teams : WebData (List Team)
     , bracket : WebData Bracket
     }
 
@@ -78,7 +79,6 @@ type DroppableId
 
 type alias Bracket =
     { name : String
-    , teams : List Team
     , groups : List Group
     , games : List Game
     }
@@ -136,8 +136,8 @@ type alias LineConnector =
     }
 
 
-initTeams : List Team
-initTeams =
+demoTeams : List Team
+demoTeams =
     [ Team 1 "Homer"
     , Team 2 "Marge"
     , Team 3 "Bart"
@@ -152,7 +152,6 @@ initTeams =
 emptyBracket : Bracket
 emptyBracket =
     { name = "Playoff Bracket"
-    , teams = initTeams
     , groups =
         [ Group 0 "Group 1" True ]
     , games = []
@@ -162,7 +161,6 @@ emptyBracket =
 demoBracket : Bracket
 demoBracket =
     { name = "Playoff Bracket"
-    , teams = initTeams
     , groups =
         [ Group 0 "A Event" True, Group 1 "B Event" True ]
     , games =
@@ -244,6 +242,7 @@ init flags =
       , dragDrop = DragDrop.init
       , overlay = Nothing
       , changed = False
+      , teams = Loading
       , bracket =
             case flags.id of
                 Just _ ->
@@ -252,12 +251,15 @@ init flags =
                 Nothing ->
                     Success emptyBracket
       }
-    , case flags.id of
-        Just _ ->
-            loadBracket flags
+    , Cmd.batch
+        [ loadTeams flags
+        , case flags.id of
+            Just _ ->
+                loadBracket flags
 
-        Nothing ->
-            Cmd.none
+            Nothing ->
+                Cmd.none
+        ]
     )
 
 
@@ -354,10 +356,10 @@ saveBracket { demoMode, baseUrl, id } bracketResult =
         bracketUrl =
             case id of
                 Just id_ ->
-                    baseUrl ++ String.fromInt id_
+                    baseUrl ++ "brackets/" ++ String.fromInt id_
 
                 Nothing ->
-                    baseUrl
+                    baseUrl ++ "brackets/"
 
         sendBracketToServer : Encode.Value -> Cmd Msg
         sendBracketToServer bracketJson =
@@ -397,10 +399,10 @@ loadBracket { demoMode, baseUrl, id } =
         bracketUrl =
             case id of
                 Just id_ ->
-                    baseUrl ++ String.fromInt id_
+                    baseUrl ++ "brackets/" ++ String.fromInt id_
 
                 Nothing ->
-                    baseUrl ++ "new"
+                    baseUrl ++ "brackets/new"
 
         requestBracketFromServer : Cmd Msg
         requestBracketFromServer =
@@ -416,6 +418,26 @@ loadBracket { demoMode, baseUrl, id } =
         requestBracketFromServer
 
 
+loadTeams : Flags -> Cmd Msg
+loadTeams { demoMode, baseUrl } =
+    let
+        teamsUrl =
+            baseUrl ++ "teams"
+
+        requestTeamsFromServer : Cmd Msg
+        requestTeamsFromServer =
+            Http.get
+                { url = teamsUrl
+                , expect = expectJson (RemoteData.fromResult >> ReceivedTeamsFromServer) teamsDecoder
+                }
+    in
+    if demoMode then
+        Cmd.none
+
+    else
+        requestTeamsFromServer
+
+
 
 ---- ENCODERS ----
 
@@ -424,7 +446,6 @@ bracketEncoder : Bracket -> Encode.Value
 bracketEncoder bracket =
     Encode.object
         [ ( "name", Encode.string bracket.name )
-        , ( "teams", teamsEncoder bracket.teams )
         , ( "groups", groupsEncoder bracket.groups )
         , ( "games", gamesEncoder bracket.games )
         ]
@@ -552,12 +573,16 @@ buildErrorMessage httpError =
 
 bracketDecoder : Decode.Decoder Bracket
 bracketDecoder =
-    Decode.map4
+    Decode.map3
         Bracket
         (Decode.field "name" Decode.string)
-        (Decode.field "teams" (Decode.list teamDecoder))
         (Decode.field "groups" (Decode.list groupDecoder))
         (Decode.field "games" (Decode.list gameDecoder))
+
+
+teamsDecoder : Decode.Decoder (List Team)
+teamsDecoder =
+    Decode.list teamDecoder
 
 
 teamDecoder : Decode.Decoder Team
@@ -679,6 +704,7 @@ type Msg
     | Saved (Result Http.Error Bracket)
     | ConfirmRevert
     | Revert
+    | ReceivedTeamsFromServer (WebData (List Team))
     | ReceivedBracketFromServer (WebData Bracket)
     | ReceivedBracketFromLocalStorage Decode.Value
     | ConfirmClear
@@ -901,17 +927,21 @@ update msg model =
                 updatedGame : Game
                 updatedGame =
                     { game | name = maybeName }
+
+                updatedBracket bracket =
+                    { bracket | games = List.Extra.updateIf (\g -> g.id == updatedGame.id) (\g -> updatedGame) bracket.games }
             in
             ( { model
                 | overlay = Just (EditingGame updatedGame)
                 , changed = True
+                , bracket = RemoteData.map updatedBracket model.bracket
               }
             , Cmd.none
             )
 
         UpdateGamePosition game position assignment ->
             let
-                updatedBracket bracket =
+                updatedBracket teams bracket =
                     let
                         typedAssignment : Maybe Assignment
                         typedAssignment =
@@ -931,7 +961,7 @@ update msg model =
                                                 Just teamIdStr ->
                                                     case String.toInt teamIdStr of
                                                         Just teamId ->
-                                                            case List.Extra.find (\t -> t.id == teamId) bracket.teams of
+                                                            case List.Extra.find (\t -> t.id == teamId) teams of
                                                                 Just team ->
                                                                     Just (TeamAssignment team.id)
 
@@ -998,30 +1028,35 @@ update msg model =
                                     in
                                     List.map updatedGame bracket.games
 
-                                _ ->
-                                    bracket.games
+                                Nothing ->
+                                    let
+                                        updatedGamePosition gamePosition =
+                                            if gamePosition.position == position then
+                                                { gamePosition | assignment = Nothing }
+
+                                            else
+                                                gamePosition
+
+                                        updatedGame g =
+                                            if g.id == game.id then
+                                                { g | gamePositions = List.map updatedGamePosition g.gamePositions }
+
+                                            else
+                                                g
+                                    in
+                                    List.map updatedGame bracket.games
                     in
                     { bracket | games = updatedGames }
             in
             ( { model
                 | changed = True
-                , bracket = RemoteData.map updatedBracket model.bracket
+                , bracket = RemoteData.map2 updatedBracket model.teams model.bracket
               }
             , Cmd.none
             )
 
         CloseEditGame game ->
-            let
-                updatedBracket bracket =
-                    { bracket | games = List.Extra.updateIf (\g -> g.coords == game.coords) (\g -> game) bracket.games }
-            in
-            ( { model
-                | overlay = Nothing
-                , changed = True
-                , bracket = RemoteData.map updatedBracket model.bracket
-              }
-            , Cmd.none
-            )
+            ( { model | overlay = Nothing }, Cmd.none )
 
         Save ->
             ( { model | changed = False }
@@ -1045,6 +1080,11 @@ update msg model =
                 , bracket = Loading
               }
             , loadBracket model.flags
+            )
+
+        ReceivedTeamsFromServer result ->
+            ( { model | teams = result }
+            , Cmd.none
             )
 
         ReceivedBracketFromServer result ->
@@ -1096,22 +1136,31 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    case model.bracket of
-        Success bracket ->
-            viewOnceLoaded model bracket
+    case ( model.teams, model.bracket ) of
+        ( Success teams, Success bracket ) ->
+            viewOnceLoaded model teams bracket
 
-        NotAsked ->
+        ( NotAsked, _ ) ->
             h3 [ class "mt-5 text-center" ] [ text "Initializing..." ]
 
-        Loading ->
+        ( _, NotAsked ) ->
+            h3 [ class "mt-5 text-center" ] [ text "Initializing..." ]
+
+        ( Loading, _ ) ->
             h3 [ class "mt-5 text-center" ] [ text "Loading..." ]
 
-        Failure e ->
+        ( _, Loading ) ->
+            h3 [ class "mt-5 text-center" ] [ text "Loading..." ]
+
+        ( Failure e, _ ) ->
+            p [ class "mt-5 text-center text-danger" ] [ text (buildErrorMessage e) ]
+
+        ( _, Failure e ) ->
             p [ class "mt-5 text-center text-danger" ] [ text (buildErrorMessage e) ]
 
 
-viewOnceLoaded : Model -> Bracket -> Html Msg
-viewOnceLoaded { overlay, dragDrop, changed } bracket =
+viewOnceLoaded : Model -> List Team -> Bracket -> Html Msg
+viewOnceLoaded { overlay, dragDrop, changed } teams bracket =
     let
         dragId =
             DragDrop.getDragId dragDrop
@@ -1125,10 +1174,10 @@ viewOnceLoaded { overlay, dragDrop, changed } bracket =
     div [ classList [ ( "modal-open", modalOpen ) ] ]
         [ div [ class "p-3" ]
             [ viewBracketName bracket.name
-            , viewGroups bracket dragId dropId
+            , viewGroups teams bracket dragId dropId
             , button [ class "btn btn-primary", onClick AddGroup ] [ text "Add Group" ]
             , if modalOpen then
-                viewOverlay overlay bracket
+                viewOverlay overlay teams bracket
 
               else
                 div [ class "save-buttons" ]
@@ -1160,8 +1209,8 @@ viewOnceLoaded { overlay, dragDrop, changed } bracket =
         ]
 
 
-viewOverlay : Maybe Overlay -> Bracket -> Html Msg
-viewOverlay overlay bracket =
+viewOverlay : Maybe Overlay -> List Team -> Bracket -> Html Msg
+viewOverlay overlay teams bracket =
     div [ class "modal", style "display" "block" ]
         [ div [ class "modal-dialog" ]
             [ case overlay of
@@ -1172,7 +1221,7 @@ viewOverlay overlay bracket =
                     viewEditGroup bracket group
 
                 Just (EditingGame game) ->
-                    viewEditGame bracket game
+                    viewEditGame teams bracket game
 
                 Just RevertConfirmation ->
                     viewRevertConfirmation
@@ -1286,12 +1335,12 @@ viewEditGroup bracket group =
         ]
 
 
-viewEditGame : Bracket -> Game -> Html Msg
-viewEditGame bracket game =
+viewEditGame : List Team -> Bracket -> Game -> Html Msg
+viewEditGame teams bracket game =
     let
         -- Return a list of teams that haven't been assigned to a game yet.
-        unassignedTeams : List Team -> List Game -> List Team
-        unassignedTeams teams games =
+        unassignedTeams : List Game -> List Team
+        unassignedTeams games =
             let
                 gamesNotExcluded =
                     games
@@ -1424,7 +1473,7 @@ viewEditGame bracket game =
         assignmentOptions : Int -> GamePosition -> List (Html Msg)
         assignmentOptions index selectedGamePosition =
             [ option [] [] ]
-                ++ (unassignedTeams bracket.teams bracket.games
+                ++ (unassignedTeams bracket.games
                         |> List.map (teamOption index selectedGamePosition)
                    )
                 ++ (unassignedGameResults bracket.games
@@ -1514,14 +1563,14 @@ viewBracketName name =
         ]
 
 
-viewGroups : Bracket -> Maybe DraggableId -> Maybe DroppableId -> Html Msg
-viewGroups bracket dragId dropId =
+viewGroups : List Team -> Bracket -> Maybe DraggableId -> Maybe DroppableId -> Html Msg
+viewGroups teams bracket dragId dropId =
     div []
-        (List.map (viewGroup bracket dragId dropId) bracket.groups)
+        (List.map (viewGroup teams bracket dragId dropId) bracket.groups)
 
 
-viewGroup : Bracket -> Maybe DraggableId -> Maybe DroppableId -> Group -> Html Msg
-viewGroup bracket dragId dropId group =
+viewGroup : List Team -> Bracket -> Maybe DraggableId -> Maybe DroppableId -> Group -> Html Msg
+viewGroup teams bracket dragId dropId group =
     let
         groupGames =
             List.filter (\g -> g.coords.group == group.position) bracket.games
@@ -1547,7 +1596,7 @@ viewGroup bracket dragId dropId group =
                 , table
                     []
                     (List.map (viewRow bracket dragId dropId group) (List.range 0 (rowsForGroup group bracket.games - 1)))
-                , viewGames dragId dropId bracket.teams bracket.games groupGames
+                , viewGames dragId dropId teams bracket.games groupGames
                 ]
 
              else

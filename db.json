@@ -1,74 +1,74 @@
 {
+  "teams": [
+    {
+      "id": 1,
+      "name": "Homer"
+    },
+    {
+      "id": 2,
+      "name": "Marge"
+    },
+    {
+      "id": 3,
+      "name": "Bart"
+    },
+    {
+      "id": 4,
+      "name": "Lisa"
+    },
+    {
+      "id": 5,
+      "name": "Maggie"
+    },
+    {
+      "id": 6,
+      "name": "Krusty"
+    },
+    {
+      "id": 7,
+      "name": "Snowball"
+    },
+    {
+      "id": 8,
+      "name": "Apu"
+    },
+    {
+      "id": 9,
+      "name": "Barney"
+    },
+    {
+      "id": 10,
+      "name": "Ralph"
+    },
+    {
+      "id": 11,
+      "name": "Itchy"
+    },
+    {
+      "id": 12,
+      "name": "Scratchy"
+    },
+    {
+      "id": 13,
+      "name": "Millhouse"
+    },
+    {
+      "id": 14,
+      "name": "Moe"
+    },
+    {
+      "id": 15,
+      "name": "Monty"
+    },
+    {
+      "id": 16,
+      "name": "Ned"
+    }
+  ],
   "brackets": [
     {
       "id": 1,
       "name": "Playoff Bracket",
-      "teams": [
-        {
-          "id": 1,
-          "name": "Homer"
-        },
-        {
-          "id": 2,
-          "name": "Marge"
-        },
-        {
-          "id": 3,
-          "name": "Bart"
-        },
-        {
-          "id": 4,
-          "name": "Lisa"
-        },
-        {
-          "id": 5,
-          "name": "Maggie"
-        },
-        {
-          "id": 6,
-          "name": "Krusty"
-        },
-        {
-          "id": 7,
-          "name": "Snowball"
-        },
-        {
-          "id": 8,
-          "name": "Apu"
-        },
-        {
-          "id": 9,
-          "name": "Barney"
-        },
-        {
-          "id": 10,
-          "name": "Ralph"
-        },
-        {
-          "id": 11,
-          "name": "Itchy"
-        },
-        {
-          "id": 12,
-          "name": "Scratchy"
-        },
-        {
-          "id": 13,
-          "name": "Millhouse"
-        },
-        {
-          "id": 14,
-          "name": "Moe"
-        },
-        {
-          "id": 15,
-          "name": "Monty"
-        },
-        {
-          "id": 16,
-          "name": "Ned"
-        }
-      ],
       "groups": [
         {
           "position": 0,
