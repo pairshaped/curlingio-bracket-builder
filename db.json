@@ -71,11 +71,11 @@
       "name": "Playoff Bracket",
       "groups": [
         {
-          "position": 0,
+          "id": 0,
           "name": "A Event"
         },
         {
-          "position": 1,
+          "id": 1,
           "name": "B Event"
         }
       ],
@@ -87,22 +87,16 @@
             {
               "position": 0,
               "first_hammer": false,
-              "assignment": {
-                "assignment_type": "team",
-                "id": 1
-              }
+              "team_id": 1
             },
             {
               "position": 1,
               "first_hammer": true,
-              "assignment": {
-                "assignment_type": "team",
-                "id": 2
-              }
+              "team_id": 2
             }
           ],
           "coords": {
-            "group": 0,
+            "group_id": 0,
             "col": 0,
             "row": 0
           }
@@ -114,22 +108,16 @@
             {
               "position": 0,
               "first_hammer": false,
-              "assignment": {
-                "assignment_type": "team",
-                "id": 3
-              }
+              "team_id": 3
             },
             {
               "position": 1,
               "first_hammer": true,
-              "assignment": {
-                "assignment_type": "team",
-                "id": 4
-              }
+              "team_id": 4
             }
           ],
           "coords": {
-            "group": 0,
+            "group_id": 0,
             "col": 0,
             "row": 2
           }
@@ -141,24 +129,16 @@
             {
               "position": 0,
               "first_hammer": false,
-              "assignment": {
-                "assignment_type": "game",
-                "result": "winner",
-                "id": 1
-              }
+              "winner_id": 1
             },
             {
               "position": 1,
               "first_hammer": true,
-              "assignment": {
-                "assignment_type": "game",
-                "result": "winner",
-                "id": 2
-              }
+              "winner_id": 2
             }
           ],
           "coords": {
-            "group": 0,
+            "group_id": 0,
             "col": 6,
             "row": 1
           }
@@ -170,24 +150,16 @@
             {
               "position": 0,
               "first_hammer": false,
-              "assignment": {
-                "assignment_type": "game",
-                "result": "loser",
-                "id": 1
-              }
+              "loser_id": 1
             },
             {
               "position": 1,
               "first_hammer": true,
-              "assignment": {
-                "assignment_type": "game",
-                "result": "loser",
-                "id": 2
-              }
+              "loser_id": 2
             }
           ],
           "coords": {
-            "group": 1,
+            "group_id": 1,
             "col": 0,
             "row": 0
           }
