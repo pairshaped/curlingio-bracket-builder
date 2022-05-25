@@ -87,12 +87,16 @@
             {
               "position": 0,
               "first_hammer": false,
-              "team_id": 1
+              "team_id": 1,
+              "winner_id": null,
+              "loser_id": null
             },
             {
               "position": 1,
               "first_hammer": true,
-              "team_id": 2
+              "team_id": 2,
+              "winner_id": null,
+              "loser_id": null
             }
           ],
           "coords": {
@@ -108,12 +112,16 @@
             {
               "position": 0,
               "first_hammer": false,
-              "team_id": 3
+              "team_id": 3,
+              "winner_id": null,
+              "loser_id": null
             },
             {
               "position": 1,
               "first_hammer": true,
-              "team_id": 4
+              "team_id": 4,
+              "winner_id": null,
+              "loser_id": null
             }
           ],
           "coords": {
@@ -129,12 +137,16 @@
             {
               "position": 0,
               "first_hammer": false,
-              "winner_id": 1
+              "team_id": null,
+              "winner_id": 1,
+              "loser_id": null
             },
             {
               "position": 1,
               "first_hammer": true,
-              "winner_id": 2
+              "team_id": null,
+              "winner_id": 2,
+              "loser_id": null
             }
           ],
           "coords": {
@@ -150,11 +162,15 @@
             {
               "position": 0,
               "first_hammer": false,
+              "team_id": null,
+              "winner_id": null,
               "loser_id": 1
             },
             {
               "position": 1,
               "first_hammer": true,
+              "team_id": null,
+              "winner_id": null,
               "loser_id": 2
             }
           ],
