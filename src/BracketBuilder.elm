@@ -1,4 +1,4 @@
-port module Main exposing (..)
+port module BracketBuilder exposing (..)
 
 -- import Debug exposing (log)
 

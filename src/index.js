@@ -1,8 +1,8 @@
 import './main.css';
-import { Elm } from './Main.elm';
+import { Elm } from './BracketBuilder.elm';
 import * as serviceWorker from './serviceWorker';
 
-var app = Elm.Main.init({
+var app = Elm.BracketBuilder.init({
   node: document.getElementById('root'),
   // flags: { demoMode: false, baseUrl: "http://demo.curling.test:3000/en/admin/events/3742/", id: 1 }
   // flags: { demoMode: true, baseUrl: "http://localhost:3000/", id: 1 }
