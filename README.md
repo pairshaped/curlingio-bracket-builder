@@ -1,7 +1,7 @@
 # Bracket Builder for [Curling I/O](https://curling.io)
 
 
-![Bracket Builder for Curling I/O](curlingio-bracker-builder.gif?raw=true "Bracket Builder for Curling I/O")
+![Bracket Builder for Curling I/O](curlingio-bracket-builder.gif?raw=true "Bracket Builder for Curling I/O")
 
 ## Features
 
@@ -13,7 +13,7 @@
 * You can connect games between groups.
 * You can rename games and groups.
 
-![Bracket Builder Cheatsheet for Curling I/O](curlingio-bracker-builder-cheatsheet.png?raw=true "Bracket Builder Cheatsheet for Curling I/O")
+![Bracket Builder Cheatsheet for Curling I/O](curlingio-bracket-builder-cheatsheet.png?raw=true "Bracket Builder Cheatsheet for Curling I/O")
 
 [Documentation](https://curling.io/docs/event-management/playoff-brackets)
 
