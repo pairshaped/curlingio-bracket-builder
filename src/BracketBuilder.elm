@@ -119,7 +119,6 @@ type alias Coords =
 
 type alias GamePosition =
     { position : Int
-    , firstHammer : Bool
     , assignment : Maybe Assignment
     }
 
@@ -175,70 +174,70 @@ demoBracket =
         [ Game "1"
             (Just "A1")
             (Coords 0 0 0)
-            [ GamePosition 0 False (Just (TeamAssignment 1))
-            , GamePosition 1 True (Just (TeamAssignment 2))
+            [ GamePosition 0 (Just (TeamAssignment 1))
+            , GamePosition 1 (Just (TeamAssignment 2))
             ]
         , Game "2"
             (Just "A2")
             (Coords 0 0 2)
-            [ GamePosition 0 False (Just (TeamAssignment 3))
-            , GamePosition 1 True (Just (TeamAssignment 4))
+            [ GamePosition 0 (Just (TeamAssignment 3))
+            , GamePosition 1 (Just (TeamAssignment 4))
             ]
         , Game "3"
             (Just "A3")
             (Coords 0 0 4)
-            [ GamePosition 0 False (Just (TeamAssignment 5))
-            , GamePosition 1 True (Just (TeamAssignment 6))
+            [ GamePosition 0 (Just (TeamAssignment 5))
+            , GamePosition 1 (Just (TeamAssignment 6))
             ]
         , Game "4"
             (Just "A4")
             (Coords 0 0 6)
-            [ GamePosition 0 False (Just (TeamAssignment 7))
-            , GamePosition 1 True (Just (TeamAssignment 8))
+            [ GamePosition 0 (Just (TeamAssignment 7))
+            , GamePosition 1 (Just (TeamAssignment 8))
             ]
 
         -- Group A Round 2
         , Game "5"
             (Just "A Semi-Final 1")
             (Coords 0 5 1)
-            [ GamePosition 0 False (Just (WinnerAssignment "1"))
-            , GamePosition 1 True (Just (WinnerAssignment "2"))
+            [ GamePosition 0 (Just (WinnerAssignment "1"))
+            , GamePosition 1 (Just (WinnerAssignment "2"))
             ]
         , Game "6"
             (Just "A Semi-Final 2")
             (Coords 0 5 5)
-            [ GamePosition 0 False (Just (WinnerAssignment "3"))
-            , GamePosition 1 True (Just (WinnerAssignment "4"))
+            [ GamePosition 0 (Just (WinnerAssignment "3"))
+            , GamePosition 1 (Just (WinnerAssignment "4"))
             ]
 
         -- Group A Round 3
         , Game "7"
             (Just "A Final")
             (Coords 0 10 3)
-            [ GamePosition 0 False (Just (WinnerAssignment "5"))
-            , GamePosition 1 True (Just (WinnerAssignment "6"))
+            [ GamePosition 0 (Just (WinnerAssignment "5"))
+            , GamePosition 1 (Just (WinnerAssignment "6"))
             ]
 
         -- Group B Round 1
         , Game "8"
             (Just "B1")
             (Coords 1 0 0)
-            [ GamePosition 0 False (Just (LoserAssignment "1"))
-            , GamePosition 1 True (Just (LoserAssignment "2"))
+            [ GamePosition 0 (Just (LoserAssignment "1"))
+            , GamePosition 1 (Just (LoserAssignment "2"))
             ]
         , Game "9"
             (Just "B2")
             (Coords 1 0 2)
-            [ GamePosition 0 False (Just (LoserAssignment "3"))
-            , GamePosition 1 True (Just (LoserAssignment "4"))
+            [ GamePosition 0 (Just (LoserAssignment "3"))
+            , GamePosition 1 (Just (LoserAssignment "4"))
             ]
 
         -- Group B Round 2
         , Game "10"
             (Just "B Final")
             (Coords 1 5 1)
-            [ GamePosition 0 False (Just (WinnerAssignment "8"))
-            , GamePosition 1 True (Just (WinnerAssignment "9"))
+            [ GamePosition 0 (Just (WinnerAssignment "8"))
+            , GamePosition 1 (Just (WinnerAssignment "9"))
             ]
         ]
     }
@@ -476,19 +475,6 @@ bracketEncoder bracket =
         ]
 
 
-teamsEncoder : List Team -> Encode.Value
-teamsEncoder teams =
-    let
-        teamEncoder : Team -> Encode.Value
-        teamEncoder team =
-            Encode.object
-                [ ( "id", Encode.int team.id )
-                , ( "name", Encode.string team.name )
-                ]
-    in
-    Encode.list teamEncoder teams
-
-
 groupsEncoder : List Group -> Encode.Value
 groupsEncoder groups =
     let
@@ -528,7 +514,6 @@ gamesEncoder games =
                     in
                     Encode.object
                         [ ( "position", Encode.int gamePosition.position )
-                        , ( "first_hammer", Encode.bool gamePosition.firstHammer )
                         , ( "team_id", encodeAssignmentId "team_id" gamePosition.assignment )
                         , ( "winner_id", encodeAssignmentId "winner_id" gamePosition.assignment )
                         , ( "loser_id", encodeAssignmentId "loser_id" gamePosition.assignment )
@@ -602,7 +587,7 @@ teamDecoder =
     Decode.map2
         Team
         (Decode.field "id" Decode.int)
-        (Decode.field "name" Decode.string)
+        (Decode.field "short_name" Decode.string)
 
 
 groupDecoder : Decode.Decoder Group
@@ -628,10 +613,9 @@ gameDecoder =
                         , Decode.map LoserAssignment (Decode.field "loser_id" Decode.string)
                         ]
             in
-            Decode.map3
+            Decode.map2
                 GamePosition
                 (Decode.field "position" Decode.int)
-                (Decode.field "first_hammer" Decode.bool)
                 (Decode.maybe assignmentDecoder)
 
         coordsDecoder : Decode.Decoder Coords
@@ -867,8 +851,8 @@ update msg model =
                                         ++ [ Game id
                                                 Nothing
                                                 coords
-                                                [ GamePosition 0 False Nothing
-                                                , GamePosition 1 True Nothing
+                                                [ GamePosition 0 Nothing
+                                                , GamePosition 1 Nothing
                                                 ]
                                            ]
 
