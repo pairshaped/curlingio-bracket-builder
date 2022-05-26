@@ -6,7 +6,7 @@ var app = Elm.BracketBuilder.init({
   node: document.getElementById('root'),
   // flags: { demoMode: false, baseUrl: "http://demo.curling.test:3000/en/admin/events/3742/", id: 1 }
   // flags: { demoMode: true, baseUrl: "http://localhost:3000/", id: 1 }
-  flags: { demoMode: false, baseUrl: "http://localhost:3000/", id: 1 }
+  flags: { demoMode: false, baseUrl: "http://demo.curling.test:3000/en/admin/events/3742/", id: null }
 });
 app.ports.dragstart.subscribe(function (event) {
   event.dataTransfer.setData("text", "");
