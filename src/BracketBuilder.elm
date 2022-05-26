@@ -268,7 +268,7 @@ init flags =
 
             Nothing ->
                 Cmd.none
-        , generateNewGameId
+        , generateNextGameId
         ]
     )
 
@@ -277,9 +277,9 @@ init flags =
 --- HELPERS ---
 
 
-generateNewGameId : Cmd Msg
-generateNewGameId =
-    Random.generate GotNewGameIdSeed Random.independentSeed
+generateNextGameId : Cmd Msg
+generateNextGameId =
+    Random.generate GenerateNextGameId Random.independentSeed
 
 
 {-| Find a game by it's coordinates
@@ -655,7 +655,7 @@ gameDecoder =
 
 
 type Msg
-    = GotNewGameIdSeed Random.Seed
+    = GenerateNextGameId Random.Seed
     | DragDropMsg (DragDrop.Msg DraggableId DroppableId)
     | EditBracketName
     | UpdateBracketName String
@@ -687,15 +687,15 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        GotNewGameIdSeed seed ->
+        GenerateNextGameId seed ->
             let
-                nextGameId : String
-                nextGameId =
+                newUuid : String
+                newUuid =
                     Random.step UUID.generator seed
                         |> Tuple.first
                         |> UUID.toString
             in
-            ( { model | nextGameId = Just nextGameId }, Cmd.none )
+            ( { model | nextGameId = Just newUuid }, Cmd.none )
 
         DragDropMsg msg_ ->
             let
@@ -886,7 +886,7 @@ update msg model =
                 | changed = True
                 , bracket = RemoteData.map updatedBracket model.bracket
               }
-            , generateNewGameId
+            , generateNextGameId
             )
 
         RemoveGame game ->
