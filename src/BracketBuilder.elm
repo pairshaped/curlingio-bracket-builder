@@ -1,7 +1,5 @@
 port module BracketBuilder exposing (..)
 
--- import Debug exposing (log)
-
 import Browser
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -78,7 +76,7 @@ type DraggableId
 
 type DroppableId
     = DroppableCell Coords
-    | DroppableGamePosition ( String, Int )
+    | DroppableSide ( String, Int )
 
 
 type alias Team =
@@ -106,7 +104,13 @@ type alias Game =
     { id : String
     , name : Maybe String
     , coords : Coords
-    , gamePositions : List GamePosition
+    , sides : List Side
+    }
+
+
+type alias Side =
+    { position : Int
+    , assignment : Maybe Assignment
     }
 
 
@@ -114,12 +118,6 @@ type alias Coords =
     { groupId : Int
     , col : Int
     , row : Int
-    }
-
-
-type alias GamePosition =
-    { position : Int
-    , assignment : Maybe Assignment
     }
 
 
@@ -174,70 +172,70 @@ demoBracket =
         [ Game "1"
             (Just "A1")
             (Coords 0 0 0)
-            [ GamePosition 0 (Just (TeamAssignment 1))
-            , GamePosition 1 (Just (TeamAssignment 2))
+            [ Side 0 (Just (TeamAssignment 1))
+            , Side 1 (Just (TeamAssignment 2))
             ]
         , Game "2"
             (Just "A2")
             (Coords 0 0 2)
-            [ GamePosition 0 (Just (TeamAssignment 3))
-            , GamePosition 1 (Just (TeamAssignment 4))
+            [ Side 0 (Just (TeamAssignment 3))
+            , Side 1 (Just (TeamAssignment 4))
             ]
         , Game "3"
             (Just "A3")
             (Coords 0 0 4)
-            [ GamePosition 0 (Just (TeamAssignment 5))
-            , GamePosition 1 (Just (TeamAssignment 6))
+            [ Side 0 (Just (TeamAssignment 5))
+            , Side 1 (Just (TeamAssignment 6))
             ]
         , Game "4"
             (Just "A4")
             (Coords 0 0 6)
-            [ GamePosition 0 (Just (TeamAssignment 7))
-            , GamePosition 1 (Just (TeamAssignment 8))
+            [ Side 0 (Just (TeamAssignment 7))
+            , Side 1 (Just (TeamAssignment 8))
             ]
 
         -- Group A Round 2
         , Game "5"
             (Just "A Semi-Final 1")
             (Coords 0 5 1)
-            [ GamePosition 0 (Just (WinnerAssignment "1"))
-            , GamePosition 1 (Just (WinnerAssignment "2"))
+            [ Side 0 (Just (WinnerAssignment "1"))
+            , Side 1 (Just (WinnerAssignment "2"))
             ]
         , Game "6"
             (Just "A Semi-Final 2")
             (Coords 0 5 5)
-            [ GamePosition 0 (Just (WinnerAssignment "3"))
-            , GamePosition 1 (Just (WinnerAssignment "4"))
+            [ Side 0 (Just (WinnerAssignment "3"))
+            , Side 1 (Just (WinnerAssignment "4"))
             ]
 
         -- Group A Round 3
         , Game "7"
             (Just "A Final")
             (Coords 0 10 3)
-            [ GamePosition 0 (Just (WinnerAssignment "5"))
-            , GamePosition 1 (Just (WinnerAssignment "6"))
+            [ Side 0 (Just (WinnerAssignment "5"))
+            , Side 1 (Just (WinnerAssignment "6"))
             ]
 
         -- Group B Round 1
         , Game "8"
             (Just "B1")
             (Coords 1 0 0)
-            [ GamePosition 0 (Just (LoserAssignment "1"))
-            , GamePosition 1 (Just (LoserAssignment "2"))
+            [ Side 0 (Just (LoserAssignment "1"))
+            , Side 1 (Just (LoserAssignment "2"))
             ]
         , Game "9"
             (Just "B2")
             (Coords 1 0 2)
-            [ GamePosition 0 (Just (LoserAssignment "3"))
-            , GamePosition 1 (Just (LoserAssignment "4"))
+            [ Side 0 (Just (LoserAssignment "3"))
+            , Side 1 (Just (LoserAssignment "4"))
             ]
 
         -- Group B Round 2
         , Game "10"
             (Just "B Final")
             (Coords 1 5 1)
-            [ GamePosition 0 (Just (WinnerAssignment "8"))
-            , GamePosition 1 (Just (WinnerAssignment "9"))
+            [ Side 0 (Just (WinnerAssignment "8"))
+            , Side 1 (Just (WinnerAssignment "9"))
             ]
         ]
     }
@@ -288,36 +286,42 @@ findGameByCoords coords games =
     List.Extra.find (\game -> game.coords == coords) games
 
 
+clearAssignmentFromAllGames : List Game -> Assignment -> List Game
+clearAssignmentFromAllGames games assignment =
+    let
+        unassignedSide side =
+            -- Unassign the old connection if it exists
+            if side.assignment == Just assignment then
+                { side | assignment = Nothing }
+
+            else
+                side
+
+        unassignedGame game =
+            { game | sides = List.map unassignedSide game.sides }
+    in
+    List.map unassignedGame games
+
+
 connectGameResult : List Game -> Assignment -> ( String, Int ) -> List Game
 connectGameResult games assignment ( toGameId, toPosition ) =
     let
-        unassignedGamePosition gamePosition =
-            -- Unassign the old connection if it exists
-            if gamePosition.assignment == Just assignment then
-                { gamePosition | assignment = Nothing }
-
-            else
-                gamePosition
-
-        unassignedGame game =
-            { game | gamePositions = List.map unassignedGamePosition game.gamePositions }
-
-        assignedGamePosition gamePosition =
-            if gamePosition.position == toPosition then
+        assignedSide side =
+            if side.position == toPosition then
                 -- Assign the new connection
-                { gamePosition | assignment = Just assignment }
+                { side | assignment = Just assignment }
 
             else
-                gamePosition
+                side
 
         assignedGame game =
             if game.id == toGameId then
-                { game | gamePositions = List.map assignedGamePosition game.gamePositions }
+                { game | sides = List.map assignedSide game.sides }
 
             else
                 game
     in
-    List.map unassignedGame games
+    clearAssignmentFromAllGames games assignment
         |> List.map assignedGame
 
 
@@ -494,8 +498,8 @@ gamesEncoder games =
         gameEncoder : Game -> Encode.Value
         gameEncoder game =
             let
-                gamePositionEncoder : GamePosition -> Encode.Value
-                gamePositionEncoder gamePosition =
+                sideEncoder : Side -> Encode.Value
+                sideEncoder side =
                     let
                         encodeAssignmentId : String -> Maybe Assignment -> Encode.Value
                         encodeAssignmentId assignmentField assignment =
@@ -513,10 +517,10 @@ gamesEncoder games =
                                     Encode.null
                     in
                     Encode.object
-                        [ ( "position", Encode.int gamePosition.position )
-                        , ( "team_id", encodeAssignmentId "team_id" gamePosition.assignment )
-                        , ( "winner_id", encodeAssignmentId "winner_id" gamePosition.assignment )
-                        , ( "loser_id", encodeAssignmentId "loser_id" gamePosition.assignment )
+                        [ ( "position", Encode.int side.position )
+                        , ( "team_id", encodeAssignmentId "team_id" side.assignment )
+                        , ( "winner_id", encodeAssignmentId "winner_id" side.assignment )
+                        , ( "loser_id", encodeAssignmentId "loser_id" side.assignment )
                         ]
 
                 coordsEncoder : Coords -> Encode.Value
@@ -537,7 +541,7 @@ gamesEncoder games =
                         Nothing ->
                             Encode.null
                   )
-                , ( "game_positions", Encode.list gamePositionEncoder game.gamePositions )
+                , ( "game_positions", Encode.list sideEncoder game.sides )
                 , ( "coords", coordsEncoder game.coords )
                 ]
     in
@@ -602,8 +606,8 @@ groupDecoder =
 gameDecoder : Decode.Decoder Game
 gameDecoder =
     let
-        gamePositionDecoder : Decode.Decoder GamePosition
-        gamePositionDecoder =
+        sideDecoder : Decode.Decoder Side
+        sideDecoder =
             let
                 assignmentDecoder : Decode.Decoder Assignment
                 assignmentDecoder =
@@ -614,7 +618,7 @@ gameDecoder =
                         ]
             in
             Decode.map2
-                GamePosition
+                Side
                 (Decode.field "position" Decode.int)
                 (Decode.maybe assignmentDecoder)
 
@@ -631,7 +635,7 @@ gameDecoder =
         (Decode.field "id" Decode.string)
         (Decode.maybe (Decode.field "name" Decode.string))
         (Decode.field "coords" coordsDecoder)
-        (Decode.field "game_positions" (Decode.list gamePositionDecoder))
+        (Decode.field "game_positions" (Decode.list sideDecoder))
 
 
 
@@ -653,9 +657,9 @@ type Msg
     | AddGame Coords
     | RemoveGame Game
     | EditGame Game
-    | UpdateGameName Game String
-    | UpdateGamePosition Game Int String
-    | CloseEditGame Game
+    | UpdateGameName String
+    | UpdateSide Int String
+    | CloseEditGame
     | Save
     | Saved (Result Http.Error Bracket)
     | ConfirmRevert
@@ -702,11 +706,31 @@ update msg model =
                         , bracket = RemoteData.map updatedBracket model.bracket
                     }
 
-                Just ( DraggableResult from, DroppableGamePosition to, _ ) ->
+                Just ( DraggableResult from, DroppableSide ( toGameId, toPosition ), _ ) ->
                     let
+                        updatedGame : Game -> Game
+                        updatedGame game =
+                            if game.id == toGameId then
+                                let
+                                    updatedSide side =
+                                        if side.position == toPosition then
+                                            { side | assignment = Just from }
+
+                                        else
+                                            side
+                                in
+                                { game | sides = List.map updatedSide game.sides }
+
+                            else
+                                game
+
                         updatedBracket : Bracket -> Bracket
                         updatedBracket bracket =
-                            { bracket | games = connectGameResult bracket.games from to }
+                            { bracket
+                                | games =
+                                    clearAssignmentFromAllGames bracket.games from
+                                        |> List.map updatedGame
+                            }
                     in
                     { model
                         | dragDrop = model_
@@ -851,8 +875,8 @@ update msg model =
                                         ++ [ Game id
                                                 Nothing
                                                 coords
-                                                [ GamePosition 0 Nothing
-                                                , GamePosition 1 Nothing
+                                                [ Side 0 Nothing
+                                                , Side 1 Nothing
                                                 ]
                                            ]
 
@@ -890,7 +914,7 @@ update msg model =
         EditGame game ->
             ( { model | overlay = Just (EditingGame game) }, Cmd.none )
 
-        UpdateGameName game name ->
+        UpdateGameName name ->
             let
                 maybeName : Maybe String
                 maybeName =
@@ -901,26 +925,31 @@ update msg model =
                         _ ->
                             Just name
 
-                updatedGame : Game
-                updatedGame =
+                updatedGame : Game -> Game
+                updatedGame game =
                     { game | name = maybeName }
 
-                updatedBracket : Bracket -> Bracket
-                updatedBracket bracket =
-                    { bracket | games = List.Extra.updateIf (\g -> g.id == updatedGame.id) (\g -> updatedGame) bracket.games }
+                updatedBracket : Game -> Bracket -> Bracket
+                updatedBracket game bracket =
+                    { bracket | games = List.Extra.updateIf (\g -> g.id == game.id) (\g -> updatedGame game) bracket.games }
             in
-            ( { model
-                | overlay = Just (EditingGame updatedGame)
-                , changed = True
-                , bracket = RemoteData.map updatedBracket model.bracket
-              }
+            ( case model.overlay of
+                Just (EditingGame game) ->
+                    { model
+                        | overlay = Just (EditingGame (updatedGame game))
+                        , changed = True
+                        , bracket = RemoteData.map (updatedBracket game) model.bracket
+                    }
+
+                _ ->
+                    model
             , Cmd.none
             )
 
-        UpdateGamePosition game position assignment ->
+        UpdateSide position assignment ->
             let
-                updatedBracket : List Team -> Bracket -> Bracket
-                updatedBracket teams bracket =
+                updatedGame : List Team -> List Game -> Game -> Game
+                updatedGame teams games game =
                     let
                         typedAssignment : Maybe Assignment
                         typedAssignment =
@@ -930,7 +959,7 @@ update msg model =
                                         matchesGameId =
                                             case List.head xs of
                                                 Just id ->
-                                                    case List.Extra.find (\g -> g.id == id) bracket.games of
+                                                    case List.Extra.find (\g -> g.id == id) games of
                                                         Just g ->
                                                             Just g.id
 
@@ -974,58 +1003,67 @@ update msg model =
 
                                 _ ->
                                     Nothing
-
-                        updatedGames =
-                            case typedAssignment of
-                                Just (TeamAssignment teamId) ->
-                                    let
-                                        updatedGamePosition gamePosition =
-                                            if gamePosition.position == position then
-                                                { gamePosition | assignment = Just (TeamAssignment teamId) }
-
-                                            else
-                                                gamePosition
-
-                                        updatedGame g =
-                                            if g.id == game.id then
-                                                { g | gamePositions = List.map updatedGamePosition g.gamePositions }
-
-                                            else
-                                                g
-                                    in
-                                    List.map updatedGame bracket.games
-
-                                Just gameAssignment ->
-                                    connectGameResult bracket.games gameAssignment ( game.id, position )
-
-                                Nothing ->
-                                    let
-                                        updatedGamePosition gamePosition =
-                                            if gamePosition.position == position then
-                                                { gamePosition | assignment = Nothing }
-
-                                            else
-                                                gamePosition
-
-                                        updatedGame g =
-                                            if g.id == game.id then
-                                                { g | gamePositions = List.map updatedGamePosition g.gamePositions }
-
-                                            else
-                                                g
-                                    in
-                                    List.map updatedGame bracket.games
                     in
-                    { bracket | games = updatedGames }
+                    case typedAssignment of
+                        Just (TeamAssignment teamId) ->
+                            let
+                                updatedSide side =
+                                    if side.position == position then
+                                        { side | assignment = Just (TeamAssignment teamId) }
+
+                                    else
+                                        side
+                            in
+                            { game | sides = List.map updatedSide game.sides }
+
+                        Just gameAssignment ->
+                            let
+                                updatedSide side =
+                                    if side.position == position then
+                                        { side | assignment = Just gameAssignment }
+
+                                    else
+                                        side
+                            in
+                            { game | sides = List.map updatedSide game.sides }
+
+                        Nothing ->
+                            let
+                                updatedSide side =
+                                    if side.position == position then
+                                        { side | assignment = Nothing }
+
+                                    else
+                                        side
+                            in
+                            { game | sides = List.map updatedSide game.sides }
+
+                updatedBracket : Game -> List Team -> Bracket -> Bracket
+                updatedBracket game teams bracket =
+                    let
+                        shouldUpdateGame g =
+                            if g.id == game.id then
+                                updatedGame teams bracket.games game
+
+                            else
+                                g
+                    in
+                    { bracket | games = List.map shouldUpdateGame bracket.games }
             in
-            ( { model
-                | changed = True
-                , bracket = RemoteData.map2 updatedBracket model.teams model.bracket
-              }
+            ( case ( model.overlay, model.teams, model.bracket ) of
+                ( Just (EditingGame game), Success teams, Success bracket ) ->
+                    { model
+                        | overlay = Just (EditingGame (updatedGame teams bracket.games game))
+                        , changed = True
+                        , bracket = Success (updatedBracket game teams bracket)
+                    }
+
+                _ ->
+                    model
             , Cmd.none
             )
 
-        CloseEditGame game ->
+        CloseEditGame ->
             ( { model | overlay = Nothing }, Cmd.none )
 
         Save ->
@@ -1333,7 +1371,7 @@ viewEditGame teams bracket game =
                                 _ ->
                                     False
                     in
-                    List.any assignedToPosition g.gamePositions
+                    List.any assignedToPosition g.sides
 
                 unassigned team =
                     gamesNotExcluded
@@ -1363,15 +1401,15 @@ viewEditGame teams bracket game =
 
                 notAlreadyAssigned assignment =
                     let
-                        assignedToGamePosition gamePosition =
-                            assignment == gamePosition.assignment
+                        assignedToSide side =
+                            assignment == side.assignment
 
                         assignedToGame g =
                             if g.id == game.id then
                                 False
 
                             else
-                                List.filter assignedToGamePosition g.gamePositions
+                                List.filter assignedToSide g.sides
                                     |> List.isEmpty
                                     |> not
                     in
@@ -1392,11 +1430,11 @@ viewEditGame teams bracket game =
                 |> List.filter notAlreadyAssigned
                 |> List.filterMap identity
 
-        teamOption : Int -> GamePosition -> Team -> Html Msg
-        teamOption index selectedGamePosition team =
+        teamOption : Int -> Side -> Team -> Html Msg
+        teamOption index selectedSide team =
             let
                 isSelected =
-                    case selectedGamePosition.assignment of
+                    case selectedSide.assignment of
                         Just (TeamAssignment id) ->
                             id == team.id
 
@@ -1405,11 +1443,11 @@ viewEditGame teams bracket game =
             in
             option [ value ("team_" ++ String.fromInt team.id), selected isSelected ] [ text team.name ]
 
-        gameOption : Int -> GamePosition -> Assignment -> Html Msg
-        gameOption index selectedGamePosition assignment =
+        gameOption : Int -> Side -> Assignment -> Html Msg
+        gameOption index selectedSide assignment =
             let
                 isSelected =
-                    selectedGamePosition.assignment == Just assignment
+                    selectedSide.assignment == Just assignment
 
                 optionId =
                     case assignment of
@@ -1445,26 +1483,26 @@ viewEditGame teams bracket game =
                 _ ->
                     text ""
 
-        assignmentOptions : Int -> GamePosition -> List (Html Msg)
-        assignmentOptions index selectedGamePosition =
+        assignmentOptions : Int -> Side -> List (Html Msg)
+        assignmentOptions index selectedSide =
             [ option [] [] ]
                 ++ (unassignedTeams bracket.games
-                        |> List.map (teamOption index selectedGamePosition)
+                        |> List.map (teamOption index selectedSide)
                    )
                 ++ (unassignedGameResults bracket.games
-                        |> List.map (gameOption index selectedGamePosition)
+                        |> List.map (gameOption index selectedSide)
                    )
 
-        viewGamePositionField index gamePosition =
+        viewSideField index side =
             div
                 [ class "form-group" ]
                 [ label [ for "editing-game" ] [ text "Team" ]
                 , select
                     [ class "form-control"
                     , id "editing-game"
-                    , onInput (UpdateGamePosition game index)
+                    , onInput (UpdateSide index)
                     ]
-                    (assignmentOptions index gamePosition)
+                    (assignmentOptions index side)
                 ]
     in
     div [ class "modal-content" ]
@@ -1478,15 +1516,15 @@ viewEditGame teams bracket game =
                     [ class "form-control"
                     , id "editing-game-name"
                     , value (Maybe.withDefault "" game.name)
-                    , onInput (UpdateGameName game)
+                    , onInput UpdateGameName
                     ]
                     []
                 ]
              ]
-                ++ List.indexedMap viewGamePositionField game.gamePositions
+                ++ List.indexedMap viewSideField game.sides
             )
         , div [ class "modal-footer" ]
-            [ button [ onClick (CloseEditGame game), class "btn btn-primary mr-2" ] [ text "Close" ]
+            [ button [ onClick CloseEditGame, class "btn btn-primary mr-2" ] [ text "Close" ]
             ]
         ]
 
@@ -1657,14 +1695,14 @@ viewGame dragId dropId teams games game =
         , div [ class "game-body d-flex" ]
             [ div
                 [ class "game-positions flex-fill" ]
-                (List.indexedMap (\index gamePosition -> viewGamePosition dragId dropId teams games game.id index gamePosition) game.gamePositions)
+                (List.indexedMap (\index side -> viewSide dragId dropId teams games game.id index side) game.sides)
             , div [ class "align-self-end ml-1" ] (viewResultConnectors dragId game.id)
             ]
         ]
 
 
-viewGamePosition : Maybe DraggableId -> Maybe DroppableId -> List Team -> List Game -> String -> Int -> GamePosition -> Html Msg
-viewGamePosition dragId dropId teams games gameId position gamePosition =
+viewSide : Maybe DraggableId -> Maybe DroppableId -> List Team -> List Game -> String -> Int -> Side -> Html Msg
+viewSide dragId dropId teams games gameId position side =
     let
         positionClass =
             if position == 0 then
@@ -1675,7 +1713,7 @@ viewGamePosition dragId dropId teams games gameId position gamePosition =
 
         dropTarget =
             case ( dragId, dropId ) of
-                ( Just (DraggableResult _), Just (DroppableGamePosition gameIdAndPosition) ) ->
+                ( Just (DraggableResult _), Just (DroppableSide gameIdAndPosition) ) ->
                     if gameIdAndPosition == ( gameId, position ) then
                         True
 
@@ -1686,7 +1724,7 @@ viewGamePosition dragId dropId teams games gameId position gamePosition =
                     False
 
         label =
-            case gamePosition.assignment of
+            case side.assignment of
                 Just (TeamAssignment id) ->
                     case List.Extra.find (\t -> t.id == id) teams of
                         Just team ->
@@ -1715,7 +1753,7 @@ viewGamePosition dragId dropId teams games gameId position gamePosition =
                     "TBD"
     in
     div
-        ([ classList [ positionClass, ( "drop-target", dropTarget ) ] ] ++ DragDrop.droppable DragDropMsg (DroppableGamePosition ( gameId, position )))
+        ([ classList [ positionClass, ( "drop-target", dropTarget ) ] ] ++ DragDrop.droppable DragDropMsg (DroppableSide ( gameId, position )))
         [ text label ]
 
 
@@ -1762,8 +1800,8 @@ viewSvgLines group games =
                 connectors : Game -> List (Maybe LineConnector)
                 connectors toGame =
                     let
-                        connectorForPosition : Int -> GamePosition -> Maybe LineConnector
-                        connectorForPosition toPosition gamePosition =
+                        connectorForPosition : Int -> Side -> Maybe LineConnector
+                        connectorForPosition toPosition side =
                             let
                                 fromCoords fromGameId gameResult =
                                     case List.Extra.find (\g -> g.id == fromGameId) games of
@@ -1796,7 +1834,7 @@ viewSvgLines group games =
                                               )
                                         )
                             in
-                            case gamePosition.assignment of
+                            case side.assignment of
                                 Just (WinnerAssignment fromGameId) ->
                                     case ( fromCoords fromGameId Winner, toCoords ) of
                                         ( Just from, Just to ) ->
@@ -1816,7 +1854,7 @@ viewSvgLines group games =
                                 _ ->
                                     Nothing
                     in
-                    List.indexedMap connectorForPosition toGame.gamePositions
+                    List.indexedMap connectorForPosition toGame.sides
             in
             List.map connectors games
                 |> List.concat

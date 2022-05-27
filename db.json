@@ -83,7 +83,7 @@
         {
           "id": "1",
           "name": "A1",
-          "game_positions": [
+          "sides": [
             {
               "position": 0,
               "team_id": 1,
@@ -106,7 +106,7 @@
         {
           "id": "2",
           "name": "A2",
-          "game_positions": [
+          "sides": [
             {
               "position": 0,
               "team_id": 3,
@@ -129,7 +129,7 @@
         {
           "id": "3",
           "name": "A Final",
-          "game_positions": [
+          "sides": [
             {
               "position": 0,
               "team_id": null,
@@ -152,7 +152,7 @@
         {
           "id": "4",
           "name": "B Final",
-          "game_positions": [
+          "sides": [
             {
               "position": 0,
               "team_id": null,
