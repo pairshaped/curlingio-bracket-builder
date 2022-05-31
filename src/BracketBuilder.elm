@@ -1106,7 +1106,7 @@ viewOnceLoaded { overlay, dragDrop, changed } teams bracket =
             overlay /= Nothing
     in
     div [ classList [ ( "modal-open", modalOpen ) ] ]
-        [ div [ class "p-3" ]
+        [ div [ class "py-3" ]
             [ viewBracketName bracket.name
             , viewGroups teams bracket dragId dropId
             , button [ class "btn btn-primary", onClick AddGroup ] [ text "Add Group" ]
@@ -1121,22 +1121,21 @@ viewOnceLoaded { overlay, dragDrop, changed } teams bracket =
                         , onClick Save
                         ]
                         [ text "Save" ]
+                    , case bracket.id of
+                        Just _ ->
+                            button
+                                [ class "btn btn-warning mr-1"
+                                , onClick ConfirmRevert
+                                ]
+                                [ text "Revert" ]
+
+                        Nothing ->
+                            text ""
                     , button
-                        [ class "btn btn-secondary mr-1"
-                        , onClick ConfirmRevert
-                        ]
-                        [ text "Revert" ]
-                    , button
-                        [ class "btn btn-danger mr-1"
+                        [ class "btn btn-danger"
                         , onClick ConfirmClear
                         ]
                         [ text "Clear" ]
-                    , a
-                        [ class "btn btn-info"
-                        , href "https://curling.io/docs/event-management/playoff-brackets"
-                        , target "_blank"
-                        ]
-                        [ text "Help" ]
                     ]
             ]
         , div [ classList [ ( "modal-backdrop", modalOpen ), ( "show", modalOpen ) ] ] []
@@ -1471,7 +1470,7 @@ viewClearConfirmation =
             [ h5 [ class "modal-title" ] [ text "Confirm Clear" ] ]
         , div [ class "modal-body" ]
             [ p []
-                [ text "DANGER: This will completely wipe the bracket so you can start over. Nothing will be saved until you click the Save button, but you will lose any changes made since the last save. Are you sure you want to continue?" ]
+                [ text "DANGER: This will empty out the bracket so you can start over. Nothing will be saved until you click the Save button, but you will lose any changes made since the last save. Are you sure you want to continue?" ]
             ]
         , div [ class "modal-footer" ]
             [ button [ onClick Clear, class "btn btn-danger mr-2" ] [ text "Continue" ]

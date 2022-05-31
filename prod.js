@@ -7948,7 +7948,6 @@ var $author$project$BracketBuilder$AddGroup = {$: 5};
 var $author$project$BracketBuilder$ConfirmClear = {$: 22};
 var $author$project$BracketBuilder$ConfirmRevert = {$: 18};
 var $author$project$BracketBuilder$Save = {$: 17};
-var $elm$html$Html$a = _VirtualDom_node('a');
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
@@ -8011,12 +8010,6 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$getDropId = function (model) {
 			return $elm$core$Maybe$Just(dropId);
 	}
 };
-var $elm$html$Html$Attributes$href = function (url) {
-	return A2(
-		$elm$html$Html$Attributes$stringProperty,
-		'href',
-		_VirtualDom_noJavaScriptUri(url));
-};
 var $elm$core$Basics$neq = _Utils_notEqual;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 0, a: a};
@@ -8035,7 +8028,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $elm$html$Html$Attributes$target = $elm$html$Html$Attributes$stringProperty('target');
 var $author$project$BracketBuilder$EditBracketName = {$: 2};
 var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $author$project$BracketBuilder$viewBracketName = function (name) {
@@ -8961,7 +8953,7 @@ var $author$project$BracketBuilder$viewClearConfirmation = A2(
 					_List_Nil,
 					_List_fromArray(
 						[
-							$elm$html$Html$text('DANGER: This will completely wipe the bracket so you can start over. Nothing will be saved until you click the Save button, but you will lose any changes made since the last save. Are you sure you want to continue?')
+							$elm$html$Html$text('DANGER: This will empty out the bracket so you can start over. Nothing will be saved until you click the Save button, but you will lose any changes made since the last save. Are you sure you want to continue?')
 						]))
 				])),
 			A2(
@@ -9734,7 +9726,7 @@ var $author$project$BracketBuilder$viewOnceLoaded = F3(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('p-3')
+							$elm$html$Html$Attributes$class('py-3')
 						]),
 					_List_fromArray(
 						[
@@ -9771,39 +9763,34 @@ var $author$project$BracketBuilder$viewOnceLoaded = F3(
 										[
 											$elm$html$Html$text('Save')
 										])),
+									function () {
+									var _v1 = bracket.a;
+									if (!_v1.$) {
+										return A2(
+											$elm$html$Html$button,
+											_List_fromArray(
+												[
+													$elm$html$Html$Attributes$class('btn btn-warning mr-1'),
+													$elm$html$Html$Events$onClick($author$project$BracketBuilder$ConfirmRevert)
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text('Revert')
+												]));
+									} else {
+										return $elm$html$Html$text('');
+									}
+								}(),
 									A2(
 									$elm$html$Html$button,
 									_List_fromArray(
 										[
-											$elm$html$Html$Attributes$class('btn btn-secondary mr-1'),
-											$elm$html$Html$Events$onClick($author$project$BracketBuilder$ConfirmRevert)
-										]),
-									_List_fromArray(
-										[
-											$elm$html$Html$text('Revert')
-										])),
-									A2(
-									$elm$html$Html$button,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$class('btn btn-danger mr-1'),
+											$elm$html$Html$Attributes$class('btn btn-danger'),
 											$elm$html$Html$Events$onClick($author$project$BracketBuilder$ConfirmClear)
 										]),
 									_List_fromArray(
 										[
 											$elm$html$Html$text('Clear')
-										])),
-									A2(
-									$elm$html$Html$a,
-									_List_fromArray(
-										[
-											$elm$html$Html$Attributes$class('btn btn-info'),
-											$elm$html$Html$Attributes$href('https://curling.io/docs/event-management/playoff-brackets'),
-											$elm$html$Html$Attributes$target('_blank')
-										]),
-									_List_fromArray(
-										[
-											$elm$html$Html$text('Help')
 										]))
 								]))
 						])),
