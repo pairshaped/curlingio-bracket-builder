@@ -519,11 +519,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.an.W === region.as.W)
+	if (region.au.W === region.az.W)
 	{
-		return 'on line ' + region.an.W;
+		return 'on line ' + region.au.W;
 	}
-	return 'on lines ' + region.an.W + ' through ' + region.as.W;
+	return 'on lines ' + region.au.W + ' through ' + region.az.W;
 }
 
 
@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.be,
-		impl.by,
-		impl.bu,
+		impl.bo,
+		impl.bI,
+		impl.bE,
 		function() { return function() {} }
 	);
 });
@@ -2704,9 +2704,9 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		D: func(record.D),
-		ao: record.ao,
-		al: record.al
+		E: func(record.E),
+		av: record.av,
+		as: record.as
 	}
 });
 
@@ -2974,11 +2974,11 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.D;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.ao;
+		var message = !tag ? value : tag < 3 ? value.a : value.E;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.av;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.al) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.as) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3928,11 +3928,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.be,
-		impl.by,
-		impl.bu,
+		impl.bo,
+		impl.bI,
+		impl.bE,
 		function(sendToApp, initialModel) {
-			var view = impl.bz;
+			var view = impl.bJ;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3964,12 +3964,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.be,
-		impl.by,
-		impl.bu,
+		impl.bo,
+		impl.bI,
+		impl.bE,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.am && impl.am(sendToApp)
-			var view = impl.bz;
+			var divertHrefToApp = impl.at && impl.at(sendToApp)
+			var view = impl.bJ;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3977,12 +3977,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.a$);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.a9);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.bw) && (_VirtualDom_doc.title = title = doc.bw);
+				(title !== doc.bG) && (_VirtualDom_doc.title = title = doc.bG);
 			});
 		}
 	);
@@ -4038,12 +4038,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.bk;
-	var onUrlRequest = impl.bl;
+	var onUrlChange = impl.bu;
+	var onUrlRequest = impl.bv;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		am: function(sendToApp)
+		at: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4059,9 +4059,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.aI === next.aI
-							&& curr.ay === next.ay
-							&& curr.aF.a === next.aF.a
+							&& curr.aO === next.aO
+							&& curr.aE === next.aE
+							&& curr.aL.a === next.aL.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4069,13 +4069,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		be: function(flags)
+		bo: function(flags)
 		{
-			return A3(impl.be, flags, _Browser_getUrl(), key);
+			return A3(impl.bo, flags, _Browser_getUrl(), key);
 		},
-		bz: impl.bz,
-		by: impl.by,
-		bu: impl.bu
+		bJ: impl.bJ,
+		bI: impl.bI,
+		bE: impl.bE
 	});
 }
 
@@ -4141,17 +4141,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { bb: 'hidden', a1: 'visibilitychange' }
+		? { bl: 'hidden', bb: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { bb: 'mozHidden', a1: 'mozvisibilitychange' }
+		? { bl: 'mozHidden', bb: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { bb: 'msHidden', a1: 'msvisibilitychange' }
+		? { bl: 'msHidden', bb: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { bb: 'webkitHidden', a1: 'webkitvisibilitychange' }
-		: { bb: 'hidden', a1: 'visibilitychange' };
+		? { bl: 'webkitHidden', bb: 'webkitvisibilitychange' }
+		: { bl: 'hidden', bb: 'visibilitychange' };
 }
 
 
@@ -4232,12 +4232,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		aP: _Browser_getScene(),
-		aT: {
-			aV: _Browser_window.pageXOffset,
-			aW: _Browser_window.pageYOffset,
-			aU: _Browser_doc.documentElement.clientWidth,
-			ax: _Browser_doc.documentElement.clientHeight
+		aV: _Browser_getScene(),
+		a1: {
+			a3: _Browser_window.pageXOffset,
+			a4: _Browser_window.pageYOffset,
+			a2: _Browser_doc.documentElement.clientWidth,
+			aD: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4247,8 +4247,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		aU: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		ax: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		a2: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		aD: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4271,15 +4271,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			aP: {
-				aU: node.scrollWidth,
-				ax: node.scrollHeight
+			aV: {
+				a2: node.scrollWidth,
+				aD: node.scrollHeight
 			},
-			aT: {
-				aV: node.scrollLeft,
-				aW: node.scrollTop,
-				aU: node.clientWidth,
-				ax: node.clientHeight
+			a1: {
+				a3: node.scrollLeft,
+				a4: node.scrollTop,
+				a2: node.clientWidth,
+				aD: node.clientHeight
 			}
 		};
 	});
@@ -4309,18 +4309,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			aP: _Browser_getScene(),
-			aT: {
-				aV: x,
-				aW: y,
-				aU: _Browser_doc.documentElement.clientWidth,
-				ax: _Browser_doc.documentElement.clientHeight
+			aV: _Browser_getScene(),
+			a1: {
+				a3: x,
+				a4: y,
+				a2: _Browser_doc.documentElement.clientWidth,
+				aD: _Browser_doc.documentElement.clientHeight
 			},
-			a4: {
-				aV: x + rect.left,
-				aW: y + rect.top,
-				aU: rect.width,
-				ax: rect.height
+			be: {
+				a3: x + rect.left,
+				a4: y + rect.top,
+				a2: rect.width,
+				aD: rect.height
 			}
 		};
 	});
@@ -4358,6 +4358,89 @@ function _Browser_load(url)
 
 
 
+var _Bitwise_and = F2(function(a, b)
+{
+	return a & b;
+});
+
+var _Bitwise_or = F2(function(a, b)
+{
+	return a | b;
+});
+
+var _Bitwise_xor = F2(function(a, b)
+{
+	return a ^ b;
+});
+
+function _Bitwise_complement(a)
+{
+	return ~a;
+};
+
+var _Bitwise_shiftLeftBy = F2(function(offset, a)
+{
+	return a << offset;
+});
+
+var _Bitwise_shiftRightBy = F2(function(offset, a)
+{
+	return a >> offset;
+});
+
+var _Bitwise_shiftRightZfBy = F2(function(offset, a)
+{
+	return a >>> offset;
+});
+
+
+
+function _Time_now(millisToPosix)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		callback(_Scheduler_succeed(millisToPosix(Date.now())));
+	});
+}
+
+var _Time_setInterval = F2(function(interval, task)
+{
+	return _Scheduler_binding(function(callback)
+	{
+		var id = setInterval(function() { _Scheduler_rawSpawn(task); }, interval);
+		return function() { clearInterval(id); };
+	});
+});
+
+function _Time_here()
+{
+	return _Scheduler_binding(function(callback)
+	{
+		callback(_Scheduler_succeed(
+			A2($elm$time$Time$customZone, -(new Date().getTimezoneOffset()), _List_Nil)
+		));
+	});
+}
+
+
+function _Time_getZoneName()
+{
+	return _Scheduler_binding(function(callback)
+	{
+		try
+		{
+			var name = $elm$time$Time$Name(Intl.DateTimeFormat().resolvedOptions().timeZone);
+		}
+		catch (e)
+		{
+			var name = $elm$time$Time$Offset(new Date().getTimezoneOffset());
+		}
+		callback(_Scheduler_succeed(name));
+	});
+}
+
+
+
 // SEND REQUEST
 
 var _Http_toTask = F3(function(router, toTask, request)
@@ -4365,25 +4448,25 @@ var _Http_toTask = F3(function(router, toTask, request)
 	return _Scheduler_binding(function(callback)
 	{
 		function done(response) {
-			callback(toTask(request.ai.a(response)));
+			callback(toTask(request.ap.a(response)));
 		}
 
 		var xhr = new XMLHttpRequest();
 		xhr.addEventListener('error', function() { done($elm$http$Http$NetworkError_); });
 		xhr.addEventListener('timeout', function() { done($elm$http$Http$Timeout_); });
-		xhr.addEventListener('load', function() { done(_Http_toResponse(request.ai.b, xhr)); });
-		$elm$core$Maybe$isJust(request.bx) && _Http_track(router, xhr, request.bx.a);
+		xhr.addEventListener('load', function() { done(_Http_toResponse(request.ap.b, xhr)); });
+		$elm$core$Maybe$isJust(request.bH) && _Http_track(router, xhr, request.bH.a);
 
 		try {
-			xhr.open(request.bg, request.ap, true);
+			xhr.open(request.bq, request.aw, true);
 		} catch (e) {
-			return done($elm$http$Http$BadUrl_(request.ap));
+			return done($elm$http$Http$BadUrl_(request.aw));
 		}
 
 		_Http_configureRequest(xhr, request);
 
-		request.a$.a && xhr.setRequestHeader('Content-Type', request.a$.a);
-		xhr.send(request.a$.b);
+		request.a9.a && xhr.setRequestHeader('Content-Type', request.a9.a);
+		xhr.send(request.a9.b);
 
 		return function() { xhr.c = true; xhr.abort(); };
 	});
@@ -4394,13 +4477,13 @@ var _Http_toTask = F3(function(router, toTask, request)
 
 function _Http_configureRequest(xhr, request)
 {
-	for (var headers = request.ba; headers.b; headers = headers.b) // WHILE_CONS
+	for (var headers = request.bk; headers.b; headers = headers.b) // WHILE_CONS
 	{
 		xhr.setRequestHeader(headers.a.a, headers.a.b);
 	}
-	xhr.timeout = request.bv.a || 0;
-	xhr.responseType = request.ai.d;
-	xhr.withCredentials = request.aZ;
+	xhr.timeout = request.bF.a || 0;
+	xhr.responseType = request.ap.d;
+	xhr.withCredentials = request.a7;
 }
 
 
@@ -4421,10 +4504,10 @@ function _Http_toResponse(toBody, xhr)
 function _Http_toMetadata(xhr)
 {
 	return {
-		ap: xhr.responseURL,
-		br: xhr.status,
-		bs: xhr.statusText,
-		ba: _Http_parseHeaders(xhr.getAllResponseHeaders())
+		aw: xhr.responseURL,
+		bB: xhr.status,
+		bC: xhr.statusText,
+		bk: _Http_parseHeaders(xhr.getAllResponseHeaders())
 	};
 }
 
@@ -4519,15 +4602,15 @@ function _Http_track(router, xhr, tracker)
 	xhr.upload.addEventListener('progress', function(event) {
 		if (xhr.c) { return; }
 		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Sending({
-			bq: event.loaded,
-			aQ: event.total
+			bA: event.loaded,
+			a_: event.total
 		}))));
 	});
 	xhr.addEventListener('progress', function(event) {
 		if (xhr.c) { return; }
 		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Receiving({
-			bn: event.loaded,
-			aQ: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
+			bx: event.loaded,
+			a_: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
 		}))));
 	});
 }var $elm$core$Maybe$Just = function (a) {
@@ -4936,25 +5019,25 @@ var $elm$core$Array$treeFromBuilder = F2(
 	});
 var $elm$core$Array$builderToArray = F2(
 	function (reverseNodeList, builder) {
-		if (!builder.e) {
+		if (!builder.f) {
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.i),
+				$elm$core$Elm$JsArray$length(builder.j),
 				$elm$core$Array$shiftStep,
 				$elm$core$Elm$JsArray$empty,
-				builder.i);
+				builder.j);
 		} else {
-			var treeLen = builder.e * $elm$core$Array$branchFactor;
+			var treeLen = builder.f * $elm$core$Array$branchFactor;
 			var depth = $elm$core$Basics$floor(
 				A2($elm$core$Basics$logBase, $elm$core$Array$branchFactor, treeLen - 1));
-			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.j) : builder.j;
-			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.e);
+			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.l) : builder.l;
+			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.f);
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.i) + treeLen,
+				$elm$core$Elm$JsArray$length(builder.j) + treeLen,
 				A2($elm$core$Basics$max, 5, depth * $elm$core$Array$shiftStep),
 				tree,
-				builder.i);
+				builder.j);
 		}
 	});
 var $elm$core$Basics$idiv = _Basics_idiv;
@@ -4967,7 +5050,7 @@ var $elm$core$Array$initializeHelp = F5(
 				return A2(
 					$elm$core$Array$builderToArray,
 					false,
-					{j: nodeList, e: (len / $elm$core$Array$branchFactor) | 0, i: tail});
+					{l: nodeList, f: (len / $elm$core$Array$branchFactor) | 0, j: tail});
 			} else {
 				var leaf = $elm$core$Array$Leaf(
 					A3($elm$core$Elm$JsArray$initialize, $elm$core$Array$branchFactor, fromIndex, fn));
@@ -5006,7 +5089,6 @@ var $elm$core$Result$isOk = function (result) {
 	}
 };
 var $elm$json$Json$Decode$andThen = _Json_andThen;
-var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $elm$json$Json$Decode$map = _Json_map1;
 var $elm$json$Json$Decode$map2 = _Json_map2;
 var $elm$json$Json$Decode$succeed = _Json_succeed;
@@ -5036,7 +5118,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {au: fragment, ay: host, aD: path, aF: port_, aI: protocol, aJ: query};
+		return {aA: fragment, aE: host, aJ: path, aL: port_, aO: protocol, aP: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5323,40 +5405,217 @@ var $krisajenkins$remotedata$RemoteData$Success = function (a) {
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $author$project$BracketBuilder$Group = F3(
 	function (id, name, visible) {
-		return {a: id, d: name, ah: visible};
+		return {a: id, d: name, ao: visible};
 	});
 var $author$project$BracketBuilder$emptyBracket = {
 	c: _List_Nil,
-	q: _List_fromArray(
+	n: _List_fromArray(
 		[
-			A3($author$project$BracketBuilder$Group, 0, 'Group 1', true)
+			A3($author$project$BracketBuilder$Group, 1, 'Group 1', true)
 		]),
+	a: $elm$core$Maybe$Nothing,
 	d: 'Playoff Bracket'
 };
+var $author$project$BracketBuilder$GenerateNextGameId = function (a) {
+	return {$: 0, a: a};
+};
+var $elm$random$Random$Generate = $elm$core$Basics$identity;
+var $elm$random$Random$Seed = F2(
+	function (a, b) {
+		return {$: 0, a: a, b: b};
+	});
+var $elm$core$Bitwise$shiftRightZfBy = _Bitwise_shiftRightZfBy;
+var $elm$random$Random$next = function (_v0) {
+	var state0 = _v0.a;
+	var incr = _v0.b;
+	return A2($elm$random$Random$Seed, ((state0 * 1664525) + incr) >>> 0, incr);
+};
+var $elm$random$Random$initialSeed = function (x) {
+	var _v0 = $elm$random$Random$next(
+		A2($elm$random$Random$Seed, 0, 1013904223));
+	var state1 = _v0.a;
+	var incr = _v0.b;
+	var state2 = (state1 + x) >>> 0;
+	return $elm$random$Random$next(
+		A2($elm$random$Random$Seed, state2, incr));
+};
+var $elm$time$Time$Name = function (a) {
+	return {$: 0, a: a};
+};
+var $elm$time$Time$Offset = function (a) {
+	return {$: 1, a: a};
+};
+var $elm$time$Time$Zone = F2(
+	function (a, b) {
+		return {$: 0, a: a, b: b};
+	});
+var $elm$time$Time$customZone = $elm$time$Time$Zone;
+var $elm$time$Time$Posix = $elm$core$Basics$identity;
+var $elm$time$Time$millisToPosix = $elm$core$Basics$identity;
+var $elm$time$Time$now = _Time_now($elm$time$Time$millisToPosix);
+var $elm$time$Time$posixToMillis = function (_v0) {
+	var millis = _v0;
+	return millis;
+};
+var $elm$random$Random$init = A2(
+	$elm$core$Task$andThen,
+	function (time) {
+		return $elm$core$Task$succeed(
+			$elm$random$Random$initialSeed(
+				$elm$time$Time$posixToMillis(time)));
+	},
+	$elm$time$Time$now);
+var $elm$random$Random$step = F2(
+	function (_v0, seed) {
+		var generator = _v0;
+		return generator(seed);
+	});
+var $elm$random$Random$onEffects = F3(
+	function (router, commands, seed) {
+		if (!commands.b) {
+			return $elm$core$Task$succeed(seed);
+		} else {
+			var generator = commands.a;
+			var rest = commands.b;
+			var _v1 = A2($elm$random$Random$step, generator, seed);
+			var value = _v1.a;
+			var newSeed = _v1.b;
+			return A2(
+				$elm$core$Task$andThen,
+				function (_v2) {
+					return A3($elm$random$Random$onEffects, router, rest, newSeed);
+				},
+				A2($elm$core$Platform$sendToApp, router, value));
+		}
+	});
+var $elm$random$Random$onSelfMsg = F3(
+	function (_v0, _v1, seed) {
+		return $elm$core$Task$succeed(seed);
+	});
+var $elm$random$Random$Generator = $elm$core$Basics$identity;
+var $elm$random$Random$map = F2(
+	function (func, _v0) {
+		var genA = _v0;
+		return function (seed0) {
+			var _v1 = genA(seed0);
+			var a = _v1.a;
+			var seed1 = _v1.b;
+			return _Utils_Tuple2(
+				func(a),
+				seed1);
+		};
+	});
+var $elm$random$Random$cmdMap = F2(
+	function (func, _v0) {
+		var generator = _v0;
+		return A2($elm$random$Random$map, func, generator);
+	});
+_Platform_effectManagers['Random'] = _Platform_createManager($elm$random$Random$init, $elm$random$Random$onEffects, $elm$random$Random$onSelfMsg, $elm$random$Random$cmdMap);
+var $elm$random$Random$command = _Platform_leaf('Random');
+var $elm$random$Random$generate = F2(
+	function (tagger, generator) {
+		return $elm$random$Random$command(
+			A2($elm$random$Random$map, tagger, generator));
+	});
+var $elm$core$Bitwise$and = _Bitwise_and;
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $elm$core$Bitwise$xor = _Bitwise_xor;
+var $elm$random$Random$peel = function (_v0) {
+	var state = _v0.a;
+	var word = (state ^ (state >>> ((state >>> 28) + 4))) * 277803737;
+	return ((word >>> 22) ^ word) >>> 0;
+};
+var $elm$random$Random$int = F2(
+	function (a, b) {
+		return function (seed0) {
+			var _v0 = (_Utils_cmp(a, b) < 0) ? _Utils_Tuple2(a, b) : _Utils_Tuple2(b, a);
+			var lo = _v0.a;
+			var hi = _v0.b;
+			var range = (hi - lo) + 1;
+			if (!((range - 1) & range)) {
+				return _Utils_Tuple2(
+					(((range - 1) & $elm$random$Random$peel(seed0)) >>> 0) + lo,
+					$elm$random$Random$next(seed0));
+			} else {
+				var threshhold = (((-range) >>> 0) % range) >>> 0;
+				var accountForBias = function (seed) {
+					accountForBias:
+					while (true) {
+						var x = $elm$random$Random$peel(seed);
+						var seedN = $elm$random$Random$next(seed);
+						if (_Utils_cmp(x, threshhold) < 0) {
+							var $temp$seed = seedN;
+							seed = $temp$seed;
+							continue accountForBias;
+						} else {
+							return _Utils_Tuple2((x % range) + lo, seedN);
+						}
+					}
+				};
+				return accountForBias(seed0);
+			}
+		};
+	});
+var $elm$random$Random$map3 = F4(
+	function (func, _v0, _v1, _v2) {
+		var genA = _v0;
+		var genB = _v1;
+		var genC = _v2;
+		return function (seed0) {
+			var _v3 = genA(seed0);
+			var a = _v3.a;
+			var seed1 = _v3.b;
+			var _v4 = genB(seed1);
+			var b = _v4.a;
+			var seed2 = _v4.b;
+			var _v5 = genC(seed2);
+			var c = _v5.a;
+			var seed3 = _v5.b;
+			return _Utils_Tuple2(
+				A3(func, a, b, c),
+				seed3);
+		};
+	});
+var $elm$core$Bitwise$or = _Bitwise_or;
+var $elm$random$Random$independentSeed = function (seed0) {
+	var makeIndependentSeed = F3(
+		function (state, b, c) {
+			return $elm$random$Random$next(
+				A2($elm$random$Random$Seed, state, (1 | (b ^ c)) >>> 0));
+		});
+	var gen = A2($elm$random$Random$int, 0, 4294967295);
+	return A2(
+		$elm$random$Random$step,
+		A4($elm$random$Random$map3, makeIndependentSeed, gen, gen, gen),
+		seed0);
+};
+var $author$project$BracketBuilder$generateNextGameId = A2($elm$random$Random$generate, $author$project$BracketBuilder$GenerateNextGameId, $elm$random$Random$independentSeed);
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging = {$: 0};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$init = $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging;
 var $author$project$BracketBuilder$ReceivedBracketFromServer = function (a) {
-	return {$: 21, a: a};
+	return {$: 22, a: a};
 };
-var $author$project$BracketBuilder$Bracket = F3(
-	function (name, groups, games) {
-		return {c: games, q: groups, d: name};
+var $author$project$BracketBuilder$Bracket = F4(
+	function (id, name, groups, games) {
+		return {c: games, n: groups, a: id, d: name};
 	});
 var $author$project$BracketBuilder$Coords = F3(
 	function (groupId, col, row) {
-		return {L: col, V: groupId, O: row};
+		return {N: col, V: groupId, P: row};
 	});
 var $author$project$BracketBuilder$Game = F4(
-	function (id, name, coords, gamePositions) {
-		return {m: coords, n: gamePositions, a: id, d: name};
-	});
-var $author$project$BracketBuilder$GamePosition = F3(
-	function (position, firstHammer, assignment) {
-		return {l: assignment, at: firstHammer, Z: position};
+	function (id, name, coords, sides) {
+		return {o: coords, a: id, d: name, g: sides};
 	});
 var $author$project$BracketBuilder$LoserAssignment = function (a) {
 	return {$: 2, a: a};
 };
+var $author$project$BracketBuilder$Side = F2(
+	function (position, assignment) {
+		return {k: assignment, K: position};
+	});
 var $author$project$BracketBuilder$TeamAssignment = function (a) {
 	return {$: 0, a: a};
 };
@@ -5378,7 +5637,7 @@ var $elm$json$Json$Decode$maybe = function (decoder) {
 };
 var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$BracketBuilder$gameDecoder = function () {
-	var gamePositionDecoder = function () {
+	var sideDecoder = function () {
 		var assignmentDecoder = $elm$json$Json$Decode$oneOf(
 			_List_fromArray(
 				[
@@ -5389,17 +5648,16 @@ var $author$project$BracketBuilder$gameDecoder = function () {
 					A2(
 					$elm$json$Json$Decode$map,
 					$author$project$BracketBuilder$WinnerAssignment,
-					A2($elm$json$Json$Decode$field, 'winner_id', $elm$json$Json$Decode$int)),
+					A2($elm$json$Json$Decode$field, 'winner_id', $elm$json$Json$Decode$string)),
 					A2(
 					$elm$json$Json$Decode$map,
 					$author$project$BracketBuilder$LoserAssignment,
-					A2($elm$json$Json$Decode$field, 'loser_id', $elm$json$Json$Decode$int))
+					A2($elm$json$Json$Decode$field, 'loser_id', $elm$json$Json$Decode$string))
 				]));
-		return A4(
-			$elm$json$Json$Decode$map3,
-			$author$project$BracketBuilder$GamePosition,
+		return A3(
+			$elm$json$Json$Decode$map2,
+			$author$project$BracketBuilder$Side,
 			A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$int),
-			A2($elm$json$Json$Decode$field, 'first_hammer', $elm$json$Json$Decode$bool),
 			$elm$json$Json$Decode$maybe(assignmentDecoder));
 	}();
 	var coordsDecoder = A4(
@@ -5411,14 +5669,14 @@ var $author$project$BracketBuilder$gameDecoder = function () {
 	return A5(
 		$elm$json$Json$Decode$map4,
 		$author$project$BracketBuilder$Game,
-		A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int),
+		A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string),
 		$elm$json$Json$Decode$maybe(
 			A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string)),
 		A2($elm$json$Json$Decode$field, 'coords', coordsDecoder),
 		A2(
 			$elm$json$Json$Decode$field,
 			'game_positions',
-			$elm$json$Json$Decode$list(gamePositionDecoder)));
+			$elm$json$Json$Decode$list(sideDecoder)));
 }();
 var $author$project$BracketBuilder$groupDecoder = A4(
 	$elm$json$Json$Decode$map3,
@@ -5426,9 +5684,11 @@ var $author$project$BracketBuilder$groupDecoder = A4(
 	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
 	$elm$json$Json$Decode$succeed(true));
-var $author$project$BracketBuilder$bracketDecoder = A4(
-	$elm$json$Json$Decode$map3,
+var $author$project$BracketBuilder$bracketDecoder = A5(
+	$elm$json$Json$Decode$map4,
 	$author$project$BracketBuilder$Bracket,
+	$elm$json$Json$Decode$maybe(
+		A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int)),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
 	A2(
 		$elm$json$Json$Decode$field,
@@ -6030,7 +6290,7 @@ var $elm$http$Http$resolve = F2(
 			case 3:
 				var metadata = response.a;
 				return $elm$core$Result$Err(
-					$elm$http$Http$BadStatus(metadata.br));
+					$elm$http$Http$BadStatus(metadata.bB));
 			default:
 				var body = response.b;
 				return A2(
@@ -6070,7 +6330,7 @@ var $elm$http$Http$Request = function (a) {
 };
 var $elm$http$Http$State = F2(
 	function (reqs, subs) {
-		return {aL: reqs, aR: subs};
+		return {aR: reqs, a$: subs};
 	});
 var $elm$http$Http$init = $elm$core$Task$succeed(
 	A2($elm$http$Http$State, $elm$core$Dict$empty, _List_Nil));
@@ -6114,7 +6374,7 @@ var $elm$http$Http$updateReqs = F3(
 					return A2(
 						$elm$core$Task$andThen,
 						function (pid) {
-							var _v4 = req.bx;
+							var _v4 = req.bH;
 							if (_v4.$ === 1) {
 								return A3($elm$http$Http$updateReqs, router, otherCmds, reqs);
 							} else {
@@ -6144,7 +6404,7 @@ var $elm$http$Http$onEffects = F4(
 				return $elm$core$Task$succeed(
 					A2($elm$http$Http$State, reqs, subs));
 			},
-			A3($elm$http$Http$updateReqs, router, cmds, state.aL));
+			A3($elm$http$Http$updateReqs, router, cmds, state.aR));
 	});
 var $elm$core$List$maybeCons = F3(
 	function (f, mx, xs) {
@@ -6187,7 +6447,7 @@ var $elm$http$Http$onSelfMsg = F3(
 				A2(
 					$elm$core$List$filterMap,
 					A3($elm$http$Http$maybeSend, router, tracker, progress),
-					state.aR)));
+					state.a$)));
 	});
 var $elm$http$Http$Cancel = function (a) {
 	return {$: 0, a: a};
@@ -6201,14 +6461,14 @@ var $elm$http$Http$cmdMap = F2(
 			var r = cmd.a;
 			return $elm$http$Http$Request(
 				{
-					aZ: r.aZ,
-					a$: r.a$,
-					ai: A2(_Http_mapExpect, func, r.ai),
-					ba: r.ba,
-					bg: r.bg,
-					bv: r.bv,
-					bx: r.bx,
-					ap: r.ap
+					a7: r.a7,
+					a9: r.a9,
+					ap: A2(_Http_mapExpect, func, r.ap),
+					bk: r.bk,
+					bq: r.bq,
+					bF: r.bF,
+					bH: r.bH,
+					aw: r.aw
 				});
 		}
 	});
@@ -6231,17 +6491,14 @@ var $elm$http$Http$subscription = _Platform_leaf('Http');
 var $elm$http$Http$request = function (r) {
 	return $elm$http$Http$command(
 		$elm$http$Http$Request(
-			{aZ: false, a$: r.a$, ai: r.ai, ba: r.ba, bg: r.bg, bv: r.bv, bx: r.bx, ap: r.ap}));
+			{a7: false, a9: r.a9, ap: r.ap, bk: r.bk, bq: r.bq, bF: r.bF, bH: r.bH, aw: r.aw}));
 };
 var $elm$http$Http$get = function (r) {
 	return $elm$http$Http$request(
-		{a$: $elm$http$Http$emptyBody, ai: r.ai, ba: _List_Nil, bg: 'GET', bv: $elm$core$Maybe$Nothing, bx: $elm$core$Maybe$Nothing, ap: r.ap});
+		{a9: $elm$http$Http$emptyBody, ap: r.ap, bk: _List_Nil, bq: 'GET', bF: $elm$core$Maybe$Nothing, bH: $elm$core$Maybe$Nothing, aw: r.aw});
 };
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $author$project$BracketBuilder$requestBracketFromLocalStorage = _Platform_outgoingPort('requestBracketFromLocalStorage', $elm$json$Json$Encode$string);
 var $author$project$BracketBuilder$loadBracket = function (_v0) {
-	var demoMode = _v0.M;
-	var baseUrl = _v0.S;
+	var baseUrl = _v0.T;
 	var id = _v0.a;
 	var bracketUrl = function () {
 		if (!id.$) {
@@ -6253,18 +6510,17 @@ var $author$project$BracketBuilder$loadBracket = function (_v0) {
 	}();
 	var requestBracketFromServer = $elm$http$Http$get(
 		{
-			ai: A2(
+			ap: A2(
 				$elm$http$Http$expectJson,
 				A2($elm$core$Basics$composeR, $krisajenkins$remotedata$RemoteData$fromResult, $author$project$BracketBuilder$ReceivedBracketFromServer),
 				$author$project$BracketBuilder$bracketDecoder),
-			ap: bracketUrl
+			aw: bracketUrl
 		});
-	return demoMode ? $author$project$BracketBuilder$requestBracketFromLocalStorage('') : requestBracketFromServer;
+	return requestBracketFromServer;
 };
 var $author$project$BracketBuilder$ReceivedTeamsFromServer = function (a) {
-	return {$: 20, a: a};
+	return {$: 21, a: a};
 };
-var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$BracketBuilder$Team = F2(
 	function (id, name) {
 		return {a: id, d: name};
@@ -6273,22 +6529,21 @@ var $author$project$BracketBuilder$teamDecoder = A3(
 	$elm$json$Json$Decode$map2,
 	$author$project$BracketBuilder$Team,
 	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int),
-	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string));
+	A2($elm$json$Json$Decode$field, 'short_name', $elm$json$Json$Decode$string));
 var $author$project$BracketBuilder$teamsDecoder = $elm$json$Json$Decode$list($author$project$BracketBuilder$teamDecoder);
 var $author$project$BracketBuilder$loadTeams = function (_v0) {
-	var demoMode = _v0.M;
-	var baseUrl = _v0.S;
+	var baseUrl = _v0.T;
 	var teamsUrl = baseUrl + 'teams';
-	var requestTeamsFromServer = $elm$http$Http$get(
+	return $elm$http$Http$get(
 		{
-			ai: A2(
+			ap: A2(
 				$elm$http$Http$expectJson,
 				A2($elm$core$Basics$composeR, $krisajenkins$remotedata$RemoteData$fromResult, $author$project$BracketBuilder$ReceivedTeamsFromServer),
 				$author$project$BracketBuilder$teamsDecoder),
-			ap: teamsUrl
+			aw: teamsUrl
 		});
-	return demoMode ? $elm$core$Platform$Cmd$none : requestTeamsFromServer;
 };
+var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$BracketBuilder$init = function (flags) {
 	return _Utils_Tuple2(
 		{
@@ -6300,11 +6555,12 @@ var $author$project$BracketBuilder$init = function (flags) {
 					return $krisajenkins$remotedata$RemoteData$Success($author$project$BracketBuilder$emptyBracket);
 				}
 			}(),
-			g: false,
-			G: $norpan$elm_html5_drag_drop$Html5$DragDrop$init,
-			T: flags,
-			h: $elm$core$Maybe$Nothing,
-			aa: $krisajenkins$remotedata$RemoteData$Loading
+			i: false,
+			H: $norpan$elm_html5_drag_drop$Html5$DragDrop$init,
+			ai: flags,
+			aj: $elm$core$Maybe$Nothing,
+			e: $elm$core$Maybe$Nothing,
+			_: $krisajenkins$remotedata$RemoteData$Loading
 		},
 		$elm$core$Platform$Cmd$batch(
 			_List_fromArray(
@@ -6317,17 +6573,15 @@ var $author$project$BracketBuilder$init = function (flags) {
 					} else {
 						return $elm$core$Platform$Cmd$none;
 					}
-				}()
+				}(),
+					$author$project$BracketBuilder$generateNextGameId
 				])));
 };
 var $elm$json$Json$Decode$null = _Json_decodeNull;
-var $author$project$BracketBuilder$ReceivedBracketFromLocalStorage = function (a) {
-	return {$: 22, a: a};
-};
-var $elm$json$Json$Decode$value = _Json_decodeValue;
-var $author$project$BracketBuilder$receiveBracketFromLocalStorage = _Platform_incomingPort('receiveBracketFromLocalStorage', $elm$json$Json$Decode$value);
-var $author$project$BracketBuilder$subscriptions = function (model) {
-	return $author$project$BracketBuilder$receiveBracketFromLocalStorage($author$project$BracketBuilder$ReceivedBracketFromLocalStorage);
+var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
+var $author$project$BracketBuilder$subscriptions = function (_v0) {
+	return $elm$core$Platform$Sub$none;
 };
 var $author$project$BracketBuilder$ClearConfirmation = {$: 4};
 var $author$project$BracketBuilder$EditingBracketName = {$: 0};
@@ -6338,255 +6592,25 @@ var $author$project$BracketBuilder$EditingGroup = function (a) {
 	return {$: 1, a: a};
 };
 var $author$project$BracketBuilder$RevertConfirmation = {$: 3};
-var $author$project$BracketBuilder$connectGameResult = F3(
-	function (games, assignment, _v0) {
-		var toGameId = _v0.a;
-		var toPosition = _v0.b;
-		var unassignedGamePosition = function (gamePosition) {
+var $author$project$BracketBuilder$clearAssignmentFromAllGames = F2(
+	function (games, assignment) {
+		var unassignedSide = function (side) {
 			return _Utils_eq(
-				gamePosition.l,
+				side.k,
 				$elm$core$Maybe$Just(assignment)) ? _Utils_update(
-				gamePosition,
-				{l: $elm$core$Maybe$Nothing}) : gamePosition;
+				side,
+				{k: $elm$core$Maybe$Nothing}) : side;
 		};
 		var unassignedGame = function (game) {
 			return _Utils_update(
 				game,
 				{
-					n: A2($elm$core$List$map, unassignedGamePosition, game.n)
+					g: A2($elm$core$List$map, unassignedSide, game.g)
 				});
 		};
-		var assignedGamePosition = function (gamePosition) {
-			return _Utils_eq(gamePosition.Z, toPosition) ? _Utils_update(
-				gamePosition,
-				{
-					l: $elm$core$Maybe$Just(assignment)
-				}) : gamePosition;
-		};
-		var assignedGame = function (game) {
-			return _Utils_eq(game.a, toGameId) ? _Utils_update(
-				game,
-				{
-					n: A2($elm$core$List$map, assignedGamePosition, game.n)
-				}) : game;
-		};
-		return A2(
-			$elm$core$List$map,
-			assignedGame,
-			A2($elm$core$List$map, unassignedGame, games));
+		return A2($elm$core$List$map, unassignedGame, games);
 	});
 var $elm$json$Json$Decode$decodeValue = _Json_run;
-var $author$project$BracketBuilder$demoBracket = {
-	c: _List_fromArray(
-		[
-			A4(
-			$author$project$BracketBuilder$Game,
-			1,
-			$elm$core$Maybe$Just('A1'),
-			A3($author$project$BracketBuilder$Coords, 0, 0, 0),
-			_List_fromArray(
-				[
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					0,
-					false,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$TeamAssignment(1))),
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					1,
-					true,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$TeamAssignment(2)))
-				])),
-			A4(
-			$author$project$BracketBuilder$Game,
-			2,
-			$elm$core$Maybe$Just('A2'),
-			A3($author$project$BracketBuilder$Coords, 0, 0, 2),
-			_List_fromArray(
-				[
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					0,
-					false,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$TeamAssignment(3))),
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					1,
-					true,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$TeamAssignment(4)))
-				])),
-			A4(
-			$author$project$BracketBuilder$Game,
-			3,
-			$elm$core$Maybe$Just('A3'),
-			A3($author$project$BracketBuilder$Coords, 0, 0, 4),
-			_List_fromArray(
-				[
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					0,
-					false,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$TeamAssignment(5))),
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					1,
-					true,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$TeamAssignment(6)))
-				])),
-			A4(
-			$author$project$BracketBuilder$Game,
-			4,
-			$elm$core$Maybe$Just('A4'),
-			A3($author$project$BracketBuilder$Coords, 0, 0, 6),
-			_List_fromArray(
-				[
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					0,
-					false,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$TeamAssignment(7))),
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					1,
-					true,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$TeamAssignment(8)))
-				])),
-			A4(
-			$author$project$BracketBuilder$Game,
-			5,
-			$elm$core$Maybe$Just('A Semi-Final 1'),
-			A3($author$project$BracketBuilder$Coords, 0, 5, 1),
-			_List_fromArray(
-				[
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					0,
-					false,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$WinnerAssignment(1))),
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					1,
-					true,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$WinnerAssignment(2)))
-				])),
-			A4(
-			$author$project$BracketBuilder$Game,
-			6,
-			$elm$core$Maybe$Just('A Semi-Final 2'),
-			A3($author$project$BracketBuilder$Coords, 0, 5, 5),
-			_List_fromArray(
-				[
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					0,
-					false,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$WinnerAssignment(3))),
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					1,
-					true,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$WinnerAssignment(4)))
-				])),
-			A4(
-			$author$project$BracketBuilder$Game,
-			7,
-			$elm$core$Maybe$Just('A Final'),
-			A3($author$project$BracketBuilder$Coords, 0, 10, 3),
-			_List_fromArray(
-				[
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					0,
-					false,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$WinnerAssignment(5))),
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					1,
-					true,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$WinnerAssignment(6)))
-				])),
-			A4(
-			$author$project$BracketBuilder$Game,
-			8,
-			$elm$core$Maybe$Just('B1'),
-			A3($author$project$BracketBuilder$Coords, 1, 0, 0),
-			_List_fromArray(
-				[
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					0,
-					false,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$LoserAssignment(1))),
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					1,
-					true,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$LoserAssignment(2)))
-				])),
-			A4(
-			$author$project$BracketBuilder$Game,
-			9,
-			$elm$core$Maybe$Just('B2'),
-			A3($author$project$BracketBuilder$Coords, 1, 0, 2),
-			_List_fromArray(
-				[
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					0,
-					false,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$LoserAssignment(3))),
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					1,
-					true,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$LoserAssignment(4)))
-				])),
-			A4(
-			$author$project$BracketBuilder$Game,
-			10,
-			$elm$core$Maybe$Just('B Final'),
-			A3($author$project$BracketBuilder$Coords, 1, 5, 1),
-			_List_fromArray(
-				[
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					0,
-					false,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$WinnerAssignment(8))),
-					A3(
-					$author$project$BracketBuilder$GamePosition,
-					1,
-					true,
-					$elm$core$Maybe$Just(
-						$author$project$BracketBuilder$WinnerAssignment(9)))
-				]))
-		]),
-	q: _List_fromArray(
-		[
-			A3($author$project$BracketBuilder$Group, 0, 'A Event', true),
-			A3($author$project$BracketBuilder$Group, 1, 'B Event', true)
-		]),
-	d: 'Playoff Bracket'
-};
 var $author$project$BracketBuilder$dragstart = _Platform_outgoingPort('dragstart', $elm$core$Basics$identity);
 var $elm_community$list_extra$List$Extra$find = F2(
 	function (predicate, list) {
@@ -6614,16 +6638,84 @@ var $author$project$BracketBuilder$findGameByCoords = F2(
 		return A2(
 			$elm_community$list_extra$List$Extra$find,
 			function (game) {
-				return _Utils_eq(game.m, coords);
+				return _Utils_eq(game.o, coords);
 			},
 			games);
 	});
+var $TSFoster$elm_uuid$UUID$UUID = F4(
+	function (a, b, c, d) {
+		return {$: 0, a: a, b: b, c: c, d: d};
+	});
+var $elm$random$Random$map4 = F5(
+	function (func, _v0, _v1, _v2, _v3) {
+		var genA = _v0;
+		var genB = _v1;
+		var genC = _v2;
+		var genD = _v3;
+		return function (seed0) {
+			var _v4 = genA(seed0);
+			var a = _v4.a;
+			var seed1 = _v4.b;
+			var _v5 = genB(seed1);
+			var b = _v5.a;
+			var seed2 = _v5.b;
+			var _v6 = genC(seed2);
+			var c = _v6.a;
+			var seed3 = _v6.b;
+			var _v7 = genD(seed3);
+			var d = _v7.a;
+			var seed4 = _v7.b;
+			return _Utils_Tuple2(
+				A4(func, a, b, c, d),
+				seed4);
+		};
+	});
+var $TSFoster$elm_uuid$UUID$forceUnsigned = $elm$core$Bitwise$shiftRightZfBy(0);
+var $elm$random$Random$maxInt = 2147483647;
+var $elm$random$Random$minInt = -2147483648;
+var $TSFoster$elm_uuid$UUID$randomU32 = A2(
+	$elm$random$Random$map,
+	$TSFoster$elm_uuid$UUID$forceUnsigned,
+	A2($elm$random$Random$int, $elm$random$Random$minInt, $elm$random$Random$maxInt));
+var $TSFoster$elm_uuid$UUID$toVariant1 = function (_v0) {
+	var a = _v0.a;
+	var b = _v0.b;
+	var c = _v0.c;
+	var d = _v0.d;
+	return A4(
+		$TSFoster$elm_uuid$UUID$UUID,
+		a,
+		b,
+		$TSFoster$elm_uuid$UUID$forceUnsigned(2147483648 | (1073741823 & c)),
+		d);
+};
+var $elm$core$Bitwise$shiftLeftBy = _Bitwise_shiftLeftBy;
+var $TSFoster$elm_uuid$UUID$toVersion = F2(
+	function (v, _v0) {
+		var a = _v0.a;
+		var b = _v0.b;
+		var c = _v0.c;
+		var d = _v0.d;
+		return A4(
+			$TSFoster$elm_uuid$UUID$UUID,
+			a,
+			$TSFoster$elm_uuid$UUID$forceUnsigned((v << 12) | (4294905855 & b)),
+			c,
+			d);
+	});
+var $TSFoster$elm_uuid$UUID$generator = A2(
+	$elm$random$Random$map,
+	A2(
+		$elm$core$Basics$composeR,
+		$TSFoster$elm_uuid$UUID$toVersion(4),
+		$TSFoster$elm_uuid$UUID$toVariant1),
+	A5($elm$random$Random$map4, $TSFoster$elm_uuid$UUID$UUID, $TSFoster$elm_uuid$UUID$randomU32, $TSFoster$elm_uuid$UUID$randomU32, $TSFoster$elm_uuid$UUID$randomU32, $TSFoster$elm_uuid$UUID$randomU32));
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragstartEvent = function (msg) {
 	if (!msg.$) {
 		var dragId = msg.a;
 		var event = msg.b;
 		return $elm$core$Maybe$Just(
-			{a3: dragId, a5: event});
+			{bd: dragId, bf: event});
 	} else {
 		return $elm$core$Maybe$Nothing;
 	}
@@ -6664,82 +6756,6 @@ var $krisajenkins$remotedata$RemoteData$map = F2(
 				return $krisajenkins$remotedata$RemoteData$Failure(error);
 		}
 	});
-var $krisajenkins$remotedata$RemoteData$andMap = F2(
-	function (wrappedValue, wrappedFunction) {
-		var _v0 = _Utils_Tuple2(wrappedFunction, wrappedValue);
-		_v0$2:
-		while (true) {
-			_v0$3:
-			while (true) {
-				_v0$4:
-				while (true) {
-					_v0$5:
-					while (true) {
-						switch (_v0.a.$) {
-							case 3:
-								switch (_v0.b.$) {
-									case 3:
-										var f = _v0.a.a;
-										var value = _v0.b.a;
-										return $krisajenkins$remotedata$RemoteData$Success(
-											f(value));
-									case 2:
-										break _v0$2;
-									case 1:
-										break _v0$4;
-									default:
-										var _v4 = _v0.b;
-										return $krisajenkins$remotedata$RemoteData$NotAsked;
-								}
-							case 2:
-								var error = _v0.a.a;
-								return $krisajenkins$remotedata$RemoteData$Failure(error);
-							case 1:
-								switch (_v0.b.$) {
-									case 2:
-										break _v0$2;
-									case 1:
-										break _v0$3;
-									case 0:
-										break _v0$3;
-									default:
-										break _v0$3;
-								}
-							default:
-								switch (_v0.b.$) {
-									case 2:
-										break _v0$2;
-									case 1:
-										break _v0$4;
-									case 0:
-										break _v0$5;
-									default:
-										break _v0$5;
-								}
-						}
-					}
-					var _v3 = _v0.a;
-					return $krisajenkins$remotedata$RemoteData$NotAsked;
-				}
-				var _v2 = _v0.b;
-				return $krisajenkins$remotedata$RemoteData$Loading;
-			}
-			var _v1 = _v0.a;
-			return $krisajenkins$remotedata$RemoteData$Loading;
-		}
-		var error = _v0.b.a;
-		return $krisajenkins$remotedata$RemoteData$Failure(error);
-	});
-var $krisajenkins$remotedata$RemoteData$map2 = F3(
-	function (f, a, b) {
-		return A2(
-			$krisajenkins$remotedata$RemoteData$andMap,
-			b,
-			A2($krisajenkins$remotedata$RemoteData$map, f, a));
-	});
-var $elm$core$Basics$negate = function (n) {
-	return -n;
-};
 var $elm$core$Basics$not = _Basics_not;
 var $elm_community$list_extra$List$Extra$remove = F2(
 	function (x, xs) {
@@ -6755,9 +6771,14 @@ var $elm_community$list_extra$List$Extra$remove = F2(
 		}
 	});
 var $author$project$BracketBuilder$Saved = function (a) {
-	return {$: 17, a: a};
+	return {$: 18, a: a};
 };
-var $elm$json$Json$Encode$bool = _Json_wrap;
+var $elm$http$Http$jsonBody = function (value) {
+	return A2(
+		_Http_pair,
+		'application/json',
+		A2($elm$json$Json$Encode$encode, 0, value));
+};
 var $elm$json$Json$Encode$int = _Json_wrap;
 var $elm$json$Json$Encode$list = F2(
 	function (func, entries) {
@@ -6782,9 +6803,10 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(0),
 			pairs));
 };
+var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$BracketBuilder$gamesEncoder = function (games) {
 	var gameEncoder = function (game) {
-		var gamePositionEncoder = function (gamePosition) {
+		var sideEncoder = function (side) {
 			var encodeAssignmentId = F2(
 				function (assignmentField, assignment) {
 					var _v1 = _Utils_Tuple2(assignmentField, assignment);
@@ -6802,14 +6824,14 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 								case 1:
 									if (_v1.a === 'winner_id') {
 										var id = _v1.b.a.a;
-										return $elm$json$Json$Encode$int(id);
+										return $elm$json$Json$Encode$string(id);
 									} else {
 										break _v1$3;
 									}
 								default:
 									if (_v1.a === 'loser_id') {
 										var id = _v1.b.a.a;
-										return $elm$json$Json$Encode$int(id);
+										return $elm$json$Json$Encode$string(id);
 									} else {
 										break _v1$3;
 									}
@@ -6825,19 +6847,16 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 					[
 						_Utils_Tuple2(
 						'position',
-						$elm$json$Json$Encode$int(gamePosition.Z)),
-						_Utils_Tuple2(
-						'first_hammer',
-						$elm$json$Json$Encode$bool(gamePosition.at)),
+						$elm$json$Json$Encode$int(side.K)),
 						_Utils_Tuple2(
 						'team_id',
-						A2(encodeAssignmentId, 'team_id', gamePosition.l)),
+						A2(encodeAssignmentId, 'team_id', side.k)),
 						_Utils_Tuple2(
 						'winner_id',
-						A2(encodeAssignmentId, 'winner_id', gamePosition.l)),
+						A2(encodeAssignmentId, 'winner_id', side.k)),
 						_Utils_Tuple2(
 						'loser_id',
-						A2(encodeAssignmentId, 'loser_id', gamePosition.l))
+						A2(encodeAssignmentId, 'loser_id', side.k))
 					]));
 		};
 		var coordsEncoder = function (coords) {
@@ -6849,10 +6868,10 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 						$elm$json$Json$Encode$int(coords.V)),
 						_Utils_Tuple2(
 						'col',
-						$elm$json$Json$Encode$int(coords.L)),
+						$elm$json$Json$Encode$int(coords.N)),
 						_Utils_Tuple2(
 						'row',
-						$elm$json$Json$Encode$int(coords.O))
+						$elm$json$Json$Encode$int(coords.P))
 					]));
 		};
 		return $elm$json$Json$Encode$object(
@@ -6860,7 +6879,7 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 				[
 					_Utils_Tuple2(
 					'id',
-					$elm$json$Json$Encode$int(game.a)),
+					$elm$json$Json$Encode$string(game.a)),
 					_Utils_Tuple2(
 					'name',
 					function () {
@@ -6874,10 +6893,10 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 					}()),
 					_Utils_Tuple2(
 					'game_positions',
-					A2($elm$json$Json$Encode$list, gamePositionEncoder, game.n)),
+					A2($elm$json$Json$Encode$list, sideEncoder, game.g)),
 					_Utils_Tuple2(
 					'coords',
-					coordsEncoder(game.m))
+					coordsEncoder(game.o))
 				]));
 	};
 	return A2($elm$json$Json$Encode$list, gameEncoder, games);
@@ -6902,63 +6921,206 @@ var $author$project$BracketBuilder$bracketEncoder = function (bracket) {
 		_List_fromArray(
 			[
 				_Utils_Tuple2(
-				'name',
+				'id',
+				function () {
+					var _v0 = bracket.a;
+					if (!_v0.$) {
+						var id = _v0.a;
+						return $elm$json$Json$Encode$int(id);
+					} else {
+						return $elm$json$Json$Encode$null;
+					}
+				}()),
+				_Utils_Tuple2(
+				'name_en',
 				$elm$json$Json$Encode$string(bracket.d)),
 				_Utils_Tuple2(
 				'groups',
-				$author$project$BracketBuilder$groupsEncoder(bracket.q)),
+				$author$project$BracketBuilder$groupsEncoder(bracket.n)),
 				_Utils_Tuple2(
 				'games',
 				$author$project$BracketBuilder$gamesEncoder(bracket.c))
 			]));
 };
-var $elm$http$Http$jsonBody = function (value) {
-	return A2(
-		_Http_pair,
-		'application/json',
-		A2($elm$json$Json$Encode$encode, 0, value));
+var $author$project$BracketBuilder$wrapperEncoder = function (bracket) {
+	return $elm$json$Json$Encode$object(
+		_List_fromArray(
+			[
+				_Utils_Tuple2(
+				'bracket',
+				$author$project$BracketBuilder$bracketEncoder(bracket))
+			]));
 };
-var $author$project$BracketBuilder$sendBracketToLocalStorage = _Platform_outgoingPort('sendBracketToLocalStorage', $elm$core$Basics$identity);
 var $author$project$BracketBuilder$saveBracket = F2(
 	function (_v0, bracketResult) {
-		var demoMode = _v0.M;
-		var baseUrl = _v0.S;
+		var baseUrl = _v0.T;
 		var id = _v0.a;
 		var bracketUrl = function () {
 			if (!id.$) {
 				var id_ = id.a;
 				return baseUrl + ('brackets/' + $elm$core$String$fromInt(id_));
 			} else {
-				return baseUrl + 'brackets/';
+				return baseUrl + 'brackets';
 			}
 		}();
 		var sendBracketToServer = function (bracketJson) {
 			return $elm$http$Http$request(
 				{
-					a$: $elm$http$Http$jsonBody(bracketJson),
-					ai: A2($elm$http$Http$expectJson, $author$project$BracketBuilder$Saved, $author$project$BracketBuilder$bracketDecoder),
-					ba: _List_Nil,
-					bg: function () {
+					a9: $elm$http$Http$jsonBody(bracketJson),
+					ap: A2($elm$http$Http$expectJson, $author$project$BracketBuilder$Saved, $author$project$BracketBuilder$bracketDecoder),
+					bk: _List_Nil,
+					bq: function () {
 						if (!id.$) {
 							return 'PATCH';
 						} else {
 							return 'POST';
 						}
 					}(),
-					bv: $elm$core$Maybe$Nothing,
-					bx: $elm$core$Maybe$Nothing,
-					ap: bracketUrl
+					bF: $elm$core$Maybe$Nothing,
+					bH: $elm$core$Maybe$Nothing,
+					aw: bracketUrl
 				});
 		};
 		if (bracketResult.$ === 3) {
 			var bracket = bracketResult.a;
-			return (demoMode ? $author$project$BracketBuilder$sendBracketToLocalStorage : sendBracketToServer)(
-				$author$project$BracketBuilder$bracketEncoder(bracket));
+			return sendBracketToServer(
+				$author$project$BracketBuilder$wrapperEncoder(bracket));
 		} else {
 			return $elm$core$Platform$Cmd$none;
 		}
 	});
+var $elm$core$List$sortBy = _List_sortBy;
 var $krisajenkins$remotedata$RemoteData$succeed = $krisajenkins$remotedata$RemoteData$Success;
+var $elm$core$String$cons = _String_cons;
+var $elm$core$String$fromChar = function (_char) {
+	return A2($elm$core$String$cons, _char, '');
+};
+var $elm$core$Bitwise$shiftRightBy = _Bitwise_shiftRightBy;
+var $elm$core$String$repeatHelp = F3(
+	function (n, chunk, result) {
+		return (n <= 0) ? result : A3(
+			$elm$core$String$repeatHelp,
+			n >> 1,
+			_Utils_ap(chunk, chunk),
+			(!(n & 1)) ? result : _Utils_ap(result, chunk));
+	});
+var $elm$core$String$repeat = F2(
+	function (n, chunk) {
+		return A3($elm$core$String$repeatHelp, n, chunk, '');
+	});
+var $elm$core$String$padLeft = F3(
+	function (n, _char, string) {
+		return _Utils_ap(
+			A2(
+				$elm$core$String$repeat,
+				n - $elm$core$String$length(string),
+				$elm$core$String$fromChar(_char)),
+			string);
+	});
+var $elm$core$String$fromList = _String_fromList;
+var $TSFoster$elm_uuid$UUID$toHex = F2(
+	function (acc, _int) {
+		toHex:
+		while (true) {
+			if (!_int) {
+				return $elm$core$String$fromList(acc);
+			} else {
+				var _char = function () {
+					var _v0 = 15 & _int;
+					switch (_v0) {
+						case 0:
+							return '0';
+						case 1:
+							return '1';
+						case 2:
+							return '2';
+						case 3:
+							return '3';
+						case 4:
+							return '4';
+						case 5:
+							return '5';
+						case 6:
+							return '6';
+						case 7:
+							return '7';
+						case 8:
+							return '8';
+						case 9:
+							return '9';
+						case 10:
+							return 'a';
+						case 11:
+							return 'b';
+						case 12:
+							return 'c';
+						case 13:
+							return 'd';
+						case 14:
+							return 'e';
+						default:
+							return 'f';
+					}
+				}();
+				var $temp$acc = A2($elm$core$List$cons, _char, acc),
+					$temp$int = _int >>> 4;
+				acc = $temp$acc;
+				_int = $temp$int;
+				continue toHex;
+			}
+		}
+	});
+var $TSFoster$elm_uuid$UUID$toStringWith = F2(
+	function (sep, _v0) {
+		var a = _v0.a;
+		var b = _v0.b;
+		var c = _v0.c;
+		var d = _v0.d;
+		return _Utils_ap(
+			A3(
+				$elm$core$String$padLeft,
+				8,
+				'0',
+				A2($TSFoster$elm_uuid$UUID$toHex, _List_Nil, a)),
+			_Utils_ap(
+				sep,
+				_Utils_ap(
+					A3(
+						$elm$core$String$padLeft,
+						4,
+						'0',
+						A2($TSFoster$elm_uuid$UUID$toHex, _List_Nil, b >>> 16)),
+					_Utils_ap(
+						sep,
+						_Utils_ap(
+							A3(
+								$elm$core$String$padLeft,
+								4,
+								'0',
+								A2($TSFoster$elm_uuid$UUID$toHex, _List_Nil, 65535 & b)),
+							_Utils_ap(
+								sep,
+								_Utils_ap(
+									A3(
+										$elm$core$String$padLeft,
+										4,
+										'0',
+										A2($TSFoster$elm_uuid$UUID$toHex, _List_Nil, c >>> 16)),
+									_Utils_ap(
+										sep,
+										_Utils_ap(
+											A3(
+												$elm$core$String$padLeft,
+												4,
+												'0',
+												A2($TSFoster$elm_uuid$UUID$toHex, _List_Nil, 65535 & c)),
+											A3(
+												$elm$core$String$padLeft,
+												8,
+												'0',
+												A2($TSFoster$elm_uuid$UUID$toHex, _List_Nil, d)))))))))));
+	});
+var $TSFoster$elm_uuid$UUID$toString = $TSFoster$elm_uuid$UUID$toStringWith('-');
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DraggedOver = F4(
 	function (a, b, c, d) {
 		return {$: 2, a: a, b: b, c: c, d: d};
@@ -7100,8 +7262,19 @@ var $author$project$BracketBuilder$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 0:
+				var seed = msg.a;
+				var newUuid = $TSFoster$elm_uuid$UUID$toString(
+					A2($elm$random$Random$step, $TSFoster$elm_uuid$UUID$generator, seed).a);
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							aj: $elm$core$Maybe$Just(newUuid)
+						}),
+					$elm$core$Platform$Cmd$none);
+			case 1:
 				var msg_ = msg.a;
-				var _v1 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, model.G);
+				var _v1 = A2($norpan$elm_html5_drag_drop$Html5$DragDrop$update, msg_, model.H);
 				var model_ = _v1.a;
 				var result = _v1.b;
 				return _Utils_Tuple2(
@@ -7126,7 +7299,7 @@ var $author$project$BracketBuilder$update = F2(
 														function (game) {
 															return _Utils_update(
 																game,
-																{m: coords});
+																{o: coords});
 														},
 														bracket.c)
 												});
@@ -7135,8 +7308,8 @@ var $author$project$BracketBuilder$update = F2(
 											model,
 											{
 												b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-												g: true,
-												G: model_
+												i: true,
+												H: model_
 											});
 									} else {
 										break _v2$2;
@@ -7145,20 +7318,43 @@ var $author$project$BracketBuilder$update = F2(
 									if (result.a.b.$ === 1) {
 										var _v4 = result.a;
 										var from = _v4.a.a;
-										var to = _v4.b.a;
+										var _v5 = _v4.b.a;
+										var toGameId = _v5.a;
+										var toPosition = _v5.b;
+										var updatedGame = function (game) {
+											if (_Utils_eq(game.a, toGameId)) {
+												var updatedSide = function (side) {
+													return _Utils_eq(side.K, toPosition) ? _Utils_update(
+														side,
+														{
+															k: $elm$core$Maybe$Just(from)
+														}) : side;
+												};
+												return _Utils_update(
+													game,
+													{
+														g: A2($elm$core$List$map, updatedSide, game.g)
+													});
+											} else {
+												return game;
+											}
+										};
 										var updatedBracket = function (bracket) {
 											return _Utils_update(
 												bracket,
 												{
-													c: A3($author$project$BracketBuilder$connectGameResult, bracket.c, from, to)
+													c: A2(
+														$elm$core$List$map,
+														updatedGame,
+														A2($author$project$BracketBuilder$clearAssignmentFromAllGames, bracket.c, from))
 												});
 										};
 										return _Utils_update(
 											model,
 											{
 												b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-												g: true,
-												G: model_
+												i: true,
+												H: model_
 											});
 									} else {
 										break _v2$2;
@@ -7170,7 +7366,7 @@ var $author$project$BracketBuilder$update = F2(
 						}
 						return _Utils_update(
 							model,
-							{G: model_});
+							{H: model_});
 					}(),
 					A2(
 						$elm$core$Maybe$withDefault,
@@ -7180,19 +7376,19 @@ var $author$project$BracketBuilder$update = F2(
 							A2(
 								$elm$core$Basics$composeR,
 								function ($) {
-									return $.a5;
+									return $.bf;
 								},
 								$author$project$BracketBuilder$dragstart),
 							$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragstartEvent(msg_))));
-			case 1:
+			case 2:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							h: $elm$core$Maybe$Just($author$project$BracketBuilder$EditingBracketName)
+							e: $elm$core$Maybe$Just($author$project$BracketBuilder$EditingBracketName)
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 2:
+			case 3:
 				var name = msg.a;
 				var updatedBracket = function (bracket) {
 					return _Utils_update(
@@ -7204,28 +7400,28 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							g: true
+							i: true
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 3:
+			case 4:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{g: true, h: $elm$core$Maybe$Nothing}),
+						{i: true, e: $elm$core$Maybe$Nothing}),
 					$elm$core$Platform$Cmd$none);
-			case 4:
+			case 5:
 				var updatedBracket = function (bracket) {
-					var nextGroupId = $elm$core$List$length(bracket.q);
+					var nextGroupId = $elm$core$List$length(bracket.n) + 1;
 					var newGroup = A3(
 						$author$project$BracketBuilder$Group,
 						nextGroupId,
-						'Group ' + $elm$core$String$fromInt(nextGroupId + 1),
+						'Group ' + $elm$core$String$fromInt(nextGroupId),
 						true);
 					return _Utils_update(
 						bracket,
 						{
-							q: _Utils_ap(
-								bracket.q,
+							n: _Utils_ap(
+								bracket.n,
 								_List_fromArray(
 									[newGroup]))
 						});
@@ -7235,24 +7431,24 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							g: true
+							i: true
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 5:
+			case 6:
 				var group = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							h: $elm$core$Maybe$Just(
+							e: $elm$core$Maybe$Just(
 								$author$project$BracketBuilder$EditingGroup(group))
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 6:
+			case 7:
 				var group = msg.a;
 				var updatedGroup = _Utils_update(
 					group,
-					{ah: !group.ah});
+					{ao: !group.ao});
 				var updatedGroups = function (groups) {
 					return A3(
 						$elm_community$list_extra$List$Extra$updateIf,
@@ -7268,7 +7464,7 @@ var $author$project$BracketBuilder$update = F2(
 					return _Utils_update(
 						bracket,
 						{
-							q: updatedGroups(bracket.q)
+							n: updatedGroups(bracket.n)
 						});
 				};
 				return _Utils_Tuple2(
@@ -7276,10 +7472,10 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							g: true
+							i: true
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 7:
+			case 8:
 				var group = msg.a;
 				var name = msg.b;
 				var updatedGroup = _Utils_update(
@@ -7289,11 +7485,11 @@ var $author$project$BracketBuilder$update = F2(
 					_Utils_update(
 						model,
 						{
-							h: $elm$core$Maybe$Just(
+							e: $elm$core$Maybe$Just(
 								$author$project$BracketBuilder$EditingGroup(updatedGroup))
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 8:
+			case 9:
 				var group = msg.a;
 				var updatedGroups = function (groups) {
 					return A3(
@@ -7310,7 +7506,7 @@ var $author$project$BracketBuilder$update = F2(
 					return _Utils_update(
 						bracket,
 						{
-							q: updatedGroups(bracket.q)
+							n: updatedGroups(bracket.n)
 						});
 				};
 				return _Utils_Tuple2(
@@ -7318,17 +7514,17 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							g: true,
-							h: $elm$core$Maybe$Nothing
+							i: true,
+							e: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 9:
+			case 10:
 				var group = msg.a;
 				var updatedBracket = function (bracket) {
 					return _Utils_update(
 						bracket,
 						{
-							q: A2($elm_community$list_extra$List$Extra$remove, group, bracket.q)
+							n: A2($elm_community$list_extra$List$Extra$remove, group, bracket.n)
 						});
 				};
 				return _Utils_Tuple2(
@@ -7336,31 +7532,36 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							g: true,
-							h: $elm$core$Maybe$Nothing
+							i: true,
+							e: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 10:
+			case 11:
 				var coords = msg.a;
 				var addGame = function (games) {
-					var _v5 = A2($author$project$BracketBuilder$findGameByCoords, coords, games);
-					if (_v5.$ === 1) {
-						var newGameId = $elm$core$List$length(games) * (-1);
-						return _Utils_ap(
-							games,
-							_List_fromArray(
-								[
-									A4(
-									$author$project$BracketBuilder$Game,
-									newGameId,
-									$elm$core$Maybe$Nothing,
-									coords,
-									_List_fromArray(
-										[
-											A3($author$project$BracketBuilder$GamePosition, 0, false, $elm$core$Maybe$Nothing),
-											A3($author$project$BracketBuilder$GamePosition, 1, true, $elm$core$Maybe$Nothing)
-										]))
-								]));
+					var _v6 = A2($author$project$BracketBuilder$findGameByCoords, coords, games);
+					if (_v6.$ === 1) {
+						var _v7 = model.aj;
+						if (!_v7.$) {
+							var id = _v7.a;
+							return _Utils_ap(
+								games,
+								_List_fromArray(
+									[
+										A4(
+										$author$project$BracketBuilder$Game,
+										id,
+										$elm$core$Maybe$Nothing,
+										coords,
+										_List_fromArray(
+											[
+												A2($author$project$BracketBuilder$Side, 0, $elm$core$Maybe$Nothing),
+												A2($author$project$BracketBuilder$Side, 1, $elm$core$Maybe$Nothing)
+											]))
+									]));
+						} else {
+							return games;
+						}
 					} else {
 						return games;
 					}
@@ -7377,10 +7578,10 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							g: true
+							i: true
 						}),
-					$elm$core$Platform$Cmd$none);
-			case 11:
+					$author$project$BracketBuilder$generateNextGameId);
+			case 12:
 				var game = msg.a;
 				var updatedBracket = function (bracket) {
 					return _Utils_update(
@@ -7394,23 +7595,22 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							g: true,
-							h: $elm$core$Maybe$Nothing
+							i: true,
+							e: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 12:
+			case 13:
 				var game = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
-							h: $elm$core$Maybe$Just(
+							e: $elm$core$Maybe$Just(
 								$author$project$BracketBuilder$EditingGame(game))
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 13:
-				var game = msg.a;
-				var name = msg.b;
+			case 14:
+				var name = msg.a;
 				var maybeName = function () {
 					if (name === '') {
 						return $elm$core$Maybe$Nothing;
@@ -7418,59 +7618,75 @@ var $author$project$BracketBuilder$update = F2(
 						return $elm$core$Maybe$Just(name);
 					}
 				}();
-				var updatedGame = _Utils_update(
-					game,
-					{d: maybeName});
-				var updatedBracket = function (bracket) {
+				var updatedGame = function (game) {
 					return _Utils_update(
-						bracket,
-						{
-							c: A3(
-								$elm_community$list_extra$List$Extra$updateIf,
-								function (g) {
-									return _Utils_eq(g.a, updatedGame.a);
-								},
-								function (g) {
-									return updatedGame;
-								},
-								bracket.c)
-						});
+						game,
+						{d: maybeName});
 				};
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							g: true,
-							h: $elm$core$Maybe$Just(
-								$author$project$BracketBuilder$EditingGame(updatedGame))
-						}),
-					$elm$core$Platform$Cmd$none);
-			case 14:
-				var game = msg.a;
-				var position = msg.b;
-				var assignment = msg.c;
 				var updatedBracket = F2(
-					function (teams, bracket) {
+					function (game, bracket) {
+						return _Utils_update(
+							bracket,
+							{
+								c: A3(
+									$elm_community$list_extra$List$Extra$updateIf,
+									function (g) {
+										return _Utils_eq(g.a, game.a);
+									},
+									function (g) {
+										return updatedGame(game);
+									},
+									bracket.c)
+							});
+					});
+				return _Utils_Tuple2(
+					function () {
+						var _v8 = model.e;
+						if ((!_v8.$) && (_v8.a.$ === 2)) {
+							var game = _v8.a.a;
+							return _Utils_update(
+								model,
+								{
+									b: A2(
+										$krisajenkins$remotedata$RemoteData$map,
+										updatedBracket(game),
+										model.b),
+									i: true,
+									e: $elm$core$Maybe$Just(
+										$author$project$BracketBuilder$EditingGame(
+											updatedGame(game)))
+								});
+						} else {
+							return model;
+						}
+					}(),
+					$elm$core$Platform$Cmd$none);
+			case 15:
+				var position = msg.a;
+				var assignment = msg.b;
+				var updatedGame = F3(
+					function (teams, games, game) {
 						var typedAssignment = function () {
-							var parsedAssignment = A2($elm$core$String$split, '_', assignment);
-							var matches = F2(
-								function (tail, items) {
-									var _v10 = $elm$core$List$head(tail);
-									if (!_v10.$) {
-										var idStr = _v10.a;
-										var _v11 = $elm$core$String$toInt(idStr);
-										if (!_v11.$) {
-											var id = _v11.a;
-											var _v12 = A2(
+							var _v12 = A2($elm$core$String$split, '_', assignment);
+							if (_v12.b) {
+								var x = _v12.a;
+								var xs = _v12.b;
+								var matchesTeamId = function () {
+									var _v16 = $elm$core$List$head(xs);
+									if (!_v16.$) {
+										var idStr = _v16.a;
+										var _v17 = $elm$core$String$toInt(idStr);
+										if (!_v17.$) {
+											var id = _v17.a;
+											var _v18 = A2(
 												$elm_community$list_extra$List$Extra$find,
-												function (item) {
-													return _Utils_eq(item.a, id);
+												function (team) {
+													return _Utils_eq(team.a, id);
 												},
-												items);
-											if (!_v12.$) {
-												var item = _v12.a;
-												return $elm$core$Maybe$Just(item.a);
+												teams);
+											if (!_v18.$) {
+												var team = _v18.a;
+												return $elm$core$Maybe$Just(team.a);
 											} else {
 												return $elm$core$Maybe$Nothing;
 											}
@@ -7480,26 +7696,34 @@ var $author$project$BracketBuilder$update = F2(
 									} else {
 										return $elm$core$Maybe$Nothing;
 									}
-								});
-							if (parsedAssignment.b) {
-								var x = parsedAssignment.a;
-								var xs = parsedAssignment.b;
+								}();
+								var matchesGameId = function () {
+									var _v14 = $elm$core$List$head(xs);
+									if (!_v14.$) {
+										var id = _v14.a;
+										var _v15 = A2(
+											$elm_community$list_extra$List$Extra$find,
+											function (g) {
+												return _Utils_eq(g.a, id);
+											},
+											games);
+										if (!_v15.$) {
+											var g = _v15.a;
+											return $elm$core$Maybe$Just(g.a);
+										} else {
+											return $elm$core$Maybe$Nothing;
+										}
+									} else {
+										return $elm$core$Maybe$Nothing;
+									}
+								}();
 								switch (x) {
 									case 'team':
-										return A2(
-											$elm$core$Maybe$map,
-											$author$project$BracketBuilder$TeamAssignment,
-											A2(matches, xs, teams));
+										return A2($elm$core$Maybe$map, $author$project$BracketBuilder$TeamAssignment, matchesTeamId);
 									case 'winner':
-										return A2(
-											$elm$core$Maybe$map,
-											$author$project$BracketBuilder$WinnerAssignment,
-											A2(matches, xs, bracket.c));
+										return A2($elm$core$Maybe$map, $author$project$BracketBuilder$WinnerAssignment, matchesGameId);
 									case 'loser':
-										return A2(
-											$elm$core$Maybe$map,
-											$author$project$BracketBuilder$LoserAssignment,
-											A2(matches, xs, bracket.c));
+										return A2($elm$core$Maybe$map, $author$project$BracketBuilder$LoserAssignment, matchesGameId);
 									default:
 										return $elm$core$Maybe$Nothing;
 								}
@@ -7507,76 +7731,96 @@ var $author$project$BracketBuilder$update = F2(
 								return $elm$core$Maybe$Nothing;
 							}
 						}();
-						var updatedGames = function () {
-							if (!typedAssignment.$) {
-								if (!typedAssignment.a.$) {
-									var teamId = typedAssignment.a.a;
-									var updatedGamePosition = function (gamePosition) {
-										return _Utils_eq(gamePosition.Z, position) ? _Utils_update(
-											gamePosition,
-											{
-												l: $elm$core$Maybe$Just(
-													$author$project$BracketBuilder$TeamAssignment(teamId))
-											}) : gamePosition;
-									};
-									var updatedGame = function (g) {
-										return _Utils_eq(g.a, game.a) ? _Utils_update(
-											g,
-											{
-												n: A2($elm$core$List$map, updatedGamePosition, g.n)
-											}) : g;
-									};
-									return A2($elm$core$List$map, updatedGame, bracket.c);
-								} else {
-									var gameAssignment = typedAssignment.a;
-									return A3(
-										$author$project$BracketBuilder$connectGameResult,
-										bracket.c,
-										gameAssignment,
-										_Utils_Tuple2(game.a, position));
-								}
-							} else {
-								var updatedGamePosition = function (gamePosition) {
-									return _Utils_eq(gamePosition.Z, position) ? _Utils_update(
-										gamePosition,
-										{l: $elm$core$Maybe$Nothing}) : gamePosition;
-								};
-								var updatedGame = function (g) {
-									return _Utils_eq(g.a, game.a) ? _Utils_update(
-										g,
+						if (!typedAssignment.$) {
+							if (!typedAssignment.a.$) {
+								var teamId = typedAssignment.a.a;
+								var updatedSide = function (side) {
+									return _Utils_eq(side.K, position) ? _Utils_update(
+										side,
 										{
-											n: A2($elm$core$List$map, updatedGamePosition, g.n)
-										}) : g;
+											k: $elm$core$Maybe$Just(
+												$author$project$BracketBuilder$TeamAssignment(teamId))
+										}) : side;
 								};
-								return A2($elm$core$List$map, updatedGame, bracket.c);
+								return _Utils_update(
+									game,
+									{
+										g: A2($elm$core$List$map, updatedSide, game.g)
+									});
+							} else {
+								var gameAssignment = typedAssignment.a;
+								var updatedSide = function (side) {
+									return _Utils_eq(side.K, position) ? _Utils_update(
+										side,
+										{
+											k: $elm$core$Maybe$Just(gameAssignment)
+										}) : side;
+								};
+								return _Utils_update(
+									game,
+									{
+										g: A2($elm$core$List$map, updatedSide, game.g)
+									});
 							}
-						}();
+						} else {
+							var updatedSide = function (side) {
+								return _Utils_eq(side.K, position) ? _Utils_update(
+									side,
+									{k: $elm$core$Maybe$Nothing}) : side;
+							};
+							return _Utils_update(
+								game,
+								{
+									g: A2($elm$core$List$map, updatedSide, game.g)
+								});
+						}
+					});
+				var updatedBracket = F3(
+					function (game, teams, bracket) {
+						var shouldUpdateGame = function (g) {
+							return _Utils_eq(g.a, game.a) ? A3(updatedGame, teams, bracket.c, game) : g;
+						};
 						return _Utils_update(
 							bracket,
-							{c: updatedGames});
+							{
+								c: A2($elm$core$List$map, shouldUpdateGame, bracket.c)
+							});
 					});
 				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							b: A3($krisajenkins$remotedata$RemoteData$map2, updatedBracket, model.aa, model.b),
-							g: true
-						}),
-					$elm$core$Platform$Cmd$none);
-			case 15:
-				var game = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{h: $elm$core$Maybe$Nothing}),
+					function () {
+						var _v10 = _Utils_Tuple3(model.e, model._, model.b);
+						if ((((!_v10.a.$) && (_v10.a.a.$ === 2)) && (_v10.b.$ === 3)) && (_v10.c.$ === 3)) {
+							var game = _v10.a.a.a;
+							var teams = _v10.b.a;
+							var bracket = _v10.c.a;
+							return _Utils_update(
+								model,
+								{
+									b: $krisajenkins$remotedata$RemoteData$Success(
+										A3(updatedBracket, game, teams, bracket)),
+									i: true,
+									e: $elm$core$Maybe$Just(
+										$author$project$BracketBuilder$EditingGame(
+											A3(updatedGame, teams, bracket.c, game)))
+								});
+						} else {
+							return model;
+						}
+					}(),
 					$elm$core$Platform$Cmd$none);
 			case 16:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{g: false}),
-					A2($author$project$BracketBuilder$saveBracket, model.T, model.b));
+						{e: $elm$core$Maybe$Nothing}),
+					$elm$core$Platform$Cmd$none);
 			case 17:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{i: false}),
+					A2($author$project$BracketBuilder$saveBracket, model.ai, model.b));
+			case 18:
 				if (!msg.a.$) {
 					var bracketJson = msg.a.a;
 					return _Utils_Tuple2(
@@ -7590,79 +7834,96 @@ var $author$project$BracketBuilder$update = F2(
 					var error = msg.a.a;
 					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 				}
-			case 18:
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							h: $elm$core$Maybe$Just($author$project$BracketBuilder$RevertConfirmation)
-						}),
-					$elm$core$Platform$Cmd$none);
 			case 19:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{b: $krisajenkins$remotedata$RemoteData$Loading, g: false, h: $elm$core$Maybe$Nothing}),
-					$author$project$BracketBuilder$loadBracket(model.T));
+						{
+							e: $elm$core$Maybe$Just($author$project$BracketBuilder$RevertConfirmation)
+						}),
+					$elm$core$Platform$Cmd$none);
 			case 20:
-				var result = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{aa: result}),
-					$elm$core$Platform$Cmd$none);
+						{b: $krisajenkins$remotedata$RemoteData$Loading, i: false, e: $elm$core$Maybe$Nothing}),
+					$author$project$BracketBuilder$loadBracket(model.ai));
 			case 21:
 				var result = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{b: result}),
+						{_: result}),
 					$elm$core$Platform$Cmd$none);
 			case 22:
+				var result = msg.a;
+				var sortedGroups = function (groups) {
+					return A2(
+						$elm$core$List$sortBy,
+						function ($) {
+							return $.a;
+						},
+						groups);
+				};
+				var updatedBracket = function (bracket) {
+					return _Utils_update(
+						bracket,
+						{
+							n: sortedGroups(bracket.n)
+						});
+				};
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, result)
+						}),
+					$elm$core$Platform$Cmd$none);
+			case 23:
 				var data = msg.a;
 				return _Utils_Tuple2(
 					function () {
-						var _v13 = A2($elm$json$Json$Decode$decodeValue, $author$project$BracketBuilder$bracketDecoder, data);
-						if (!_v13.$) {
-							var bracket = _v13.a;
+						var _v19 = A2($elm$json$Json$Decode$decodeValue, $author$project$BracketBuilder$bracketDecoder, data);
+						if (!_v19.$) {
+							var bracket = _v19.a;
 							return _Utils_update(
 								model,
 								{
 									b: $krisajenkins$remotedata$RemoteData$Success(bracket)
 								});
 						} else {
-							var error = _v13.a;
+							var error = _v19.a;
 							return _Utils_update(
 								model,
 								{
-									b: model.T.M ? $krisajenkins$remotedata$RemoteData$Success($author$project$BracketBuilder$demoBracket) : $krisajenkins$remotedata$RemoteData$Success($author$project$BracketBuilder$emptyBracket)
+									b: $krisajenkins$remotedata$RemoteData$Success($author$project$BracketBuilder$emptyBracket)
 								});
 						}
 					}(),
-					$elm$core$Platform$Cmd$none);
-			case 23:
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							h: $elm$core$Maybe$Just($author$project$BracketBuilder$ClearConfirmation)
-						}),
 					$elm$core$Platform$Cmd$none);
 			case 24:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
+							e: $elm$core$Maybe$Just($author$project$BracketBuilder$ClearConfirmation)
+						}),
+					$elm$core$Platform$Cmd$none);
+			case 25:
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
 							b: $krisajenkins$remotedata$RemoteData$Success($author$project$BracketBuilder$emptyBracket),
-							g: true,
-							h: $elm$core$Maybe$Nothing
+							i: true,
+							e: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
 			default:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{h: $elm$core$Maybe$Nothing}),
+						{e: $elm$core$Maybe$Nothing}),
 					$elm$core$Platform$Cmd$none);
 		}
 	});
@@ -7695,10 +7956,10 @@ var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$BracketBuilder$AddGroup = {$: 4};
-var $author$project$BracketBuilder$ConfirmClear = {$: 23};
-var $author$project$BracketBuilder$ConfirmRevert = {$: 18};
-var $author$project$BracketBuilder$Save = {$: 16};
+var $author$project$BracketBuilder$AddGroup = {$: 5};
+var $author$project$BracketBuilder$ConfirmClear = {$: 24};
+var $author$project$BracketBuilder$ConfirmRevert = {$: 19};
+var $author$project$BracketBuilder$Save = {$: 17};
 var $elm$html$Html$a = _VirtualDom_node('a');
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$core$List$filter = F2(
@@ -7726,6 +7987,7 @@ var $elm$html$Html$Attributes$classList = function (classes) {
 				$elm$core$Tuple$first,
 				A2($elm$core$List$filter, $elm$core$Tuple$second, classes))));
 };
+var $elm$json$Json$Encode$bool = _Json_wrap;
 var $elm$html$Html$Attributes$boolProperty = F2(
 	function (key, bool) {
 		return A2(
@@ -7786,7 +8048,7 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		$elm$json$Json$Decode$succeed(msg));
 };
 var $elm$html$Html$Attributes$target = $elm$html$Html$Attributes$stringProperty('target');
-var $author$project$BracketBuilder$EditBracketName = {$: 1};
+var $author$project$BracketBuilder$EditBracketName = {$: 2};
 var $elm$html$Html$h2 = _VirtualDom_node('h2');
 var $author$project$BracketBuilder$viewBracketName = function (name) {
 	return A2(
@@ -7821,10 +8083,10 @@ var $author$project$BracketBuilder$viewBracketName = function (name) {
 			]));
 };
 var $author$project$BracketBuilder$EditGroup = function (a) {
-	return {$: 5, a: a};
+	return {$: 6, a: a};
 };
 var $author$project$BracketBuilder$ToggleGroup = function (a) {
-	return {$: 6, a: a};
+	return {$: 7, a: a};
 };
 var $elm$core$List$maximum = function (list) {
 	if (list.b) {
@@ -7845,27 +8107,27 @@ var $author$project$BracketBuilder$rowsForGroup = F2(
 				A2(
 					$elm$core$List$map,
 					function (g) {
-						return g.m.O + 3;
+						return g.o.P + 3;
 					},
 					A2(
 						$elm$core$List$filter,
 						function (g) {
-							return _Utils_eq(g.m.V, group.a);
+							return _Utils_eq(g.o.V, group.a);
 						},
 						games))));
 	});
 var $elm$html$Html$table = _VirtualDom_node('table');
 var $author$project$BracketBuilder$DragDropMsg = function (a) {
-	return {$: 0, a: a};
+	return {$: 1, a: a};
 };
 var $author$project$BracketBuilder$DraggableGame = function (a) {
 	return {$: 0, a: a};
 };
 var $author$project$BracketBuilder$EditGame = function (a) {
-	return {$: 12, a: a};
+	return {$: 13, a: a};
 };
 var $author$project$BracketBuilder$RemoveGame = function (a) {
-	return {$: 11, a: a};
+	return {$: 12, a: a};
 };
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnd = {$: 1};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragStart = F2(
@@ -7897,18 +8159,19 @@ var $elm$html$Html$Events$custom = F2(
 	});
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions = F3(
 	function (name, _v0, decoder) {
-		var stopPropagation = _v0.ao;
-		var preventDefault = _v0.al;
+		var stopPropagation = _v0.av;
+		var preventDefault = _v0.as;
 		return A2(
 			$elm$html$Html$Events$custom,
 			name,
 			A2(
 				$elm$json$Json$Decode$map,
 				function (msg) {
-					return {D: msg, al: preventDefault, ao: stopPropagation};
+					return {E: msg, as: preventDefault, av: stopPropagation};
 				},
 				decoder));
 	});
+var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$draggable = F2(
 	function (wrap, drag) {
 		return _List_fromArray(
@@ -7917,7 +8180,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$draggable = F2(
 				A3(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
 				'dragstart',
-				{al: false, ao: true},
+				{as: false, av: true},
 				A2(
 					$elm$json$Json$Decode$map,
 					A2(
@@ -7928,7 +8191,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$draggable = F2(
 				A3(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
 				'dragend',
-				{al: false, ao: true},
+				{as: false, av: true},
 				$elm$json$Json$Decode$succeed(
 					wrap($norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnd)))
 			]);
@@ -7942,200 +8205,6 @@ var $elm$html$Html$Events$onDoubleClick = function (msg) {
 };
 var $elm$virtual_dom$VirtualDom$style = _VirtualDom_style;
 var $elm$html$Html$Attributes$style = $elm$virtual_dom$VirtualDom$style;
-var $author$project$BracketBuilder$DroppableGamePosition = function (a) {
-	return {$: 1, a: a};
-};
-var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnter = function (a) {
-	return {$: 2, a: a};
-};
-var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragLeave = function (a) {
-	return {$: 3, a: a};
-};
-var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragOver = F3(
-	function (a, b, c) {
-		return {$: 4, a: a, b: b, c: c};
-	});
-var $norpan$elm_html5_drag_drop$Html5$DragDrop$Drop = F2(
-	function (a, b) {
-		return {$: 5, a: a, b: b};
-	});
-var $norpan$elm_html5_drag_drop$Html5$DragDrop$Position = F4(
-	function (width, height, x, y) {
-		return {ax: height, aU: width, aV: x, aW: y};
-	});
-var $elm$json$Json$Decode$at = F2(
-	function (fields, decoder) {
-		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
-	});
-var $elm$json$Json$Decode$float = _Json_decodeFloat;
-var $elm$core$Basics$round = _Basics_round;
-var $norpan$elm_html5_drag_drop$Html5$DragDrop$positionDecoder = A5(
-	$elm$json$Json$Decode$map4,
-	$norpan$elm_html5_drag_drop$Html5$DragDrop$Position,
-	A2(
-		$elm$json$Json$Decode$at,
-		_List_fromArray(
-			['currentTarget', 'clientWidth']),
-		$elm$json$Json$Decode$int),
-	A2(
-		$elm$json$Json$Decode$at,
-		_List_fromArray(
-			['currentTarget', 'clientHeight']),
-		$elm$json$Json$Decode$int),
-	A2(
-		$elm$json$Json$Decode$map,
-		$elm$core$Basics$round,
-		A2(
-			$elm$json$Json$Decode$at,
-			_List_fromArray(
-				['offsetX']),
-			$elm$json$Json$Decode$float)),
-	A2(
-		$elm$json$Json$Decode$map,
-		$elm$core$Basics$round,
-		A2(
-			$elm$json$Json$Decode$at,
-			_List_fromArray(
-				['offsetY']),
-			$elm$json$Json$Decode$float)));
-var $norpan$elm_html5_drag_drop$Html5$DragDrop$timeStampDecoder = A2(
-	$elm$json$Json$Decode$map,
-	$elm$core$Basics$round,
-	A2(
-		$elm$json$Json$Decode$at,
-		_List_fromArray(
-			['timeStamp']),
-		$elm$json$Json$Decode$float));
-var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
-	function (wrap, dropId) {
-		return _List_fromArray(
-			[
-				A3(
-				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
-				'dragenter',
-				{al: true, ao: true},
-				$elm$json$Json$Decode$succeed(
-					wrap(
-						$norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnter(dropId)))),
-				A3(
-				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
-				'dragleave',
-				{al: true, ao: true},
-				$elm$json$Json$Decode$succeed(
-					wrap(
-						$norpan$elm_html5_drag_drop$Html5$DragDrop$DragLeave(dropId)))),
-				A3(
-				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
-				'dragover',
-				{al: true, ao: false},
-				A2(
-					$elm$json$Json$Decode$map,
-					wrap,
-					A3(
-						$elm$json$Json$Decode$map2,
-						$norpan$elm_html5_drag_drop$Html5$DragDrop$DragOver(dropId),
-						$norpan$elm_html5_drag_drop$Html5$DragDrop$timeStampDecoder,
-						$norpan$elm_html5_drag_drop$Html5$DragDrop$positionDecoder))),
-				A3(
-				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
-				'drop',
-				{al: true, ao: true},
-				A2(
-					$elm$json$Json$Decode$map,
-					A2(
-						$elm$core$Basics$composeL,
-						wrap,
-						$norpan$elm_html5_drag_drop$Html5$DragDrop$Drop(dropId)),
-					$norpan$elm_html5_drag_drop$Html5$DragDrop$positionDecoder))
-			]);
-	});
-var $author$project$BracketBuilder$viewGamePosition = F7(
-	function (dragId, dropId, teams, games, gameId, position, gamePosition) {
-		var positionClass = (!position) ? _Utils_Tuple2('game-top', true) : _Utils_Tuple2('game-bottom', true);
-		var label = function () {
-			var _v1 = gamePosition.l;
-			if (!_v1.$) {
-				switch (_v1.a.$) {
-					case 0:
-						var id = _v1.a.a;
-						var _v2 = A2(
-							$elm_community$list_extra$List$Extra$find,
-							function (t) {
-								return _Utils_eq(t.a, id);
-							},
-							teams);
-						if (!_v2.$) {
-							var team = _v2.a;
-							return team.d;
-						} else {
-							return 'TBD';
-						}
-					case 1:
-						var id = _v1.a.a;
-						var _v3 = A2(
-							$elm_community$list_extra$List$Extra$find,
-							function (g) {
-								return _Utils_eq(g.a, id);
-							},
-							games);
-						if (!_v3.$) {
-							var g = _v3.a;
-							return 'W: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.d);
-						} else {
-							return 'TBD';
-						}
-					default:
-						var id = _v1.a.a;
-						var _v4 = A2(
-							$elm_community$list_extra$List$Extra$find,
-							function (g) {
-								return _Utils_eq(g.a, id);
-							},
-							games);
-						if (!_v4.$) {
-							var g = _v4.a;
-							return 'L: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.d);
-						} else {
-							return 'TBD';
-						}
-				}
-			} else {
-				return 'TBD';
-			}
-		}();
-		var dropTarget = function () {
-			var _v0 = _Utils_Tuple2(dragId, dropId);
-			if ((((!_v0.a.$) && (_v0.a.a.$ === 1)) && (!_v0.b.$)) && (_v0.b.a.$ === 1)) {
-				var gameIdAndPosition = _v0.b.a.a;
-				return _Utils_eq(
-					gameIdAndPosition,
-					_Utils_Tuple2(gameId, position)) ? true : false;
-			} else {
-				return false;
-			}
-		}();
-		return A2(
-			$elm$html$Html$div,
-			_Utils_ap(
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$classList(
-						_List_fromArray(
-							[
-								positionClass,
-								_Utils_Tuple2('drop-target', dropTarget)
-							]))
-					]),
-				A2(
-					$norpan$elm_html5_drag_drop$Html5$DragDrop$droppable,
-					$author$project$BracketBuilder$DragDropMsg,
-					$author$project$BracketBuilder$DroppableGamePosition(
-						_Utils_Tuple2(gameId, position)))),
-			_List_fromArray(
-				[
-					$elm$html$Html$text(label)
-				]));
-	});
 var $author$project$BracketBuilder$DraggableResult = function (a) {
 	return {$: 1, a: a};
 };
@@ -8219,6 +8288,200 @@ var $author$project$BracketBuilder$viewResultConnectors = F2(
 					]))
 			]);
 	});
+var $author$project$BracketBuilder$DroppableSide = function (a) {
+	return {$: 1, a: a};
+};
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnter = function (a) {
+	return {$: 2, a: a};
+};
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragLeave = function (a) {
+	return {$: 3, a: a};
+};
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$DragOver = F3(
+	function (a, b, c) {
+		return {$: 4, a: a, b: b, c: c};
+	});
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$Drop = F2(
+	function (a, b) {
+		return {$: 5, a: a, b: b};
+	});
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$Position = F4(
+	function (width, height, x, y) {
+		return {aD: height, a2: width, a3: x, a4: y};
+	});
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$json$Json$Decode$float = _Json_decodeFloat;
+var $elm$core$Basics$round = _Basics_round;
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$positionDecoder = A5(
+	$elm$json$Json$Decode$map4,
+	$norpan$elm_html5_drag_drop$Html5$DragDrop$Position,
+	A2(
+		$elm$json$Json$Decode$at,
+		_List_fromArray(
+			['currentTarget', 'clientWidth']),
+		$elm$json$Json$Decode$int),
+	A2(
+		$elm$json$Json$Decode$at,
+		_List_fromArray(
+			['currentTarget', 'clientHeight']),
+		$elm$json$Json$Decode$int),
+	A2(
+		$elm$json$Json$Decode$map,
+		$elm$core$Basics$round,
+		A2(
+			$elm$json$Json$Decode$at,
+			_List_fromArray(
+				['offsetX']),
+			$elm$json$Json$Decode$float)),
+	A2(
+		$elm$json$Json$Decode$map,
+		$elm$core$Basics$round,
+		A2(
+			$elm$json$Json$Decode$at,
+			_List_fromArray(
+				['offsetY']),
+			$elm$json$Json$Decode$float)));
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$timeStampDecoder = A2(
+	$elm$json$Json$Decode$map,
+	$elm$core$Basics$round,
+	A2(
+		$elm$json$Json$Decode$at,
+		_List_fromArray(
+			['timeStamp']),
+		$elm$json$Json$Decode$float));
+var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
+	function (wrap, dropId) {
+		return _List_fromArray(
+			[
+				A3(
+				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
+				'dragenter',
+				{as: true, av: true},
+				$elm$json$Json$Decode$succeed(
+					wrap(
+						$norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnter(dropId)))),
+				A3(
+				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
+				'dragleave',
+				{as: true, av: true},
+				$elm$json$Json$Decode$succeed(
+					wrap(
+						$norpan$elm_html5_drag_drop$Html5$DragDrop$DragLeave(dropId)))),
+				A3(
+				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
+				'dragover',
+				{as: true, av: false},
+				A2(
+					$elm$json$Json$Decode$map,
+					wrap,
+					A3(
+						$elm$json$Json$Decode$map2,
+						$norpan$elm_html5_drag_drop$Html5$DragDrop$DragOver(dropId),
+						$norpan$elm_html5_drag_drop$Html5$DragDrop$timeStampDecoder,
+						$norpan$elm_html5_drag_drop$Html5$DragDrop$positionDecoder))),
+				A3(
+				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
+				'drop',
+				{as: true, av: true},
+				A2(
+					$elm$json$Json$Decode$map,
+					A2(
+						$elm$core$Basics$composeL,
+						wrap,
+						$norpan$elm_html5_drag_drop$Html5$DragDrop$Drop(dropId)),
+					$norpan$elm_html5_drag_drop$Html5$DragDrop$positionDecoder))
+			]);
+	});
+var $author$project$BracketBuilder$viewSide = F7(
+	function (dragId, dropId, teams, games, gameId, position, side) {
+		var positionClass = (!position) ? _Utils_Tuple2('game-top', true) : _Utils_Tuple2('game-bottom', true);
+		var label = function () {
+			var _v1 = side.k;
+			if (!_v1.$) {
+				switch (_v1.a.$) {
+					case 0:
+						var id = _v1.a.a;
+						var _v2 = A2(
+							$elm_community$list_extra$List$Extra$find,
+							function (t) {
+								return _Utils_eq(t.a, id);
+							},
+							teams);
+						if (!_v2.$) {
+							var team = _v2.a;
+							return team.d;
+						} else {
+							return 'TBD';
+						}
+					case 1:
+						var id = _v1.a.a;
+						var _v3 = A2(
+							$elm_community$list_extra$List$Extra$find,
+							function (g) {
+								return _Utils_eq(g.a, id);
+							},
+							games);
+						if (!_v3.$) {
+							var g = _v3.a;
+							return 'W: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.d);
+						} else {
+							return 'TBD';
+						}
+					default:
+						var id = _v1.a.a;
+						var _v4 = A2(
+							$elm_community$list_extra$List$Extra$find,
+							function (g) {
+								return _Utils_eq(g.a, id);
+							},
+							games);
+						if (!_v4.$) {
+							var g = _v4.a;
+							return 'L: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.d);
+						} else {
+							return 'TBD';
+						}
+				}
+			} else {
+				return 'TBD';
+			}
+		}();
+		var dropTarget = function () {
+			var _v0 = _Utils_Tuple2(dragId, dropId);
+			if ((((!_v0.a.$) && (_v0.a.a.$ === 1)) && (!_v0.b.$)) && (_v0.b.a.$ === 1)) {
+				var gameIdAndPosition = _v0.b.a.a;
+				return _Utils_eq(
+					gameIdAndPosition,
+					_Utils_Tuple2(gameId, position)) ? true : false;
+			} else {
+				return false;
+			}
+		}();
+		return A2(
+			$elm$html$Html$div,
+			_Utils_ap(
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$classList(
+						_List_fromArray(
+							[
+								positionClass,
+								_Utils_Tuple2('drop-target', dropTarget)
+							]))
+					]),
+				A2(
+					$norpan$elm_html5_drag_drop$Html5$DragDrop$droppable,
+					$author$project$BracketBuilder$DragDropMsg,
+					$author$project$BracketBuilder$DroppableSide(
+						_Utils_Tuple2(gameId, position)))),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(label)
+				]));
+	});
 var $author$project$BracketBuilder$viewGame = F5(
 	function (dragId, dropId, teams, games, game) {
 		var dragging = function () {
@@ -8243,11 +8506,11 @@ var $author$project$BracketBuilder$viewGame = F5(
 						A2(
 						$elm$html$Html$Attributes$style,
 						'left',
-						$elm$core$String$fromInt(game.m.L * $author$project$BracketBuilder$gridSize) + 'px'),
+						$elm$core$String$fromInt(game.o.N * $author$project$BracketBuilder$gridSize) + 'px'),
 						A2(
 						$elm$html$Html$Attributes$style,
 						'top',
-						$elm$core$String$fromInt(game.m.O * $author$project$BracketBuilder$gridSize) + 'px'),
+						$elm$core$String$fromInt(game.o.P * $author$project$BracketBuilder$gridSize) + 'px'),
 						$elm$html$Html$Events$onDoubleClick(
 						$author$project$BracketBuilder$EditGame(game))
 					]),
@@ -8306,10 +8569,10 @@ var $author$project$BracketBuilder$viewGame = F5(
 							A2(
 								$elm$core$List$indexedMap,
 								F2(
-									function (index, gamePosition) {
-										return A7($author$project$BracketBuilder$viewGamePosition, dragId, dropId, teams, games, game.a, index, gamePosition);
+									function (index, side) {
+										return A7($author$project$BracketBuilder$viewSide, dragId, dropId, teams, games, game.a, index, side);
 									}),
-								game.n)),
+								game.g)),
 							A2(
 							$elm$html$Html$div,
 							_List_fromArray(
@@ -8341,13 +8604,13 @@ var $author$project$BracketBuilder$colsForGames = function (games) {
 			A2(
 				$elm$core$List$map,
 				function (g) {
-					return g.m.L + 5;
+					return g.o.N + 5;
 				},
 				games)));
 };
 var $elm$html$Html$tr = _VirtualDom_node('tr');
 var $author$project$BracketBuilder$AddGame = function (a) {
-	return {$: 10, a: a};
+	return {$: 11, a: a};
 };
 var $author$project$BracketBuilder$DroppableCell = function (a) {
 	return {$: 0, a: a};
@@ -8415,7 +8678,7 @@ var $author$project$BracketBuilder$viewRow = F5(
 	});
 var $author$project$BracketBuilder$LineConnector = F3(
 	function (gameResult, fromCoords, toCoords) {
-		return {U: fromCoords, av: gameResult, ac: toCoords};
+		return {U: fromCoords, aB: gameResult, ab: toCoords};
 	});
 var $author$project$BracketBuilder$Loser = 1;
 var $author$project$BracketBuilder$Winner = 0;
@@ -8455,7 +8718,7 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 						$elm$svg$Svg$Attributes$strokeDasharray('3'),
 						$elm$svg$Svg$Attributes$stroke(
 						function () {
-							var _v4 = l.av;
+							var _v4 = l.aB;
 							if (!_v4) {
 								return 'green';
 							} else {
@@ -8471,20 +8734,20 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 									_Utils_Tuple2(l.U.a + 11, l.U.b)),
 								_Utils_ap(
 									strPoint(
-										_Utils_Tuple2(l.ac.a - 8, l.ac.b)),
+										_Utils_Tuple2(l.ab.a - 8, l.ab.b)),
 									strPoint(
-										_Utils_Tuple2(l.ac.a - 3, l.ac.b))))))
+										_Utils_Tuple2(l.ab.a - 3, l.ab.b))))))
 					]),
 				_List_Nil);
 		};
 		var lineConnectors = function () {
 			var connectors = function (toGame) {
 				var connectorForPosition = F2(
-					function (toPosition, gamePosition) {
+					function (toPosition, side) {
 						var toCoords = $elm$core$Maybe$Just(
 							_Utils_Tuple2(
-								(toGame.m.L * $author$project$BracketBuilder$gridSize) + 1,
-								(toGame.m.O * $author$project$BracketBuilder$gridSize) + ((!toPosition) ? 32 : 57)));
+								(toGame.o.N * $author$project$BracketBuilder$gridSize) + 1,
+								(toGame.o.P * $author$project$BracketBuilder$gridSize) + ((!toPosition) ? 32 : 57)));
 						var fromCoords = F2(
 							function (fromGameId, gameResult) {
 								var _v3 = A2(
@@ -8497,13 +8760,13 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 									var fromGame = _v3.a;
 									return $elm$core$Maybe$Just(
 										_Utils_Tuple2(
-											(fromGame.m.L * $author$project$BracketBuilder$gridSize) + 175,
-											(fromGame.m.O * $author$project$BracketBuilder$gridSize) + ((!gameResult) ? 32 : 57)));
+											(fromGame.o.N * $author$project$BracketBuilder$gridSize) + 175,
+											(fromGame.o.P * $author$project$BracketBuilder$gridSize) + ((!gameResult) ? 32 : 57)));
 								} else {
 									return $elm$core$Maybe$Nothing;
 								}
 							});
-						var _v0 = gamePosition.l;
+						var _v0 = side.k;
 						_v0$2:
 						while (true) {
 							if (!_v0.$) {
@@ -8543,7 +8806,7 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 						}
 						return $elm$core$Maybe$Nothing;
 					});
-				return A2($elm$core$List$indexedMap, connectorForPosition, toGame.n);
+				return A2($elm$core$List$indexedMap, connectorForPosition, toGame.g);
 			};
 			return A2(
 				$elm$core$List$filterMap,
@@ -8578,7 +8841,7 @@ var $author$project$BracketBuilder$viewGroup = F5(
 		var groupGames = A2(
 			$elm$core$List$filter,
 			function (g) {
-				return _Utils_eq(g.m.V, group.a);
+				return _Utils_eq(g.o.V, group.a);
 			},
 			bracket.c);
 		return A2(
@@ -8628,7 +8891,7 @@ var $author$project$BracketBuilder$viewGroup = F5(
 						[
 							$elm$html$Html$Attributes$class('group')
 						]),
-					group.ah ? _List_fromArray(
+					group.ao ? _List_fromArray(
 						[
 							A2($author$project$BracketBuilder$viewSvgLines, group, groupGames),
 							A2(
@@ -8665,10 +8928,10 @@ var $author$project$BracketBuilder$viewGroups = F4(
 			A2(
 				$elm$core$List$map,
 				A4($author$project$BracketBuilder$viewGroup, teams, bracket, dragId, dropId),
-				bracket.q));
+				bracket.n));
 	});
-var $author$project$BracketBuilder$CancelConfirmation = {$: 25};
-var $author$project$BracketBuilder$Clear = {$: 24};
+var $author$project$BracketBuilder$CancelConfirmation = {$: 26};
+var $author$project$BracketBuilder$Clear = {$: 25};
 var $elm$html$Html$h5 = _VirtualDom_node('h5');
 var $author$project$BracketBuilder$viewClearConfirmation = A2(
 	$elm$html$Html$div,
@@ -8745,9 +9008,9 @@ var $author$project$BracketBuilder$viewClearConfirmation = A2(
 						]))
 				]))
 		]));
-var $author$project$BracketBuilder$CloseEditBracketName = {$: 3};
+var $author$project$BracketBuilder$CloseEditBracketName = {$: 4};
 var $author$project$BracketBuilder$UpdateBracketName = function (a) {
-	return {$: 2, a: a};
+	return {$: 3, a: a};
 };
 var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
 var $elm$html$Html$input = _VirtualDom_node('input');
@@ -8863,16 +9126,13 @@ var $author$project$BracketBuilder$viewEditBracketName = function (name) {
 					]))
 			]));
 };
-var $author$project$BracketBuilder$CloseEditGame = function (a) {
-	return {$: 15, a: a};
+var $author$project$BracketBuilder$CloseEditGame = {$: 16};
+var $author$project$BracketBuilder$UpdateGameName = function (a) {
+	return {$: 14, a: a};
 };
-var $author$project$BracketBuilder$UpdateGameName = F2(
+var $author$project$BracketBuilder$UpdateSide = F2(
 	function (a, b) {
-		return {$: 13, a: a, b: b};
-	});
-var $author$project$BracketBuilder$UpdateGamePosition = F3(
-	function (a, b, c) {
-		return {$: 14, a: a, b: b, c: c};
+		return {$: 15, a: a, b: b};
 	});
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
@@ -8919,7 +9179,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 			var assignedTo = F2(
 				function (team, g) {
 					var assignedToPosition = function (p) {
-						var _v5 = p.l;
+						var _v5 = p.k;
 						if ((!_v5.$) && (!_v5.a.$)) {
 							var id = _v5.a.a;
 							return _Utils_eq(id, team.a);
@@ -8927,7 +9187,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 							return false;
 						}
 					};
-					return A2($elm$core$List$any, assignedToPosition, g.n);
+					return A2($elm$core$List$any, assignedToPosition, g.g);
 				});
 			var unassigned = function (team) {
 				return $elm$core$List$isEmpty(
@@ -8949,12 +9209,12 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 						$author$project$BracketBuilder$LoserAssignment(game.a))));
 			};
 			var notAlreadyAssigned = function (assignment) {
-				var assignedToGamePosition = function (gamePosition) {
-					return _Utils_eq(assignment, gamePosition.l);
+				var assignedToSide = function (side) {
+					return _Utils_eq(assignment, side.k);
 				};
 				var assignedToGame = function (g) {
 					return _Utils_eq(g.a, game.a) ? false : (!$elm$core$List$isEmpty(
-						A2($elm$core$List$filter, assignedToGamePosition, g.n)));
+						A2($elm$core$List$filter, assignedToSide, g.g)));
 				};
 				if (assignment.$ === 1) {
 					return true;
@@ -8993,9 +9253,9 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 					A2($elm$core$List$filter, notCurrentGame, allAssignments)));
 		};
 		var teamOption = F3(
-			function (index, selectedGamePosition, team) {
+			function (index, selectedSide, team) {
 				var isSelected = function () {
-					var _v3 = selectedGamePosition.l;
+					var _v3 = selectedSide.k;
 					if ((!_v3.$) && (!_v3.a.$)) {
 						var id = _v3.a.a;
 						return _Utils_eq(id, team.a);
@@ -9017,11 +9277,8 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 						]));
 			});
 		var gameOption = F3(
-			function (index, selectedGamePosition, assignment) {
-				var isSelected = _Utils_eq(
-					selectedGamePosition.l,
-					$elm$core$Maybe$Just(assignment));
-				var gameLabel = function () {
+			function (index, selectedSide, assignment) {
+				var optionLabel = function () {
 					var gameName = function (id) {
 						return A2(
 							$elm$core$Maybe$map,
@@ -9054,21 +9311,22 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 							return $elm$core$Maybe$Nothing;
 					}
 				}();
-				var gameId = function () {
+				var optionId = function () {
 					switch (assignment.$) {
 						case 1:
 							var id = assignment.a;
-							return $elm$core$Maybe$Just(
-								'winner_' + $elm$core$String$fromInt(id));
+							return $elm$core$Maybe$Just('winner_' + id);
 						case 2:
 							var id = assignment.a;
-							return $elm$core$Maybe$Just(
-								'loser_' + $elm$core$String$fromInt(id));
+							return $elm$core$Maybe$Just('loser_' + id);
 						default:
 							return $elm$core$Maybe$Nothing;
 					}
 				}();
-				var _v0 = _Utils_Tuple2(gameId, gameLabel);
+				var isSelected = _Utils_eq(
+					selectedSide.k,
+					$elm$core$Maybe$Just(assignment));
+				var _v0 = _Utils_Tuple2(optionId, optionLabel);
 				if ((!_v0.a.$) && (!_v0.b.$)) {
 					var id = _v0.a.a;
 					var label = _v0.b.a;
@@ -9088,7 +9346,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 				}
 			});
 		var assignmentOptions = F2(
-			function (index, selectedGamePosition) {
+			function (index, selectedSide) {
 				return _Utils_ap(
 					_List_fromArray(
 						[
@@ -9097,15 +9355,15 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 					_Utils_ap(
 						A2(
 							$elm$core$List$map,
-							A2(teamOption, index, selectedGamePosition),
+							A2(teamOption, index, selectedSide),
 							unassignedTeams(bracket.c)),
 						A2(
 							$elm$core$List$map,
-							A2(gameOption, index, selectedGamePosition),
+							A2(gameOption, index, selectedSide),
 							unassignedGameResults(bracket.c))));
 			});
-		var viewGamePositionField = F2(
-			function (index, gamePosition) {
+		var viewSideField = F2(
+			function (index, side) {
 				return A2(
 					$elm$html$Html$div,
 					_List_fromArray(
@@ -9131,9 +9389,9 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 									$elm$html$Html$Attributes$class('form-control'),
 									$elm$html$Html$Attributes$id('editing-game'),
 									$elm$html$Html$Events$onInput(
-									A2($author$project$BracketBuilder$UpdateGamePosition, game, index))
+									$author$project$BracketBuilder$UpdateSide(index))
 								]),
-							A2(assignmentOptions, index, gamePosition))
+							A2(assignmentOptions, index, side))
 						]));
 			});
 		return A2(
@@ -9198,13 +9456,12 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 												$elm$html$Html$Attributes$id('editing-game-name'),
 												$elm$html$Html$Attributes$value(
 												A2($elm$core$Maybe$withDefault, '', game.d)),
-												$elm$html$Html$Events$onInput(
-												$author$project$BracketBuilder$UpdateGameName(game))
+												$elm$html$Html$Events$onInput($author$project$BracketBuilder$UpdateGameName)
 											]),
 										_List_Nil)
 									]))
 							]),
-						A2($elm$core$List$indexedMap, viewGamePositionField, game.n))),
+						A2($elm$core$List$indexedMap, viewSideField, game.g))),
 					A2(
 					$elm$html$Html$div,
 					_List_fromArray(
@@ -9217,8 +9474,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 							$elm$html$Html$button,
 							_List_fromArray(
 								[
-									$elm$html$Html$Events$onClick(
-									$author$project$BracketBuilder$CloseEditGame(game)),
+									$elm$html$Html$Events$onClick($author$project$BracketBuilder$CloseEditGame),
 									$elm$html$Html$Attributes$class('btn btn-primary mr-2')
 								]),
 							_List_fromArray(
@@ -9229,14 +9485,14 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 				]));
 	});
 var $author$project$BracketBuilder$CloseEditGroup = function (a) {
-	return {$: 8, a: a};
+	return {$: 9, a: a};
 };
 var $author$project$BracketBuilder$RemoveGroup = function (a) {
-	return {$: 9, a: a};
+	return {$: 10, a: a};
 };
 var $author$project$BracketBuilder$UpdateGroupName = F2(
 	function (a, b) {
-		return {$: 7, a: a, b: b};
+		return {$: 8, a: a, b: b};
 	});
 var $author$project$BracketBuilder$viewEditGroup = F2(
 	function (bracket, group) {
@@ -9245,7 +9501,7 @@ var $author$project$BracketBuilder$viewEditGroup = F2(
 			A2(
 				$elm$core$List$filter,
 				function (g) {
-					return _Utils_eq(g.m.V, group.a);
+					return _Utils_eq(g.o.V, group.a);
 				},
 				bracket.c));
 		return A2(
@@ -9345,7 +9601,7 @@ var $author$project$BracketBuilder$viewEditGroup = F2(
 						]))
 				]));
 	});
-var $author$project$BracketBuilder$Revert = {$: 19};
+var $author$project$BracketBuilder$Revert = {$: 20};
 var $author$project$BracketBuilder$viewRevertConfirmation = A2(
 	$elm$html$Html$div,
 	_List_fromArray(
@@ -9468,9 +9724,9 @@ var $author$project$BracketBuilder$viewOverlay = F3(
 	});
 var $author$project$BracketBuilder$viewOnceLoaded = F3(
 	function (_v0, teams, bracket) {
-		var overlay = _v0.h;
-		var dragDrop = _v0.G;
-		var changed = _v0.g;
+		var overlay = _v0.e;
+		var dragDrop = _v0.H;
+		var changed = _v0.i;
 		var modalOpen = !_Utils_eq(overlay, $elm$core$Maybe$Nothing);
 		var dropId = $norpan$elm_html5_drag_drop$Html5$DragDrop$getDropId(dragDrop);
 		var dragId = $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId(dragDrop);
@@ -9578,7 +9834,7 @@ var $author$project$BracketBuilder$viewOnceLoaded = F3(
 				]));
 	});
 var $author$project$BracketBuilder$view = function (model) {
-	var _v0 = _Utils_Tuple2(model.aa, model.b);
+	var _v0 = _Utils_Tuple2(model._, model.b);
 	_v0$2:
 	while (true) {
 		_v0$3:
@@ -9698,23 +9954,18 @@ var $author$project$BracketBuilder$view = function (model) {
 			]));
 };
 var $author$project$BracketBuilder$main = $elm$browser$Browser$element(
-	{be: $author$project$BracketBuilder$init, bu: $author$project$BracketBuilder$subscriptions, by: $author$project$BracketBuilder$update, bz: $author$project$BracketBuilder$view});
+	{bo: $author$project$BracketBuilder$init, bE: $author$project$BracketBuilder$subscriptions, bI: $author$project$BracketBuilder$update, bJ: $author$project$BracketBuilder$view});
 _Platform_export({'BracketBuilder':{'init':$author$project$BracketBuilder$main(
 	A2(
 		$elm$json$Json$Decode$andThen,
 		function (id) {
 			return A2(
 				$elm$json$Json$Decode$andThen,
-				function (demoMode) {
-					return A2(
-						$elm$json$Json$Decode$andThen,
-						function (baseUrl) {
-							return $elm$json$Json$Decode$succeed(
-								{S: baseUrl, M: demoMode, a: id});
-						},
-						A2($elm$json$Json$Decode$field, 'baseUrl', $elm$json$Json$Decode$string));
+				function (baseUrl) {
+					return $elm$json$Json$Decode$succeed(
+						{T: baseUrl, a: id});
 				},
-				A2($elm$json$Json$Decode$field, 'demoMode', $elm$json$Json$Decode$bool));
+				A2($elm$json$Json$Decode$field, 'baseUrl', $elm$json$Json$Decode$string));
 		},
 		A2(
 			$elm$json$Json$Decode$field,

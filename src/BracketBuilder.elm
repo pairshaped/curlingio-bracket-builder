@@ -25,15 +25,6 @@ import UUID exposing (UUID)
 port dragstart : Decode.Value -> Cmd msg
 
 
-port sendBracketToLocalStorage : Encode.Value -> Cmd msg
-
-
-port requestBracketFromLocalStorage : String -> Cmd msg
-
-
-port receiveBracketFromLocalStorage : (Decode.Value -> msg) -> Sub msg
-
-
 
 ---- MODEL ----
 
@@ -55,8 +46,7 @@ type alias Model =
 
 
 type alias Flags =
-    { demoMode : Bool
-    , baseUrl : String
+    { baseUrl : String
     , id : Maybe Int
     }
 
@@ -364,15 +354,15 @@ trimMaybe str =
 
 
 saveBracket : Flags -> WebData Bracket -> Cmd Msg
-saveBracket { demoMode, baseUrl, id } bracketResult =
+saveBracket { baseUrl, id } bracketResult =
     let
         bracketUrl =
             case id of
                 Just id_ ->
-                    baseUrl ++ "brackets/" ++ String.fromInt id_ ++ "/.json"
+                    baseUrl ++ "brackets/" ++ String.fromInt id_
 
                 Nothing ->
-                    baseUrl ++ "brackets.json"
+                    baseUrl ++ "brackets"
 
         sendBracketToServer : Encode.Value -> Cmd Msg
         sendBracketToServer bracketJson =
@@ -395,27 +385,22 @@ saveBracket { demoMode, baseUrl, id } bracketResult =
     case bracketResult of
         Success bracket ->
             wrapperEncoder bracket
-                |> (if demoMode then
-                        sendBracketToLocalStorage
-
-                    else
-                        sendBracketToServer
-                   )
+                |> sendBracketToServer
 
         _ ->
             Cmd.none
 
 
 loadBracket : Flags -> Cmd Msg
-loadBracket { demoMode, baseUrl, id } =
+loadBracket { baseUrl, id } =
     let
         bracketUrl =
             case id of
                 Just id_ ->
-                    baseUrl ++ "brackets/" ++ String.fromInt id_ ++ ".json"
+                    baseUrl ++ "brackets/" ++ String.fromInt id_
 
                 Nothing ->
-                    baseUrl ++ "brackets/new.json"
+                    baseUrl ++ "brackets/new"
 
         requestBracketFromServer : Cmd Msg
         requestBracketFromServer =
@@ -424,31 +409,19 @@ loadBracket { demoMode, baseUrl, id } =
                 , expect = expectJson (RemoteData.fromResult >> ReceivedBracketFromServer) bracketDecoder
                 }
     in
-    if demoMode then
-        requestBracketFromLocalStorage ""
-
-    else
-        requestBracketFromServer
+    requestBracketFromServer
 
 
 loadTeams : Flags -> Cmd Msg
-loadTeams { demoMode, baseUrl } =
+loadTeams { baseUrl } =
     let
         teamsUrl =
-            baseUrl ++ "teams.json"
-
-        requestTeamsFromServer : Cmd Msg
-        requestTeamsFromServer =
-            Http.get
-                { url = teamsUrl
-                , expect = expectJson (RemoteData.fromResult >> ReceivedTeamsFromServer) teamsDecoder
-                }
+            baseUrl ++ "teams"
     in
-    if demoMode then
-        Cmd.none
-
-    else
-        requestTeamsFromServer
+    Http.get
+        { url = teamsUrl
+        , expect = expectJson (RemoteData.fromResult >> ReceivedTeamsFromServer) teamsDecoder
+        }
 
 
 
@@ -1115,11 +1088,7 @@ update msg model =
                 Err error ->
                     { model
                         | bracket =
-                            if model.flags.demoMode then
-                                Success demoBracket
-
-                            else
-                                Success emptyBracket
+                            Success emptyBracket
                     }
             , Cmd.none
             )
@@ -1141,8 +1110,8 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-    receiveBracketFromLocalStorage ReceivedBracketFromLocalStorage
+subscriptions _ =
+    Sub.none
 
 
 

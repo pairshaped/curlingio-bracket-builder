@@ -2,67 +2,67 @@
   "teams": [
     {
       "id": 1,
-      "name": "Homer"
+      "short_name": "Homer"
     },
     {
       "id": 2,
-      "name": "Marge"
+      "short_name": "Marge"
     },
     {
       "id": 3,
-      "name": "Bart"
+      "short_name": "Bart"
     },
     {
       "id": 4,
-      "name": "Lisa"
+      "short_name": "Lisa"
     },
     {
       "id": 5,
-      "name": "Maggie"
+      "short_name": "Maggie"
     },
     {
       "id": 6,
-      "name": "Krusty"
+      "short_name": "Krusty"
     },
     {
       "id": 7,
-      "name": "Snowball"
+      "short_name": "Snowball"
     },
     {
       "id": 8,
-      "name": "Apu"
+      "short_name": "Apu"
     },
     {
       "id": 9,
-      "name": "Barney"
+      "short_name": "Barney"
     },
     {
       "id": 10,
-      "name": "Ralph"
+      "short_name": "Ralph"
     },
     {
       "id": 11,
-      "name": "Itchy"
+      "short_name": "Itchy"
     },
     {
       "id": 12,
-      "name": "Scratchy"
+      "short_name": "Scratchy"
     },
     {
       "id": 13,
-      "name": "Millhouse"
+      "short_name": "Millhouse"
     },
     {
       "id": 14,
-      "name": "Moe"
+      "short_name": "Moe"
     },
     {
       "id": 15,
-      "name": "Monty"
+      "short_name": "Monty"
     },
     {
       "id": 16,
-      "name": "Ned"
+      "short_name": "Ned"
     }
   ],
   "brackets": [
@@ -83,7 +83,7 @@
         {
           "id": "1",
           "name": "A1",
-          "sides": [
+          "game_positions": [
             {
               "position": 0,
               "team_id": 1,
@@ -106,7 +106,7 @@
         {
           "id": "2",
           "name": "A2",
-          "sides": [
+          "game_positions": [
             {
               "position": 0,
               "team_id": 3,
@@ -129,7 +129,7 @@
         {
           "id": "3",
           "name": "A Final",
-          "sides": [
+          "game_positions": [
             {
               "position": 0,
               "team_id": null,
@@ -152,7 +152,7 @@
         {
           "id": "4",
           "name": "B Final",
-          "sides": [
+          "game_positions": [
             {
               "position": 0,
               "team_id": null,

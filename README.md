@@ -17,14 +17,17 @@
 
 [Documentation](https://curling.io/docs/event-management/playoff-brackets)
 
-## Running
+## Installing Dependencies
 
-1. Install node (nvm is a good option)
-2. Install elm (via node or some other way)
-3. In project directory run `npm install`
-4. Install the json-server if you want to use it. `npm install json-server -g`
-5. `./run.sh` to run the client.
-6. `./server.sh` to run the server.
+```
+yarn
+```
+
+## Running It
+
+```
+yarn start
+```
 
 ## Flags
 

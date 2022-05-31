@@ -1,0 +1,2 @@
+server: json-server --watch db.json
+client: elm-live src/BracketBuilder.elm --start-page=dev.html --open -- --output=dev.js --debug
