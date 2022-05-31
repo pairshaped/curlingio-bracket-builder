@@ -11,6 +11,7 @@ import Json.Encode as Encode
 import List.Extra
 import Random
 import RemoteData exposing (RemoteData(..), WebData)
+import RemoteData.Http
 import Set
 import String.Extra
 import Svg exposing (line, polyline, svg)
@@ -354,38 +355,19 @@ trimMaybe str =
 
 
 saveBracket : Flags -> WebData Bracket -> Cmd Msg
-saveBracket { baseUrl, id } bracketResult =
+saveBracket { baseUrl } bracketResult =
     let
-        bracketUrl =
-            case id of
-                Just id_ ->
-                    baseUrl ++ "brackets/" ++ String.fromInt id_
-
-                Nothing ->
-                    baseUrl ++ "brackets"
-
-        sendBracketToServer : Encode.Value -> Cmd Msg
-        sendBracketToServer bracketJson =
-            Http.request
-                { method =
-                    case id of
-                        Just _ ->
-                            "PATCH"
-
-                        Nothing ->
-                            "POST"
-                , headers = []
-                , url = bracketUrl
-                , body = Http.jsonBody bracketJson
-                , expect = Http.expectJson Saved bracketDecoder
-                , timeout = Nothing
-                , tracker = Nothing
-                }
+        sendCmd action url bracket =
+            action url ReceivedBracketFromServer bracketDecoder (bracketEncoder bracket)
     in
     case bracketResult of
         Success bracket ->
-            wrapperEncoder bracket
-                |> sendBracketToServer
+            case bracket.id of
+                Just id ->
+                    sendCmd RemoteData.Http.patch (baseUrl ++ "brackets/" ++ String.fromInt id) bracket
+
+                Nothing ->
+                    sendCmd RemoteData.Http.post (baseUrl ++ "brackets") bracket
 
         _ ->
             Cmd.none
@@ -394,34 +376,24 @@ saveBracket { baseUrl, id } bracketResult =
 loadBracket : Flags -> Cmd Msg
 loadBracket { baseUrl, id } =
     let
-        bracketUrl =
+        url =
             case id of
                 Just id_ ->
                     baseUrl ++ "brackets/" ++ String.fromInt id_
 
                 Nothing ->
                     baseUrl ++ "brackets/new"
-
-        requestBracketFromServer : Cmd Msg
-        requestBracketFromServer =
-            Http.get
-                { url = bracketUrl
-                , expect = expectJson (RemoteData.fromResult >> ReceivedBracketFromServer) bracketDecoder
-                }
     in
-    requestBracketFromServer
+    RemoteData.Http.get url ReceivedBracketFromServer bracketDecoder
 
 
 loadTeams : Flags -> Cmd Msg
 loadTeams { baseUrl } =
     let
-        teamsUrl =
+        url =
             baseUrl ++ "teams"
     in
-    Http.get
-        { url = teamsUrl
-        , expect = expectJson (RemoteData.fromResult >> ReceivedTeamsFromServer) teamsDecoder
-        }
+    RemoteData.Http.get url ReceivedTeamsFromServer teamsDecoder
 
 
 
@@ -634,12 +606,10 @@ type Msg
     | UpdateSide Int String
     | CloseEditGame
     | Save
-    | Saved (Result Http.Error Bracket)
     | ConfirmRevert
     | Revert
     | ReceivedTeamsFromServer (WebData (List Team))
     | ReceivedBracketFromServer (WebData Bracket)
-    | ReceivedBracketFromLocalStorage Decode.Value
     | ConfirmClear
     | Clear
     | CancelConfirmation
@@ -1044,13 +1014,6 @@ update msg model =
             , saveBracket model.flags model.bracket
             )
 
-        Saved (Ok bracketJson) ->
-            ( { model | bracket = RemoteData.succeed bracketJson }, Cmd.none )
-
-        Saved (Err error) ->
-            -- TODO: Error message that save failed
-            ( model, Cmd.none )
-
         ConfirmRevert ->
             ( { model | overlay = Just RevertConfirmation }, Cmd.none )
 
@@ -1077,19 +1040,6 @@ update msg model =
                     { bracket | groups = sortedGroups bracket.groups }
             in
             ( { model | bracket = RemoteData.map updatedBracket result }
-            , Cmd.none
-            )
-
-        ReceivedBracketFromLocalStorage data ->
-            ( case Decode.decodeValue bracketDecoder data of
-                Ok bracket ->
-                    { model | bracket = Success bracket }
-
-                Err error ->
-                    { model
-                        | bracket =
-                            Success emptyBracket
-                    }
             , Cmd.none
             )
 

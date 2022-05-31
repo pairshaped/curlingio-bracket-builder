@@ -11087,6 +11087,7 @@ var $elm$core$Maybe$isJust = function (maybe) {
 	}
 };
 var $elm$core$Platform$sendToSelf = _Platform_sendToSelf;
+var $elm$http$Http$emptyBody = _Http_emptyBody;
 var $elm$http$Http$expectStringResponse = F2(
 	function (toMsg, toResult) {
 		return A3(
@@ -11165,7 +11166,6 @@ var $krisajenkins$remotedata$RemoteData$fromResult = function (result) {
 		return $krisajenkins$remotedata$RemoteData$Success(x);
 	}
 };
-var $elm$http$Http$emptyBody = _Http_emptyBody;
 var $elm$http$Http$Request = function (a) {
 	return {$: 'Request', a: a};
 };
@@ -11316,14 +11316,61 @@ var $elm$http$Http$request = function (r) {
 		$elm$http$Http$Request(
 			{allowCookiesFromOtherDomains: false, body: r.body, expect: r.expect, headers: r.headers, method: r.method, timeout: r.timeout, tracker: r.tracker, url: r.url}));
 };
-var $elm$http$Http$get = function (r) {
-	return $elm$http$Http$request(
-		{body: $elm$http$Http$emptyBody, expect: r.expect, headers: _List_Nil, method: 'GET', timeout: $elm$core$Maybe$Nothing, tracker: $elm$core$Maybe$Nothing, url: r.url});
+var $elm$http$Http$riskyRequest = function (r) {
+	return $elm$http$Http$command(
+		$elm$http$Http$Request(
+			{allowCookiesFromOtherDomains: true, body: r.body, expect: r.expect, headers: r.headers, method: r.method, timeout: r.timeout, tracker: r.tracker, url: r.url}));
 };
+var $ohanhi$remotedata_http$RemoteData$Http$performRequest = function (_v0) {
+	var risky = _v0.risky;
+	return risky ? $elm$http$Http$riskyRequest : $elm$http$Http$request;
+};
+var $ohanhi$remotedata_http$RemoteData$Http$request = F6(
+	function (method, config, url, tagger, decoder, body) {
+		return A2(
+			$ohanhi$remotedata_http$RemoteData$Http$performRequest,
+			config,
+			{
+				body: body,
+				expect: A2(
+					$elm$http$Http$expectJson,
+					A2($elm$core$Basics$composeR, $krisajenkins$remotedata$RemoteData$fromResult, tagger),
+					decoder),
+				headers: config.headers,
+				method: method,
+				timeout: config.timeout,
+				tracker: config.tracker,
+				url: url
+			});
+	});
+var $ohanhi$remotedata_http$RemoteData$Http$getWithConfig = F4(
+	function (config, url, tagger, decoder) {
+		return A6($ohanhi$remotedata_http$RemoteData$Http$request, 'GET', config, url, tagger, decoder, $elm$http$Http$emptyBody);
+	});
+var $elm$http$Http$Header = F2(
+	function (a, b) {
+		return {$: 'Header', a: a, b: b};
+	});
+var $elm$http$Http$header = $elm$http$Http$Header;
+var $ohanhi$remotedata_http$RemoteData$Http$acceptJson = A2($elm$http$Http$header, 'Accept', 'application/json');
+var $ohanhi$remotedata_http$RemoteData$Http$defaultConfig = {
+	headers: _List_fromArray(
+		[$ohanhi$remotedata_http$RemoteData$Http$acceptJson]),
+	risky: false,
+	timeout: $elm$core$Maybe$Nothing,
+	tracker: $elm$core$Maybe$Nothing
+};
+var $ohanhi$remotedata_http$RemoteData$Http$noCache = A2($elm$http$Http$header, 'Cache-Control', 'no-store, must-revalidate, no-cache, max-age=0');
+var $ohanhi$remotedata_http$RemoteData$Http$noCacheConfig = _Utils_update(
+	$ohanhi$remotedata_http$RemoteData$Http$defaultConfig,
+	{
+		headers: A2($elm$core$List$cons, $ohanhi$remotedata_http$RemoteData$Http$noCache, $ohanhi$remotedata_http$RemoteData$Http$defaultConfig.headers)
+	});
+var $ohanhi$remotedata_http$RemoteData$Http$get = $ohanhi$remotedata_http$RemoteData$Http$getWithConfig($ohanhi$remotedata_http$RemoteData$Http$noCacheConfig);
 var $author$project$BracketBuilder$loadBracket = function (_v0) {
 	var baseUrl = _v0.baseUrl;
 	var id = _v0.id;
-	var bracketUrl = function () {
+	var url = function () {
 		if (id.$ === 'Just') {
 			var id_ = id.a;
 			return baseUrl + ('brackets/' + $elm$core$String$fromInt(id_));
@@ -11331,15 +11378,7 @@ var $author$project$BracketBuilder$loadBracket = function (_v0) {
 			return baseUrl + 'brackets/new';
 		}
 	}();
-	var requestBracketFromServer = $elm$http$Http$get(
-		{
-			expect: A2(
-				$elm$http$Http$expectJson,
-				A2($elm$core$Basics$composeR, $krisajenkins$remotedata$RemoteData$fromResult, $author$project$BracketBuilder$ReceivedBracketFromServer),
-				$author$project$BracketBuilder$bracketDecoder),
-			url: bracketUrl
-		});
-	return requestBracketFromServer;
+	return A3($ohanhi$remotedata_http$RemoteData$Http$get, url, $author$project$BracketBuilder$ReceivedBracketFromServer, $author$project$BracketBuilder$bracketDecoder);
 };
 var $author$project$BracketBuilder$ReceivedTeamsFromServer = function (a) {
 	return {$: 'ReceivedTeamsFromServer', a: a};
@@ -11356,15 +11395,8 @@ var $author$project$BracketBuilder$teamDecoder = A3(
 var $author$project$BracketBuilder$teamsDecoder = $elm$json$Json$Decode$list($author$project$BracketBuilder$teamDecoder);
 var $author$project$BracketBuilder$loadTeams = function (_v0) {
 	var baseUrl = _v0.baseUrl;
-	var teamsUrl = baseUrl + 'teams';
-	return $elm$http$Http$get(
-		{
-			expect: A2(
-				$elm$http$Http$expectJson,
-				A2($elm$core$Basics$composeR, $krisajenkins$remotedata$RemoteData$fromResult, $author$project$BracketBuilder$ReceivedTeamsFromServer),
-				$author$project$BracketBuilder$teamsDecoder),
-			url: teamsUrl
-		});
+	var url = baseUrl + 'teams';
+	return A3($ohanhi$remotedata_http$RemoteData$Http$get, url, $author$project$BracketBuilder$ReceivedTeamsFromServer, $author$project$BracketBuilder$teamsDecoder);
 };
 var $author$project$BracketBuilder$init = function (flags) {
 	return _Utils_Tuple2(
@@ -11590,15 +11622,6 @@ var $elm_community$list_extra$List$Extra$remove = F2(
 				A2($elm_community$list_extra$List$Extra$remove, x, ys));
 		}
 	});
-var $author$project$BracketBuilder$Saved = function (a) {
-	return {$: 'Saved', a: a};
-};
-var $elm$http$Http$jsonBody = function (value) {
-	return A2(
-		_Http_pair,
-		'application/json',
-		A2($elm$json$Json$Encode$encode, 0, value));
-};
 var $elm$json$Json$Encode$int = _Json_wrap;
 var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $author$project$BracketBuilder$gamesEncoder = function (games) {
@@ -11739,55 +11762,57 @@ var $author$project$BracketBuilder$bracketEncoder = function (bracket) {
 				$author$project$BracketBuilder$gamesEncoder(bracket.games))
 			]));
 };
-var $author$project$BracketBuilder$wrapperEncoder = function (bracket) {
-	return $elm$json$Json$Encode$object(
-		_List_fromArray(
-			[
-				_Utils_Tuple2(
-				'bracket',
-				$author$project$BracketBuilder$bracketEncoder(bracket))
-			]));
+var $elm$http$Http$jsonBody = function (value) {
+	return A2(
+		_Http_pair,
+		'application/json',
+		A2($elm$json$Json$Encode$encode, 0, value));
 };
+var $ohanhi$remotedata_http$RemoteData$Http$requestWithJson = F6(
+	function (method, config, url, tagger, decoder, body) {
+		return A6(
+			$ohanhi$remotedata_http$RemoteData$Http$request,
+			method,
+			config,
+			url,
+			tagger,
+			decoder,
+			$elm$http$Http$jsonBody(body));
+	});
+var $ohanhi$remotedata_http$RemoteData$Http$patchWithConfig = $ohanhi$remotedata_http$RemoteData$Http$requestWithJson('PATCH');
+var $ohanhi$remotedata_http$RemoteData$Http$patch = $ohanhi$remotedata_http$RemoteData$Http$patchWithConfig($ohanhi$remotedata_http$RemoteData$Http$defaultConfig);
+var $ohanhi$remotedata_http$RemoteData$Http$postWithConfig = $ohanhi$remotedata_http$RemoteData$Http$requestWithJson('POST');
+var $ohanhi$remotedata_http$RemoteData$Http$post = $ohanhi$remotedata_http$RemoteData$Http$postWithConfig($ohanhi$remotedata_http$RemoteData$Http$defaultConfig);
 var $author$project$BracketBuilder$saveBracket = F2(
 	function (_v0, bracketResult) {
 		var baseUrl = _v0.baseUrl;
-		var id = _v0.id;
-		var bracketUrl = function () {
-			if (id.$ === 'Just') {
-				var id_ = id.a;
-				return baseUrl + ('brackets/' + $elm$core$String$fromInt(id_));
-			} else {
-				return baseUrl + 'brackets';
-			}
-		}();
-		var sendBracketToServer = function (bracketJson) {
-			return $elm$http$Http$request(
-				{
-					body: $elm$http$Http$jsonBody(bracketJson),
-					expect: A2($elm$http$Http$expectJson, $author$project$BracketBuilder$Saved, $author$project$BracketBuilder$bracketDecoder),
-					headers: _List_Nil,
-					method: function () {
-						if (id.$ === 'Just') {
-							return 'PATCH';
-						} else {
-							return 'POST';
-						}
-					}(),
-					timeout: $elm$core$Maybe$Nothing,
-					tracker: $elm$core$Maybe$Nothing,
-					url: bracketUrl
-				});
-		};
+		var sendCmd = F3(
+			function (action, url, bracket) {
+				return A4(
+					action,
+					url,
+					$author$project$BracketBuilder$ReceivedBracketFromServer,
+					$author$project$BracketBuilder$bracketDecoder,
+					$author$project$BracketBuilder$bracketEncoder(bracket));
+			});
 		if (bracketResult.$ === 'Success') {
 			var bracket = bracketResult.a;
-			return sendBracketToServer(
-				$author$project$BracketBuilder$wrapperEncoder(bracket));
+			var _v2 = bracket.id;
+			if (_v2.$ === 'Just') {
+				var id = _v2.a;
+				return A3(
+					sendCmd,
+					$ohanhi$remotedata_http$RemoteData$Http$patch,
+					baseUrl + ('brackets/' + $elm$core$String$fromInt(id)),
+					bracket);
+			} else {
+				return A3(sendCmd, $ohanhi$remotedata_http$RemoteData$Http$post, baseUrl + 'brackets', bracket);
+			}
 		} else {
 			return $elm$core$Platform$Cmd$none;
 		}
 	});
 var $elm$core$List$sortBy = _List_sortBy;
-var $krisajenkins$remotedata$RemoteData$succeed = $krisajenkins$remotedata$RemoteData$Success;
 var $elm$core$String$cons = _String_cons;
 var $elm$core$String$fromChar = function (_char) {
 	return A2($elm$core$String$cons, _char, '');
@@ -12608,20 +12633,6 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{changed: false}),
 					A2($author$project$BracketBuilder$saveBracket, model.flags, model.bracket));
-			case 'Saved':
-				if (msg.a.$ === 'Ok') {
-					var bracketJson = msg.a.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								bracket: $krisajenkins$remotedata$RemoteData$succeed(bracketJson)
-							}),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					var error = msg.a.a;
-					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-				}
 			case 'ConfirmRevert':
 				return _Utils_Tuple2(
 					_Utils_update(
@@ -12666,28 +12677,6 @@ var $author$project$BracketBuilder$update = F2(
 						{
 							bracket: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, result)
 						}),
-					$elm$core$Platform$Cmd$none);
-			case 'ReceivedBracketFromLocalStorage':
-				var data = msg.a;
-				return _Utils_Tuple2(
-					function () {
-						var _v19 = A2($elm$json$Json$Decode$decodeValue, $author$project$BracketBuilder$bracketDecoder, data);
-						if (_v19.$ === 'Ok') {
-							var bracket = _v19.a;
-							return _Utils_update(
-								model,
-								{
-									bracket: $krisajenkins$remotedata$RemoteData$Success(bracket)
-								});
-						} else {
-							var error = _v19.a;
-							return _Utils_update(
-								model,
-								{
-									bracket: $krisajenkins$remotedata$RemoteData$Success($author$project$BracketBuilder$emptyBracket)
-								});
-						}
-					}(),
 					$elm$core$Platform$Cmd$none);
 			case 'ConfirmClear':
 				return _Utils_Tuple2(
@@ -14652,4 +14641,4 @@ _Platform_export({'BracketBuilder':{'init':$author$project$BracketBuilder$main(
 					[
 						$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
 						A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$int)
-					])))))({"versions":{"elm":"0.19.1"},"types":{"message":"BracketBuilder.Msg","aliases":{"BracketBuilder.Bracket":{"args":[],"type":"{ id : Maybe.Maybe Basics.Int, name : String.String, groups : List.List BracketBuilder.Group, games : List.List BracketBuilder.Game }"},"BracketBuilder.Coords":{"args":[],"type":"{ groupId : Basics.Int, col : Basics.Int, row : Basics.Int }"},"BracketBuilder.Game":{"args":[],"type":"{ id : String.String, name : Maybe.Maybe String.String, coords : BracketBuilder.Coords, sides : List.List BracketBuilder.Side }"},"BracketBuilder.Group":{"args":[],"type":"{ id : Basics.Int, name : String.String, visible : Basics.Bool }"},"BracketBuilder.Side":{"args":[],"type":"{ position : Basics.Int, assignment : Maybe.Maybe BracketBuilder.Assignment }"},"BracketBuilder.Team":{"args":[],"type":"{ id : Basics.Int, name : String.String }"},"Json.Decode.Value":{"args":[],"type":"Json.Encode.Value"},"RemoteData.WebData":{"args":["a"],"type":"RemoteData.RemoteData Http.Error a"},"Html5.DragDrop.Position":{"args":[],"type":"{ width : Basics.Int, height : Basics.Int, x : Basics.Int, y : Basics.Int }"}},"unions":{"BracketBuilder.Msg":{"args":[],"tags":{"GenerateNextGameId":["Random.Seed"],"DragDropMsg":["Html5.DragDrop.Msg BracketBuilder.DraggableId BracketBuilder.DroppableId"],"EditBracketName":[],"UpdateBracketName":["String.String"],"CloseEditBracketName":[],"AddGroup":[],"EditGroup":["BracketBuilder.Group"],"ToggleGroup":["BracketBuilder.Group"],"UpdateGroupName":["BracketBuilder.Group","String.String"],"CloseEditGroup":["BracketBuilder.Group"],"RemoveGroup":["BracketBuilder.Group"],"AddGame":["BracketBuilder.Coords"],"RemoveGame":["BracketBuilder.Game"],"EditGame":["BracketBuilder.Game"],"UpdateGameName":["String.String"],"UpdateSide":["Basics.Int","String.String"],"CloseEditGame":[],"Save":[],"Saved":["Result.Result Http.Error BracketBuilder.Bracket"],"ConfirmRevert":[],"Revert":[],"ReceivedTeamsFromServer":["RemoteData.WebData (List.List BracketBuilder.Team)"],"ReceivedBracketFromServer":["RemoteData.WebData BracketBuilder.Bracket"],"ReceivedBracketFromLocalStorage":["Json.Decode.Value"],"ConfirmClear":[],"Clear":[],"CancelConfirmation":[]}},"BracketBuilder.Assignment":{"args":[],"tags":{"TeamAssignment":["Basics.Int"],"WinnerAssignment":["String.String"],"LoserAssignment":["String.String"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"BracketBuilder.DraggableId":{"args":[],"tags":{"DraggableGame":["String.String"],"DraggableResult":["BracketBuilder.Assignment"]}},"BracketBuilder.DroppableId":{"args":[],"tags":{"DroppableCell":["BracketBuilder.Coords"],"DroppableSide":["( String.String, Basics.Int )"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Html5.DragDrop.Msg":{"args":["dragId","dropId"],"tags":{"DragStart":["dragId","Json.Decode.Value"],"DragEnd":[],"DragEnter":["dropId"],"DragLeave":["dropId"],"DragOver":["dropId","Basics.Int","Html5.DragDrop.Position"],"Drop":["dropId","Html5.DragDrop.Position"]}},"RemoteData.RemoteData":{"args":["e","a"],"tags":{"NotAsked":[],"Loading":[],"Failure":["e"],"Success":["a"]}},"Result.Result":{"args":["error","value"],"tags":{"Ok":["value"],"Err":["error"]}},"Random.Seed":{"args":[],"tags":{"Seed":["Basics.Int","Basics.Int"]}},"String.String":{"args":[],"tags":{"String":[]}},"Json.Encode.Value":{"args":[],"tags":{"Value":[]}}}}})}});}(this));
+					])))))({"versions":{"elm":"0.19.1"},"types":{"message":"BracketBuilder.Msg","aliases":{"BracketBuilder.Bracket":{"args":[],"type":"{ id : Maybe.Maybe Basics.Int, name : String.String, groups : List.List BracketBuilder.Group, games : List.List BracketBuilder.Game }"},"BracketBuilder.Coords":{"args":[],"type":"{ groupId : Basics.Int, col : Basics.Int, row : Basics.Int }"},"BracketBuilder.Game":{"args":[],"type":"{ id : String.String, name : Maybe.Maybe String.String, coords : BracketBuilder.Coords, sides : List.List BracketBuilder.Side }"},"BracketBuilder.Group":{"args":[],"type":"{ id : Basics.Int, name : String.String, visible : Basics.Bool }"},"BracketBuilder.Side":{"args":[],"type":"{ position : Basics.Int, assignment : Maybe.Maybe BracketBuilder.Assignment }"},"BracketBuilder.Team":{"args":[],"type":"{ id : Basics.Int, name : String.String }"},"RemoteData.WebData":{"args":["a"],"type":"RemoteData.RemoteData Http.Error a"},"Html5.DragDrop.Position":{"args":[],"type":"{ width : Basics.Int, height : Basics.Int, x : Basics.Int, y : Basics.Int }"},"Json.Decode.Value":{"args":[],"type":"Json.Encode.Value"}},"unions":{"BracketBuilder.Msg":{"args":[],"tags":{"GenerateNextGameId":["Random.Seed"],"DragDropMsg":["Html5.DragDrop.Msg BracketBuilder.DraggableId BracketBuilder.DroppableId"],"EditBracketName":[],"UpdateBracketName":["String.String"],"CloseEditBracketName":[],"AddGroup":[],"EditGroup":["BracketBuilder.Group"],"ToggleGroup":["BracketBuilder.Group"],"UpdateGroupName":["BracketBuilder.Group","String.String"],"CloseEditGroup":["BracketBuilder.Group"],"RemoveGroup":["BracketBuilder.Group"],"AddGame":["BracketBuilder.Coords"],"RemoveGame":["BracketBuilder.Game"],"EditGame":["BracketBuilder.Game"],"UpdateGameName":["String.String"],"UpdateSide":["Basics.Int","String.String"],"CloseEditGame":[],"Save":[],"ConfirmRevert":[],"Revert":[],"ReceivedTeamsFromServer":["RemoteData.WebData (List.List BracketBuilder.Team)"],"ReceivedBracketFromServer":["RemoteData.WebData BracketBuilder.Bracket"],"ConfirmClear":[],"Clear":[],"CancelConfirmation":[]}},"BracketBuilder.Assignment":{"args":[],"tags":{"TeamAssignment":["Basics.Int"],"WinnerAssignment":["String.String"],"LoserAssignment":["String.String"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"BracketBuilder.DraggableId":{"args":[],"tags":{"DraggableGame":["String.String"],"DraggableResult":["BracketBuilder.Assignment"]}},"BracketBuilder.DroppableId":{"args":[],"tags":{"DroppableCell":["BracketBuilder.Coords"],"DroppableSide":["( String.String, Basics.Int )"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Html5.DragDrop.Msg":{"args":["dragId","dropId"],"tags":{"DragStart":["dragId","Json.Decode.Value"],"DragEnd":[],"DragEnter":["dropId"],"DragLeave":["dropId"],"DragOver":["dropId","Basics.Int","Html5.DragDrop.Position"],"Drop":["dropId","Html5.DragDrop.Position"]}},"RemoteData.RemoteData":{"args":["e","a"],"tags":{"NotAsked":[],"Loading":[],"Failure":["e"],"Success":["a"]}},"Random.Seed":{"args":[],"tags":{"Seed":["Basics.Int","Basics.Int"]}},"String.String":{"args":[],"tags":{"String":[]}},"Json.Encode.Value":{"args":[],"tags":{"Value":[]}}}}})}});}(this));

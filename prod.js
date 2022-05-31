@@ -519,11 +519,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.au.W === region.az.W)
+	if (region.av.X === region.aA.X)
 	{
-		return 'on line ' + region.au.W;
+		return 'on line ' + region.av.X;
 	}
-	return 'on lines ' + region.au.W + ' through ' + region.az.W;
+	return 'on lines ' + region.av.X + ' through ' + region.aA.X;
 }
 
 
@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.bo,
-		impl.bI,
-		impl.bE,
+		impl.bq,
+		impl.bJ,
+		impl.bG,
 		function() { return function() {} }
 	);
 });
@@ -2705,8 +2705,8 @@ var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
 		E: func(record.E),
-		av: record.av,
-		as: record.as
+		aw: record.aw,
+		at: record.at
 	}
 });
 
@@ -2975,10 +2975,10 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 
 		var value = result.a;
 		var message = !tag ? value : tag < 3 ? value.a : value.E;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.av;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.aw;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.as) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.at) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3928,11 +3928,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.bo,
-		impl.bI,
-		impl.bE,
+		impl.bq,
+		impl.bJ,
+		impl.bG,
 		function(sendToApp, initialModel) {
-			var view = impl.bJ;
+			var view = impl.bK;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3964,12 +3964,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.bo,
-		impl.bI,
-		impl.bE,
+		impl.bq,
+		impl.bJ,
+		impl.bG,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.at && impl.at(sendToApp)
-			var view = impl.bJ;
+			var divertHrefToApp = impl.au && impl.au(sendToApp)
+			var view = impl.bK;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3977,12 +3977,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.a9);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.bc);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.bG) && (_VirtualDom_doc.title = title = doc.bG);
+				(title !== doc.bI) && (_VirtualDom_doc.title = title = doc.bI);
 			});
 		}
 	);
@@ -4038,12 +4038,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.bu;
-	var onUrlRequest = impl.bv;
+	var onUrlChange = impl.bw;
+	var onUrlRequest = impl.bx;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		at: function(sendToApp)
+		au: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4059,9 +4059,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.aO === next.aO
-							&& curr.aE === next.aE
-							&& curr.aL.a === next.aL.a
+							&& curr.aQ === next.aQ
+							&& curr.aG === next.aG
+							&& curr.aN.a === next.aN.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4069,13 +4069,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		bo: function(flags)
+		bq: function(flags)
 		{
-			return A3(impl.bo, flags, _Browser_getUrl(), key);
+			return A3(impl.bq, flags, _Browser_getUrl(), key);
 		},
+		bK: impl.bK,
 		bJ: impl.bJ,
-		bI: impl.bI,
-		bE: impl.bE
+		bG: impl.bG
 	});
 }
 
@@ -4141,17 +4141,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { bl: 'hidden', bb: 'visibilitychange' }
+		? { bn: 'hidden', be: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { bl: 'mozHidden', bb: 'mozvisibilitychange' }
+		? { bn: 'mozHidden', be: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { bl: 'msHidden', bb: 'msvisibilitychange' }
+		? { bn: 'msHidden', be: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { bl: 'webkitHidden', bb: 'webkitvisibilitychange' }
-		: { bl: 'hidden', bb: 'visibilitychange' };
+		? { bn: 'webkitHidden', be: 'webkitvisibilitychange' }
+		: { bn: 'hidden', be: 'visibilitychange' };
 }
 
 
@@ -4232,12 +4232,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		aV: _Browser_getScene(),
-		a1: {
-			a3: _Browser_window.pageXOffset,
-			a4: _Browser_window.pageYOffset,
-			a2: _Browser_doc.documentElement.clientWidth,
-			aD: _Browser_doc.documentElement.clientHeight
+		aX: _Browser_getScene(),
+		a4: {
+			a6: _Browser_window.pageXOffset,
+			a7: _Browser_window.pageYOffset,
+			a5: _Browser_doc.documentElement.clientWidth,
+			aF: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4247,8 +4247,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		a2: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		aD: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		a5: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		aF: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4271,15 +4271,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			aV: {
-				a2: node.scrollWidth,
-				aD: node.scrollHeight
+			aX: {
+				a5: node.scrollWidth,
+				aF: node.scrollHeight
 			},
-			a1: {
-				a3: node.scrollLeft,
-				a4: node.scrollTop,
-				a2: node.clientWidth,
-				aD: node.clientHeight
+			a4: {
+				a6: node.scrollLeft,
+				a7: node.scrollTop,
+				a5: node.clientWidth,
+				aF: node.clientHeight
 			}
 		};
 	});
@@ -4309,18 +4309,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			aV: _Browser_getScene(),
-			a1: {
-				a3: x,
-				a4: y,
-				a2: _Browser_doc.documentElement.clientWidth,
-				aD: _Browser_doc.documentElement.clientHeight
+			aX: _Browser_getScene(),
+			a4: {
+				a6: x,
+				a7: y,
+				a5: _Browser_doc.documentElement.clientWidth,
+				aF: _Browser_doc.documentElement.clientHeight
 			},
-			be: {
-				a3: x + rect.left,
-				a4: y + rect.top,
-				a2: rect.width,
-				aD: rect.height
+			bh: {
+				a6: x + rect.left,
+				a7: y + rect.top,
+				a5: rect.width,
+				aF: rect.height
 			}
 		};
 	});
@@ -4448,25 +4448,25 @@ var _Http_toTask = F3(function(router, toTask, request)
 	return _Scheduler_binding(function(callback)
 	{
 		function done(response) {
-			callback(toTask(request.ap.a(response)));
+			callback(toTask(request.aq.a(response)));
 		}
 
 		var xhr = new XMLHttpRequest();
 		xhr.addEventListener('error', function() { done($elm$http$Http$NetworkError_); });
 		xhr.addEventListener('timeout', function() { done($elm$http$Http$Timeout_); });
-		xhr.addEventListener('load', function() { done(_Http_toResponse(request.ap.b, xhr)); });
-		$elm$core$Maybe$isJust(request.bH) && _Http_track(router, xhr, request.bH.a);
+		xhr.addEventListener('load', function() { done(_Http_toResponse(request.aq.b, xhr)); });
+		$elm$core$Maybe$isJust(request.a3) && _Http_track(router, xhr, request.a3.a);
 
 		try {
-			xhr.open(request.bq, request.aw, true);
+			xhr.open(request.bs, request.ax, true);
 		} catch (e) {
-			return done($elm$http$Http$BadUrl_(request.aw));
+			return done($elm$http$Http$BadUrl_(request.ax));
 		}
 
 		_Http_configureRequest(xhr, request);
 
-		request.a9.a && xhr.setRequestHeader('Content-Type', request.a9.a);
-		xhr.send(request.a9.b);
+		request.bc.a && xhr.setRequestHeader('Content-Type', request.bc.a);
+		xhr.send(request.bc.b);
 
 		return function() { xhr.c = true; xhr.abort(); };
 	});
@@ -4477,13 +4477,13 @@ var _Http_toTask = F3(function(router, toTask, request)
 
 function _Http_configureRequest(xhr, request)
 {
-	for (var headers = request.bk; headers.b; headers = headers.b) // WHILE_CONS
+	for (var headers = request.aE; headers.b; headers = headers.b) // WHILE_CONS
 	{
 		xhr.setRequestHeader(headers.a.a, headers.a.b);
 	}
-	xhr.timeout = request.bF.a || 0;
-	xhr.responseType = request.ap.d;
-	xhr.withCredentials = request.a7;
+	xhr.timeout = request.bH.a || 0;
+	xhr.responseType = request.aq.d;
+	xhr.withCredentials = request.ba;
 }
 
 
@@ -4504,10 +4504,10 @@ function _Http_toResponse(toBody, xhr)
 function _Http_toMetadata(xhr)
 {
 	return {
-		aw: xhr.responseURL,
-		bB: xhr.status,
-		bC: xhr.statusText,
-		bk: _Http_parseHeaders(xhr.getAllResponseHeaders())
+		ax: xhr.responseURL,
+		bD: xhr.status,
+		bE: xhr.statusText,
+		aE: _Http_parseHeaders(xhr.getAllResponseHeaders())
 	};
 }
 
@@ -4602,15 +4602,15 @@ function _Http_track(router, xhr, tracker)
 	xhr.upload.addEventListener('progress', function(event) {
 		if (xhr.c) { return; }
 		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Sending({
-			bA: event.loaded,
-			a_: event.total
+			bC: event.loaded,
+			a0: event.total
 		}))));
 	});
 	xhr.addEventListener('progress', function(event) {
 		if (xhr.c) { return; }
 		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Receiving({
-			bx: event.loaded,
-			a_: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
+			bz: event.loaded,
+			a0: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
 		}))));
 	});
 }var $elm$core$Maybe$Just = function (a) {
@@ -5118,7 +5118,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {aA: fragment, aE: host, aJ: path, aL: port_, aO: protocol, aP: query};
+		return {aB: fragment, aG: host, aL: path, aN: port_, aQ: protocol, aR: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5405,7 +5405,7 @@ var $krisajenkins$remotedata$RemoteData$Success = function (a) {
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $author$project$BracketBuilder$Group = F3(
 	function (id, name, visible) {
-		return {a: id, d: name, ao: visible};
+		return {a: id, d: name, ap: visible};
 	});
 var $author$project$BracketBuilder$emptyBracket = {
 	c: _List_Nil,
@@ -5595,7 +5595,7 @@ var $author$project$BracketBuilder$generateNextGameId = A2($elm$random$Random$ge
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging = {$: 0};
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$init = $norpan$elm_html5_drag_drop$Html5$DragDrop$NotDragging;
 var $author$project$BracketBuilder$ReceivedBracketFromServer = function (a) {
-	return {$: 22, a: a};
+	return {$: 21, a: a};
 };
 var $author$project$BracketBuilder$Bracket = F4(
 	function (id, name, groups, games) {
@@ -5603,7 +5603,7 @@ var $author$project$BracketBuilder$Bracket = F4(
 	});
 var $author$project$BracketBuilder$Coords = F3(
 	function (groupId, col, row) {
-		return {N: col, V: groupId, P: row};
+		return {N: col, W: groupId, Q: row};
 	});
 var $author$project$BracketBuilder$Game = F4(
 	function (id, name, coords, sides) {
@@ -5698,12 +5698,6 @@ var $author$project$BracketBuilder$bracketDecoder = A5(
 		$elm$json$Json$Decode$field,
 		'games',
 		$elm$json$Json$Decode$list($author$project$BracketBuilder$gameDecoder)));
-var $elm$core$Basics$composeR = F3(
-	function (f, g, x) {
-		return g(
-			f(x));
-	});
-var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $elm$http$Http$BadStatus_ = F2(
 	function (a, b) {
 		return {$: 3, a: a, b: b};
@@ -6246,6 +6240,13 @@ var $elm$core$Dict$update = F3(
 			return A2($elm$core$Dict$remove, targetKey, dictionary);
 		}
 	});
+var $elm$http$Http$emptyBody = _Http_emptyBody;
+var $elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
+var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $elm$http$Http$expectStringResponse = F2(
 	function (toMsg, toResult) {
 		return A3(
@@ -6290,7 +6291,7 @@ var $elm$http$Http$resolve = F2(
 			case 3:
 				var metadata = response.a;
 				return $elm$core$Result$Err(
-					$elm$http$Http$BadStatus(metadata.bB));
+					$elm$http$Http$BadStatus(metadata.bD));
 			default:
 				var body = response.b;
 				return A2(
@@ -6324,13 +6325,12 @@ var $krisajenkins$remotedata$RemoteData$fromResult = function (result) {
 		return $krisajenkins$remotedata$RemoteData$Success(x);
 	}
 };
-var $elm$http$Http$emptyBody = _Http_emptyBody;
 var $elm$http$Http$Request = function (a) {
 	return {$: 1, a: a};
 };
 var $elm$http$Http$State = F2(
 	function (reqs, subs) {
-		return {aR: reqs, a$: subs};
+		return {aT: reqs, a1: subs};
 	});
 var $elm$http$Http$init = $elm$core$Task$succeed(
 	A2($elm$http$Http$State, $elm$core$Dict$empty, _List_Nil));
@@ -6374,7 +6374,7 @@ var $elm$http$Http$updateReqs = F3(
 					return A2(
 						$elm$core$Task$andThen,
 						function (pid) {
-							var _v4 = req.bH;
+							var _v4 = req.a3;
 							if (_v4.$ === 1) {
 								return A3($elm$http$Http$updateReqs, router, otherCmds, reqs);
 							} else {
@@ -6404,7 +6404,7 @@ var $elm$http$Http$onEffects = F4(
 				return $elm$core$Task$succeed(
 					A2($elm$http$Http$State, reqs, subs));
 			},
-			A3($elm$http$Http$updateReqs, router, cmds, state.aR));
+			A3($elm$http$Http$updateReqs, router, cmds, state.aT));
 	});
 var $elm$core$List$maybeCons = F3(
 	function (f, mx, xs) {
@@ -6447,7 +6447,7 @@ var $elm$http$Http$onSelfMsg = F3(
 				A2(
 					$elm$core$List$filterMap,
 					A3($elm$http$Http$maybeSend, router, tracker, progress),
-					state.a$)));
+					state.a1)));
 	});
 var $elm$http$Http$Cancel = function (a) {
 	return {$: 0, a: a};
@@ -6461,14 +6461,14 @@ var $elm$http$Http$cmdMap = F2(
 			var r = cmd.a;
 			return $elm$http$Http$Request(
 				{
-					a7: r.a7,
-					a9: r.a9,
-					ap: A2(_Http_mapExpect, func, r.ap),
-					bk: r.bk,
-					bq: r.bq,
-					bF: r.bF,
+					ba: r.ba,
+					bc: r.bc,
+					aq: A2(_Http_mapExpect, func, r.aq),
+					aE: r.aE,
+					bs: r.bs,
 					bH: r.bH,
-					aw: r.aw
+					a3: r.a3,
+					ax: r.ax
 				});
 		}
 	});
@@ -6491,16 +6491,63 @@ var $elm$http$Http$subscription = _Platform_leaf('Http');
 var $elm$http$Http$request = function (r) {
 	return $elm$http$Http$command(
 		$elm$http$Http$Request(
-			{a7: false, a9: r.a9, ap: r.ap, bk: r.bk, bq: r.bq, bF: r.bF, bH: r.bH, aw: r.aw}));
+			{ba: false, bc: r.bc, aq: r.aq, aE: r.aE, bs: r.bs, bH: r.bH, a3: r.a3, ax: r.ax}));
 };
-var $elm$http$Http$get = function (r) {
-	return $elm$http$Http$request(
-		{a9: $elm$http$Http$emptyBody, ap: r.ap, bk: _List_Nil, bq: 'GET', bF: $elm$core$Maybe$Nothing, bH: $elm$core$Maybe$Nothing, aw: r.aw});
+var $elm$http$Http$riskyRequest = function (r) {
+	return $elm$http$Http$command(
+		$elm$http$Http$Request(
+			{ba: true, bc: r.bc, aq: r.aq, aE: r.aE, bs: r.bs, bH: r.bH, a3: r.a3, ax: r.ax}));
 };
+var $ohanhi$remotedata_http$RemoteData$Http$performRequest = function (_v0) {
+	var risky = _v0.P;
+	return risky ? $elm$http$Http$riskyRequest : $elm$http$Http$request;
+};
+var $ohanhi$remotedata_http$RemoteData$Http$request = F6(
+	function (method, config, url, tagger, decoder, body) {
+		return A2(
+			$ohanhi$remotedata_http$RemoteData$Http$performRequest,
+			config,
+			{
+				bc: body,
+				aq: A2(
+					$elm$http$Http$expectJson,
+					A2($elm$core$Basics$composeR, $krisajenkins$remotedata$RemoteData$fromResult, tagger),
+					decoder),
+				aE: config.aE,
+				bs: method,
+				bH: config.bH,
+				a3: config.a3,
+				ax: url
+			});
+	});
+var $ohanhi$remotedata_http$RemoteData$Http$getWithConfig = F4(
+	function (config, url, tagger, decoder) {
+		return A6($ohanhi$remotedata_http$RemoteData$Http$request, 'GET', config, url, tagger, decoder, $elm$http$Http$emptyBody);
+	});
+var $elm$http$Http$Header = F2(
+	function (a, b) {
+		return {$: 0, a: a, b: b};
+	});
+var $elm$http$Http$header = $elm$http$Http$Header;
+var $ohanhi$remotedata_http$RemoteData$Http$acceptJson = A2($elm$http$Http$header, 'Accept', 'application/json');
+var $ohanhi$remotedata_http$RemoteData$Http$defaultConfig = {
+	aE: _List_fromArray(
+		[$ohanhi$remotedata_http$RemoteData$Http$acceptJson]),
+	P: false,
+	bH: $elm$core$Maybe$Nothing,
+	a3: $elm$core$Maybe$Nothing
+};
+var $ohanhi$remotedata_http$RemoteData$Http$noCache = A2($elm$http$Http$header, 'Cache-Control', 'no-store, must-revalidate, no-cache, max-age=0');
+var $ohanhi$remotedata_http$RemoteData$Http$noCacheConfig = _Utils_update(
+	$ohanhi$remotedata_http$RemoteData$Http$defaultConfig,
+	{
+		aE: A2($elm$core$List$cons, $ohanhi$remotedata_http$RemoteData$Http$noCache, $ohanhi$remotedata_http$RemoteData$Http$defaultConfig.aE)
+	});
+var $ohanhi$remotedata_http$RemoteData$Http$get = $ohanhi$remotedata_http$RemoteData$Http$getWithConfig($ohanhi$remotedata_http$RemoteData$Http$noCacheConfig);
 var $author$project$BracketBuilder$loadBracket = function (_v0) {
-	var baseUrl = _v0.T;
+	var baseUrl = _v0.U;
 	var id = _v0.a;
-	var bracketUrl = function () {
+	var url = function () {
 		if (!id.$) {
 			var id_ = id.a;
 			return baseUrl + ('brackets/' + $elm$core$String$fromInt(id_));
@@ -6508,18 +6555,10 @@ var $author$project$BracketBuilder$loadBracket = function (_v0) {
 			return baseUrl + 'brackets/new';
 		}
 	}();
-	var requestBracketFromServer = $elm$http$Http$get(
-		{
-			ap: A2(
-				$elm$http$Http$expectJson,
-				A2($elm$core$Basics$composeR, $krisajenkins$remotedata$RemoteData$fromResult, $author$project$BracketBuilder$ReceivedBracketFromServer),
-				$author$project$BracketBuilder$bracketDecoder),
-			aw: bracketUrl
-		});
-	return requestBracketFromServer;
+	return A3($ohanhi$remotedata_http$RemoteData$Http$get, url, $author$project$BracketBuilder$ReceivedBracketFromServer, $author$project$BracketBuilder$bracketDecoder);
 };
 var $author$project$BracketBuilder$ReceivedTeamsFromServer = function (a) {
-	return {$: 21, a: a};
+	return {$: 20, a: a};
 };
 var $author$project$BracketBuilder$Team = F2(
 	function (id, name) {
@@ -6532,16 +6571,9 @@ var $author$project$BracketBuilder$teamDecoder = A3(
 	A2($elm$json$Json$Decode$field, 'short_name', $elm$json$Json$Decode$string));
 var $author$project$BracketBuilder$teamsDecoder = $elm$json$Json$Decode$list($author$project$BracketBuilder$teamDecoder);
 var $author$project$BracketBuilder$loadTeams = function (_v0) {
-	var baseUrl = _v0.T;
-	var teamsUrl = baseUrl + 'teams';
-	return $elm$http$Http$get(
-		{
-			ap: A2(
-				$elm$http$Http$expectJson,
-				A2($elm$core$Basics$composeR, $krisajenkins$remotedata$RemoteData$fromResult, $author$project$BracketBuilder$ReceivedTeamsFromServer),
-				$author$project$BracketBuilder$teamsDecoder),
-			aw: teamsUrl
-		});
+	var baseUrl = _v0.U;
+	var url = baseUrl + 'teams';
+	return A3($ohanhi$remotedata_http$RemoteData$Http$get, url, $author$project$BracketBuilder$ReceivedTeamsFromServer, $author$project$BracketBuilder$teamsDecoder);
 };
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $author$project$BracketBuilder$init = function (flags) {
@@ -6557,10 +6589,10 @@ var $author$project$BracketBuilder$init = function (flags) {
 			}(),
 			i: false,
 			H: $norpan$elm_html5_drag_drop$Html5$DragDrop$init,
-			ai: flags,
-			aj: $elm$core$Maybe$Nothing,
+			aj: flags,
+			ak: $elm$core$Maybe$Nothing,
 			e: $elm$core$Maybe$Nothing,
-			_: $krisajenkins$remotedata$RemoteData$Loading
+			aa: $krisajenkins$remotedata$RemoteData$Loading
 		},
 		$elm$core$Platform$Cmd$batch(
 			_List_fromArray(
@@ -6610,7 +6642,6 @@ var $author$project$BracketBuilder$clearAssignmentFromAllGames = F2(
 		};
 		return A2($elm$core$List$map, unassignedGame, games);
 	});
-var $elm$json$Json$Decode$decodeValue = _Json_run;
 var $author$project$BracketBuilder$dragstart = _Platform_outgoingPort('dragstart', $elm$core$Basics$identity);
 var $elm_community$list_extra$List$Extra$find = F2(
 	function (predicate, list) {
@@ -6715,7 +6746,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragstartEvent = function (msg
 		var dragId = msg.a;
 		var event = msg.b;
 		return $elm$core$Maybe$Just(
-			{bd: dragId, bf: event});
+			{bg: dragId, bi: event});
 	} else {
 		return $elm$core$Maybe$Nothing;
 	}
@@ -6770,15 +6801,6 @@ var $elm_community$list_extra$List$Extra$remove = F2(
 				A2($elm_community$list_extra$List$Extra$remove, x, ys));
 		}
 	});
-var $author$project$BracketBuilder$Saved = function (a) {
-	return {$: 18, a: a};
-};
-var $elm$http$Http$jsonBody = function (value) {
-	return A2(
-		_Http_pair,
-		'application/json',
-		A2($elm$json$Json$Encode$encode, 0, value));
-};
 var $elm$json$Json$Encode$int = _Json_wrap;
 var $elm$json$Json$Encode$list = F2(
 	function (func, entries) {
@@ -6865,13 +6887,13 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 					[
 						_Utils_Tuple2(
 						'group_id',
-						$elm$json$Json$Encode$int(coords.V)),
+						$elm$json$Json$Encode$int(coords.W)),
 						_Utils_Tuple2(
 						'col',
 						$elm$json$Json$Encode$int(coords.N)),
 						_Utils_Tuple2(
 						'row',
-						$elm$json$Json$Encode$int(coords.P))
+						$elm$json$Json$Encode$int(coords.Q))
 					]));
 		};
 		return $elm$json$Json$Encode$object(
@@ -6942,55 +6964,57 @@ var $author$project$BracketBuilder$bracketEncoder = function (bracket) {
 				$author$project$BracketBuilder$gamesEncoder(bracket.c))
 			]));
 };
-var $author$project$BracketBuilder$wrapperEncoder = function (bracket) {
-	return $elm$json$Json$Encode$object(
-		_List_fromArray(
-			[
-				_Utils_Tuple2(
-				'bracket',
-				$author$project$BracketBuilder$bracketEncoder(bracket))
-			]));
+var $elm$http$Http$jsonBody = function (value) {
+	return A2(
+		_Http_pair,
+		'application/json',
+		A2($elm$json$Json$Encode$encode, 0, value));
 };
+var $ohanhi$remotedata_http$RemoteData$Http$requestWithJson = F6(
+	function (method, config, url, tagger, decoder, body) {
+		return A6(
+			$ohanhi$remotedata_http$RemoteData$Http$request,
+			method,
+			config,
+			url,
+			tagger,
+			decoder,
+			$elm$http$Http$jsonBody(body));
+	});
+var $ohanhi$remotedata_http$RemoteData$Http$patchWithConfig = $ohanhi$remotedata_http$RemoteData$Http$requestWithJson('PATCH');
+var $ohanhi$remotedata_http$RemoteData$Http$patch = $ohanhi$remotedata_http$RemoteData$Http$patchWithConfig($ohanhi$remotedata_http$RemoteData$Http$defaultConfig);
+var $ohanhi$remotedata_http$RemoteData$Http$postWithConfig = $ohanhi$remotedata_http$RemoteData$Http$requestWithJson('POST');
+var $ohanhi$remotedata_http$RemoteData$Http$post = $ohanhi$remotedata_http$RemoteData$Http$postWithConfig($ohanhi$remotedata_http$RemoteData$Http$defaultConfig);
 var $author$project$BracketBuilder$saveBracket = F2(
 	function (_v0, bracketResult) {
-		var baseUrl = _v0.T;
-		var id = _v0.a;
-		var bracketUrl = function () {
-			if (!id.$) {
-				var id_ = id.a;
-				return baseUrl + ('brackets/' + $elm$core$String$fromInt(id_));
-			} else {
-				return baseUrl + 'brackets';
-			}
-		}();
-		var sendBracketToServer = function (bracketJson) {
-			return $elm$http$Http$request(
-				{
-					a9: $elm$http$Http$jsonBody(bracketJson),
-					ap: A2($elm$http$Http$expectJson, $author$project$BracketBuilder$Saved, $author$project$BracketBuilder$bracketDecoder),
-					bk: _List_Nil,
-					bq: function () {
-						if (!id.$) {
-							return 'PATCH';
-						} else {
-							return 'POST';
-						}
-					}(),
-					bF: $elm$core$Maybe$Nothing,
-					bH: $elm$core$Maybe$Nothing,
-					aw: bracketUrl
-				});
-		};
+		var baseUrl = _v0.U;
+		var sendCmd = F3(
+			function (action, url, bracket) {
+				return A4(
+					action,
+					url,
+					$author$project$BracketBuilder$ReceivedBracketFromServer,
+					$author$project$BracketBuilder$bracketDecoder,
+					$author$project$BracketBuilder$bracketEncoder(bracket));
+			});
 		if (bracketResult.$ === 3) {
 			var bracket = bracketResult.a;
-			return sendBracketToServer(
-				$author$project$BracketBuilder$wrapperEncoder(bracket));
+			var _v2 = bracket.a;
+			if (!_v2.$) {
+				var id = _v2.a;
+				return A3(
+					sendCmd,
+					$ohanhi$remotedata_http$RemoteData$Http$patch,
+					baseUrl + ('brackets/' + $elm$core$String$fromInt(id)),
+					bracket);
+			} else {
+				return A3(sendCmd, $ohanhi$remotedata_http$RemoteData$Http$post, baseUrl + 'brackets', bracket);
+			}
 		} else {
 			return $elm$core$Platform$Cmd$none;
 		}
 	});
 var $elm$core$List$sortBy = _List_sortBy;
-var $krisajenkins$remotedata$RemoteData$succeed = $krisajenkins$remotedata$RemoteData$Success;
 var $elm$core$String$cons = _String_cons;
 var $elm$core$String$fromChar = function (_char) {
 	return A2($elm$core$String$cons, _char, '');
@@ -7269,7 +7293,7 @@ var $author$project$BracketBuilder$update = F2(
 					_Utils_update(
 						model,
 						{
-							aj: $elm$core$Maybe$Just(newUuid)
+							ak: $elm$core$Maybe$Just(newUuid)
 						}),
 					$elm$core$Platform$Cmd$none);
 			case 1:
@@ -7376,7 +7400,7 @@ var $author$project$BracketBuilder$update = F2(
 							A2(
 								$elm$core$Basics$composeR,
 								function ($) {
-									return $.bf;
+									return $.bi;
 								},
 								$author$project$BracketBuilder$dragstart),
 							$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragstartEvent(msg_))));
@@ -7448,7 +7472,7 @@ var $author$project$BracketBuilder$update = F2(
 				var group = msg.a;
 				var updatedGroup = _Utils_update(
 					group,
-					{ao: !group.ao});
+					{ap: !group.ap});
 				var updatedGroups = function (groups) {
 					return A3(
 						$elm_community$list_extra$List$Extra$updateIf,
@@ -7541,7 +7565,7 @@ var $author$project$BracketBuilder$update = F2(
 				var addGame = function (games) {
 					var _v6 = A2($author$project$BracketBuilder$findGameByCoords, coords, games);
 					if (_v6.$ === 1) {
-						var _v7 = model.aj;
+						var _v7 = model.ak;
 						if (!_v7.$) {
 							var id = _v7.a;
 							return _Utils_ap(
@@ -7788,7 +7812,7 @@ var $author$project$BracketBuilder$update = F2(
 					});
 				return _Utils_Tuple2(
 					function () {
-						var _v10 = _Utils_Tuple3(model.e, model._, model.b);
+						var _v10 = _Utils_Tuple3(model.e, model.aa, model.b);
 						if ((((!_v10.a.$) && (_v10.a.a.$ === 2)) && (_v10.b.$ === 3)) && (_v10.c.$ === 3)) {
 							var game = _v10.a.a.a;
 							var teams = _v10.b.a;
@@ -7819,22 +7843,8 @@ var $author$project$BracketBuilder$update = F2(
 					_Utils_update(
 						model,
 						{i: false}),
-					A2($author$project$BracketBuilder$saveBracket, model.ai, model.b));
+					A2($author$project$BracketBuilder$saveBracket, model.aj, model.b));
 			case 18:
-				if (!msg.a.$) {
-					var bracketJson = msg.a.a;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								b: $krisajenkins$remotedata$RemoteData$succeed(bracketJson)
-							}),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					var error = msg.a.a;
-					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-				}
-			case 19:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -7842,20 +7852,20 @@ var $author$project$BracketBuilder$update = F2(
 							e: $elm$core$Maybe$Just($author$project$BracketBuilder$RevertConfirmation)
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 20:
+			case 19:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{b: $krisajenkins$remotedata$RemoteData$Loading, i: false, e: $elm$core$Maybe$Nothing}),
-					$author$project$BracketBuilder$loadBracket(model.ai));
-			case 21:
+					$author$project$BracketBuilder$loadBracket(model.aj));
+			case 20:
 				var result = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{_: result}),
+						{aa: result}),
 					$elm$core$Platform$Cmd$none);
-			case 22:
+			case 21:
 				var result = msg.a;
 				var sortedGroups = function (groups) {
 					return A2(
@@ -7879,29 +7889,7 @@ var $author$project$BracketBuilder$update = F2(
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, result)
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 23:
-				var data = msg.a;
-				return _Utils_Tuple2(
-					function () {
-						var _v19 = A2($elm$json$Json$Decode$decodeValue, $author$project$BracketBuilder$bracketDecoder, data);
-						if (!_v19.$) {
-							var bracket = _v19.a;
-							return _Utils_update(
-								model,
-								{
-									b: $krisajenkins$remotedata$RemoteData$Success(bracket)
-								});
-						} else {
-							var error = _v19.a;
-							return _Utils_update(
-								model,
-								{
-									b: $krisajenkins$remotedata$RemoteData$Success($author$project$BracketBuilder$emptyBracket)
-								});
-						}
-					}(),
-					$elm$core$Platform$Cmd$none);
-			case 24:
+			case 22:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -7909,7 +7897,7 @@ var $author$project$BracketBuilder$update = F2(
 							e: $elm$core$Maybe$Just($author$project$BracketBuilder$ClearConfirmation)
 						}),
 					$elm$core$Platform$Cmd$none);
-			case 25:
+			case 23:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -7957,8 +7945,8 @@ var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$BracketBuilder$AddGroup = {$: 5};
-var $author$project$BracketBuilder$ConfirmClear = {$: 24};
-var $author$project$BracketBuilder$ConfirmRevert = {$: 19};
+var $author$project$BracketBuilder$ConfirmClear = {$: 22};
+var $author$project$BracketBuilder$ConfirmRevert = {$: 18};
 var $author$project$BracketBuilder$Save = {$: 17};
 var $elm$html$Html$a = _VirtualDom_node('a');
 var $elm$html$Html$button = _VirtualDom_node('button');
@@ -8107,12 +8095,12 @@ var $author$project$BracketBuilder$rowsForGroup = F2(
 				A2(
 					$elm$core$List$map,
 					function (g) {
-						return g.o.P + 3;
+						return g.o.Q + 3;
 					},
 					A2(
 						$elm$core$List$filter,
 						function (g) {
-							return _Utils_eq(g.o.V, group.a);
+							return _Utils_eq(g.o.W, group.a);
 						},
 						games))));
 	});
@@ -8159,15 +8147,15 @@ var $elm$html$Html$Events$custom = F2(
 	});
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions = F3(
 	function (name, _v0, decoder) {
-		var stopPropagation = _v0.av;
-		var preventDefault = _v0.as;
+		var stopPropagation = _v0.aw;
+		var preventDefault = _v0.at;
 		return A2(
 			$elm$html$Html$Events$custom,
 			name,
 			A2(
 				$elm$json$Json$Decode$map,
 				function (msg) {
-					return {E: msg, as: preventDefault, av: stopPropagation};
+					return {E: msg, at: preventDefault, aw: stopPropagation};
 				},
 				decoder));
 	});
@@ -8180,7 +8168,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$draggable = F2(
 				A3(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
 				'dragstart',
-				{as: false, av: true},
+				{at: false, aw: true},
 				A2(
 					$elm$json$Json$Decode$map,
 					A2(
@@ -8191,7 +8179,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$draggable = F2(
 				A3(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
 				'dragend',
-				{as: false, av: true},
+				{at: false, aw: true},
 				$elm$json$Json$Decode$succeed(
 					wrap($norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnd)))
 			]);
@@ -8307,7 +8295,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$Drop = F2(
 	});
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$Position = F4(
 	function (width, height, x, y) {
-		return {aD: height, a2: width, a3: x, a4: y};
+		return {aF: height, a5: width, a6: x, a7: y};
 	});
 var $elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
@@ -8359,21 +8347,21 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
 				A3(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
 				'dragenter',
-				{as: true, av: true},
+				{at: true, aw: true},
 				$elm$json$Json$Decode$succeed(
 					wrap(
 						$norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnter(dropId)))),
 				A3(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
 				'dragleave',
-				{as: true, av: true},
+				{at: true, aw: true},
 				$elm$json$Json$Decode$succeed(
 					wrap(
 						$norpan$elm_html5_drag_drop$Html5$DragDrop$DragLeave(dropId)))),
 				A3(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
 				'dragover',
-				{as: true, av: false},
+				{at: true, aw: false},
 				A2(
 					$elm$json$Json$Decode$map,
 					wrap,
@@ -8385,7 +8373,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
 				A3(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
 				'drop',
-				{as: true, av: true},
+				{at: true, aw: true},
 				A2(
 					$elm$json$Json$Decode$map,
 					A2(
@@ -8510,7 +8498,7 @@ var $author$project$BracketBuilder$viewGame = F5(
 						A2(
 						$elm$html$Html$Attributes$style,
 						'top',
-						$elm$core$String$fromInt(game.o.P * $author$project$BracketBuilder$gridSize) + 'px'),
+						$elm$core$String$fromInt(game.o.Q * $author$project$BracketBuilder$gridSize) + 'px'),
 						$elm$html$Html$Events$onDoubleClick(
 						$author$project$BracketBuilder$EditGame(game))
 					]),
@@ -8678,7 +8666,7 @@ var $author$project$BracketBuilder$viewRow = F5(
 	});
 var $author$project$BracketBuilder$LineConnector = F3(
 	function (gameResult, fromCoords, toCoords) {
-		return {U: fromCoords, aB: gameResult, ab: toCoords};
+		return {V: fromCoords, aC: gameResult, ac: toCoords};
 	});
 var $author$project$BracketBuilder$Loser = 1;
 var $author$project$BracketBuilder$Winner = 0;
@@ -8718,7 +8706,7 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 						$elm$svg$Svg$Attributes$strokeDasharray('3'),
 						$elm$svg$Svg$Attributes$stroke(
 						function () {
-							var _v4 = l.aB;
+							var _v4 = l.aC;
 							if (!_v4) {
 								return 'green';
 							} else {
@@ -8728,15 +8716,15 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 						$elm$svg$Svg$Attributes$points(
 						_Utils_ap(
 							strPoint(
-								_Utils_Tuple2(l.U.a + 6, l.U.b)),
+								_Utils_Tuple2(l.V.a + 6, l.V.b)),
 							_Utils_ap(
 								strPoint(
-									_Utils_Tuple2(l.U.a + 11, l.U.b)),
+									_Utils_Tuple2(l.V.a + 11, l.V.b)),
 								_Utils_ap(
 									strPoint(
-										_Utils_Tuple2(l.ab.a - 8, l.ab.b)),
+										_Utils_Tuple2(l.ac.a - 8, l.ac.b)),
 									strPoint(
-										_Utils_Tuple2(l.ab.a - 3, l.ab.b))))))
+										_Utils_Tuple2(l.ac.a - 3, l.ac.b))))))
 					]),
 				_List_Nil);
 		};
@@ -8747,7 +8735,7 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 						var toCoords = $elm$core$Maybe$Just(
 							_Utils_Tuple2(
 								(toGame.o.N * $author$project$BracketBuilder$gridSize) + 1,
-								(toGame.o.P * $author$project$BracketBuilder$gridSize) + ((!toPosition) ? 32 : 57)));
+								(toGame.o.Q * $author$project$BracketBuilder$gridSize) + ((!toPosition) ? 32 : 57)));
 						var fromCoords = F2(
 							function (fromGameId, gameResult) {
 								var _v3 = A2(
@@ -8761,7 +8749,7 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 									return $elm$core$Maybe$Just(
 										_Utils_Tuple2(
 											(fromGame.o.N * $author$project$BracketBuilder$gridSize) + 175,
-											(fromGame.o.P * $author$project$BracketBuilder$gridSize) + ((!gameResult) ? 32 : 57)));
+											(fromGame.o.Q * $author$project$BracketBuilder$gridSize) + ((!gameResult) ? 32 : 57)));
 								} else {
 									return $elm$core$Maybe$Nothing;
 								}
@@ -8841,7 +8829,7 @@ var $author$project$BracketBuilder$viewGroup = F5(
 		var groupGames = A2(
 			$elm$core$List$filter,
 			function (g) {
-				return _Utils_eq(g.o.V, group.a);
+				return _Utils_eq(g.o.W, group.a);
 			},
 			bracket.c);
 		return A2(
@@ -8891,7 +8879,7 @@ var $author$project$BracketBuilder$viewGroup = F5(
 						[
 							$elm$html$Html$Attributes$class('group')
 						]),
-					group.ao ? _List_fromArray(
+					group.ap ? _List_fromArray(
 						[
 							A2($author$project$BracketBuilder$viewSvgLines, group, groupGames),
 							A2(
@@ -8930,8 +8918,8 @@ var $author$project$BracketBuilder$viewGroups = F4(
 				A4($author$project$BracketBuilder$viewGroup, teams, bracket, dragId, dropId),
 				bracket.n));
 	});
-var $author$project$BracketBuilder$CancelConfirmation = {$: 26};
-var $author$project$BracketBuilder$Clear = {$: 25};
+var $author$project$BracketBuilder$CancelConfirmation = {$: 24};
+var $author$project$BracketBuilder$Clear = {$: 23};
 var $elm$html$Html$h5 = _VirtualDom_node('h5');
 var $author$project$BracketBuilder$viewClearConfirmation = A2(
 	$elm$html$Html$div,
@@ -9501,7 +9489,7 @@ var $author$project$BracketBuilder$viewEditGroup = F2(
 			A2(
 				$elm$core$List$filter,
 				function (g) {
-					return _Utils_eq(g.o.V, group.a);
+					return _Utils_eq(g.o.W, group.a);
 				},
 				bracket.c));
 		return A2(
@@ -9601,7 +9589,7 @@ var $author$project$BracketBuilder$viewEditGroup = F2(
 						]))
 				]));
 	});
-var $author$project$BracketBuilder$Revert = {$: 20};
+var $author$project$BracketBuilder$Revert = {$: 19};
 var $author$project$BracketBuilder$viewRevertConfirmation = A2(
 	$elm$html$Html$div,
 	_List_fromArray(
@@ -9834,7 +9822,7 @@ var $author$project$BracketBuilder$viewOnceLoaded = F3(
 				]));
 	});
 var $author$project$BracketBuilder$view = function (model) {
-	var _v0 = _Utils_Tuple2(model._, model.b);
+	var _v0 = _Utils_Tuple2(model.aa, model.b);
 	_v0$2:
 	while (true) {
 		_v0$3:
@@ -9954,7 +9942,7 @@ var $author$project$BracketBuilder$view = function (model) {
 			]));
 };
 var $author$project$BracketBuilder$main = $elm$browser$Browser$element(
-	{bo: $author$project$BracketBuilder$init, bE: $author$project$BracketBuilder$subscriptions, bI: $author$project$BracketBuilder$update, bJ: $author$project$BracketBuilder$view});
+	{bq: $author$project$BracketBuilder$init, bG: $author$project$BracketBuilder$subscriptions, bJ: $author$project$BracketBuilder$update, bK: $author$project$BracketBuilder$view});
 _Platform_export({'BracketBuilder':{'init':$author$project$BracketBuilder$main(
 	A2(
 		$elm$json$Json$Decode$andThen,
@@ -9963,7 +9951,7 @@ _Platform_export({'BracketBuilder':{'init':$author$project$BracketBuilder$main(
 				$elm$json$Json$Decode$andThen,
 				function (baseUrl) {
 					return $elm$json$Json$Decode$succeed(
-						{T: baseUrl, a: id});
+						{U: baseUrl, a: id});
 				},
 				A2($elm$json$Json$Decode$field, 'baseUrl', $elm$json$Json$Decode$string));
 		},
