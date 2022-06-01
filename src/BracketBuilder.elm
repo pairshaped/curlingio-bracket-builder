@@ -1050,17 +1050,6 @@ viewOnceLoaded { flags, overlay, dragDrop, changed } teams bracket =
                         , onClick Save
                         ]
                         [ text "Save" ]
-
-                    -- , case bracket.id of
-                    --     Just _ ->
-                    --         button
-                    --             [ class "btn btn-warning mr-1"
-                    --             , onClick ConfirmRevert
-                    --             ]
-                    --             [ text "Revert" ]
-                    --
-                    --     Nothing ->
-                    --         text ""
                     , a
                         [ class "btn btn-secondary"
                         , href (flags.baseUrl ++ "stages")
