@@ -1023,7 +1023,7 @@ view model =
 
 
 viewOnceLoaded : Model -> List Team -> Bracket -> Html Msg
-viewOnceLoaded { overlay, dragDrop, changed } teams bracket =
+viewOnceLoaded { flags, overlay, dragDrop, changed } teams bracket =
     let
         dragId =
             DragDrop.getDragId dragDrop
@@ -1050,21 +1050,22 @@ viewOnceLoaded { overlay, dragDrop, changed } teams bracket =
                         , onClick Save
                         ]
                         [ text "Save" ]
-                    , case bracket.id of
-                        Just _ ->
-                            button
-                                [ class "btn btn-warning mr-1"
-                                , onClick ConfirmRevert
-                                ]
-                                [ text "Revert" ]
 
-                        Nothing ->
-                            text ""
-                    , button
+                    -- , case bracket.id of
+                    --     Just _ ->
+                    --         button
+                    --             [ class "btn btn-warning mr-1"
+                    --             , onClick ConfirmRevert
+                    --             ]
+                    --             [ text "Revert" ]
+                    --
+                    --     Nothing ->
+                    --         text ""
+                    , a
                         [ class "btn btn-danger"
-                        , onClick ConfirmClear
+                        , href (flags.baseUrl ++ "stages")
                         ]
-                        [ text "Clear" ]
+                        [ text "Exit" ]
                     ]
             ]
         , div [ classList [ ( "modal-backdrop", modalOpen ), ( "show", modalOpen ) ] ] []

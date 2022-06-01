@@ -11772,7 +11772,6 @@ var $author$project$BracketBuilder$bracketEncoder = function (bracket) {
 				$author$project$BracketBuilder$gamesEncoder(bracket.games))
 			]));
 };
-var $elm$core$Debug$log = _Debug_log;
 var $elm$http$Http$jsonBody = function (value) {
 	return A2(
 		_Http_pair,
@@ -11799,7 +11798,6 @@ var $author$project$BracketBuilder$saveBracket = F2(
 		var baseUrl = _v0.baseUrl;
 		var sendCmd = F3(
 			function (action, url, bracket) {
-				var _v3 = A2($elm$core$Debug$log, 'url', url);
 				return A4(
 					action,
 					url,
@@ -12738,8 +12736,6 @@ var $author$project$BracketBuilder$buildErrorMessage = function (httpError) {
 };
 var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $author$project$BracketBuilder$AddGroup = {$: 'AddGroup'};
-var $author$project$BracketBuilder$ConfirmClear = {$: 'ConfirmClear'};
-var $author$project$BracketBuilder$ConfirmRevert = {$: 'ConfirmRevert'};
 var $author$project$BracketBuilder$Save = {$: 'Save'};
 var $elm$core$List$filter = F2(
 	function (isGood, list) {
@@ -14403,6 +14399,7 @@ var $author$project$BracketBuilder$viewOverlay = F3(
 	});
 var $author$project$BracketBuilder$viewOnceLoaded = F3(
 	function (_v0, teams, bracket) {
+		var flags = _v0.flags;
 		var overlay = _v0.overlay;
 		var dragDrop = _v0.dragDrop;
 		var changed = _v0.changed;
@@ -14462,34 +14459,16 @@ var $author$project$BracketBuilder$viewOnceLoaded = F3(
 										[
 											$elm$html$Html$text('Save')
 										])),
-									function () {
-									var _v1 = bracket.id;
-									if (_v1.$ === 'Just') {
-										return A2(
-											$elm$html$Html$button,
-											_List_fromArray(
-												[
-													$elm$html$Html$Attributes$class('btn btn-warning mr-1'),
-													$elm$html$Html$Events$onClick($author$project$BracketBuilder$ConfirmRevert)
-												]),
-											_List_fromArray(
-												[
-													$elm$html$Html$text('Revert')
-												]));
-									} else {
-										return $elm$html$Html$text('');
-									}
-								}(),
 									A2(
-									$elm$html$Html$button,
+									$elm$html$Html$a,
 									_List_fromArray(
 										[
 											$elm$html$Html$Attributes$class('btn btn-danger'),
-											$elm$html$Html$Events$onClick($author$project$BracketBuilder$ConfirmClear)
+											$elm$html$Html$Attributes$href(flags.baseUrl + 'stages')
 										]),
 									_List_fromArray(
 										[
-											$elm$html$Html$text('Clear')
+											$elm$html$Html$text('Exit')
 										]))
 								]))
 						])),
