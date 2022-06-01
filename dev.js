@@ -14463,7 +14463,7 @@ var $author$project$BracketBuilder$viewOnceLoaded = F3(
 									$elm$html$Html$a,
 									_List_fromArray(
 										[
-											$elm$html$Html$Attributes$class('btn btn-danger'),
+											$elm$html$Html$Attributes$class('btn btn-secondary'),
 											$elm$html$Html$Attributes$href(flags.baseUrl + 'stages')
 										]),
 									_List_fromArray(

@@ -1062,7 +1062,7 @@ viewOnceLoaded { flags, overlay, dragDrop, changed } teams bracket =
                     --     Nothing ->
                     --         text ""
                     , a
-                        [ class "btn btn-danger"
+                        [ class "btn btn-secondary"
                         , href (flags.baseUrl ++ "stages")
                         ]
                         [ text "Exit" ]
