@@ -8,16 +8,18 @@
   <link rel="stylesheet" href="bracket-builder.css">
 </head>
 <body>
-  <noscript>
-      You need to enable JavaScript to run this app.
-  </noscript>
-  <div id="bracket"></div>
+  <div class="container" style="position: relative;">
+    <noscript>
+        You need to enable JavaScript to run this app.
+    </noscript>
+    <div id="bracket"></div>
+  </div>
   <script>
     var app = Elm.BracketBuilder.init({
       node: document.getElementById('bracket'),
-      flags: { baseUrl: "http://localhost:3000/", id: 1 }
-      // flags: { baseUrl: "http://demo.curling.test:3000/en/admin/events/3742/", id: 1 }
-      // flags: { baseUrl: "http://demo.curling.test:3000/en/admin/events/3742/", id: null }
+      // flags: { baseUrl: "http://localhost:3000/", id: 1 }
+      // flags: { baseUrl: "http://sutherland.curling.test:3000/en/admin/events/9419/", id: null }
+      flags: { baseUrl: "http://sutherland.curling.test:3000/en/admin/events/9419/", id: 1937 }
     });
     app.ports.dragstart.subscribe(function (event) {
       event.dataTransfer.setData("text", "");

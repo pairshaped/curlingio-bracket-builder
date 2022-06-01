@@ -101,6 +101,7 @@ type alias Game =
 
 type alias Side =
     { position : Int
+    , firstHammer : Bool
     , assignment : Maybe Assignment
     }
 
@@ -143,92 +144,13 @@ demoTeams =
     ]
 
 
-emptyBracket : Bracket
-emptyBracket =
-    { id = Nothing
-    , name = "Playoff Bracket"
+emptyBracket : Maybe Int -> String -> Bracket
+emptyBracket id name =
+    { id = id
+    , name = name
     , groups =
         [ Group 1 "Group 1" True ]
     , games = []
-    }
-
-
-demoBracket : Bracket
-demoBracket =
-    { id = Nothing
-    , name = "Playoff Bracket"
-    , groups =
-        [ Group 1 "A Event" True, Group 2 "B Event" True ]
-    , games =
-        [ Game "1"
-            (Just "A1")
-            (Coords 0 0 0)
-            [ Side 0 (Just (TeamAssignment 1))
-            , Side 1 (Just (TeamAssignment 2))
-            ]
-        , Game "2"
-            (Just "A2")
-            (Coords 0 0 2)
-            [ Side 0 (Just (TeamAssignment 3))
-            , Side 1 (Just (TeamAssignment 4))
-            ]
-        , Game "3"
-            (Just "A3")
-            (Coords 0 0 4)
-            [ Side 0 (Just (TeamAssignment 5))
-            , Side 1 (Just (TeamAssignment 6))
-            ]
-        , Game "4"
-            (Just "A4")
-            (Coords 0 0 6)
-            [ Side 0 (Just (TeamAssignment 7))
-            , Side 1 (Just (TeamAssignment 8))
-            ]
-
-        -- Group A Round 2
-        , Game "5"
-            (Just "A Semi-Final 1")
-            (Coords 0 5 1)
-            [ Side 0 (Just (WinnerAssignment "1"))
-            , Side 1 (Just (WinnerAssignment "2"))
-            ]
-        , Game "6"
-            (Just "A Semi-Final 2")
-            (Coords 0 5 5)
-            [ Side 0 (Just (WinnerAssignment "3"))
-            , Side 1 (Just (WinnerAssignment "4"))
-            ]
-
-        -- Group A Round 3
-        , Game "7"
-            (Just "A Final")
-            (Coords 0 10 3)
-            [ Side 0 (Just (WinnerAssignment "5"))
-            , Side 1 (Just (WinnerAssignment "6"))
-            ]
-
-        -- Group B Round 1
-        , Game "8"
-            (Just "B1")
-            (Coords 1 0 0)
-            [ Side 0 (Just (LoserAssignment "1"))
-            , Side 1 (Just (LoserAssignment "2"))
-            ]
-        , Game "9"
-            (Just "B2")
-            (Coords 1 0 2)
-            [ Side 0 (Just (LoserAssignment "3"))
-            , Side 1 (Just (LoserAssignment "4"))
-            ]
-
-        -- Group B Round 2
-        , Game "10"
-            (Just "B Final")
-            (Coords 1 5 1)
-            [ Side 0 (Just (WinnerAssignment "8"))
-            , Side 1 (Just (WinnerAssignment "9"))
-            ]
-        ]
     }
 
 
@@ -246,7 +168,7 @@ init flags =
                     Loading
 
                 Nothing ->
-                    Success emptyBracket
+                    Success (emptyBracket Nothing "Playoffs")
       }
     , Cmd.batch
         [ loadTeams flags
@@ -463,6 +385,7 @@ gamesEncoder games =
                     in
                     Encode.object
                         [ ( "position", Encode.int side.position )
+                        , ( "first_hammer", Encode.bool side.firstHammer )
                         , ( "team_id", encodeAssignmentId "team_id" side.assignment )
                         , ( "winner_id", encodeAssignmentId "winner_id" side.assignment )
                         , ( "loser_id", encodeAssignmentId "loser_id" side.assignment )
@@ -562,9 +485,10 @@ gameDecoder =
                         , Decode.map LoserAssignment (Decode.field "loser_id" Decode.string)
                         ]
             in
-            Decode.map2
+            Decode.map3
                 Side
                 (Decode.field "position" Decode.int)
+                (Decode.field "first_hammer" Decode.bool)
                 (Decode.maybe assignmentDecoder)
 
         coordsDecoder : Decode.Decoder Coords
@@ -818,8 +742,8 @@ update msg model =
                                         ++ [ Game id
                                                 Nothing
                                                 coords
-                                                [ Side 0 Nothing
-                                                , Side 1 Nothing
+                                                [ Side 0 False Nothing
+                                                , Side 1 True Nothing
                                                 ]
                                            ]
 
@@ -1047,10 +971,15 @@ update msg model =
             ( { model | overlay = Just ClearConfirmation }, Cmd.none )
 
         Clear ->
+            let
+                newBracket : Bracket -> Bracket
+                newBracket bracket =
+                    emptyBracket bracket.id bracket.name
+            in
             ( { model
                 | overlay = Nothing
                 , changed = True
-                , bracket = Success emptyBracket
+                , bracket = RemoteData.map newBracket model.bracket
               }
             , Cmd.none
             )
