@@ -92,7 +92,8 @@ type alias Group =
 
 
 type alias Game =
-    { id : String
+    { errorMessage : Maybe String
+    , id : String
     , name : Maybe String
     , coords : Coords
     , sides : List Side
@@ -500,7 +501,7 @@ gameDecoder =
                 (Decode.field "row" Decode.int)
     in
     Decode.map4
-        Game
+        (Game Nothing)
         (Decode.field "id" Decode.string)
         (Decode.maybe (Decode.field "name" Decode.string))
         (Decode.field "coords" coordsDecoder)
@@ -739,7 +740,8 @@ update msg model =
                             case model.nextGameId of
                                 Just id ->
                                     games
-                                        ++ [ Game id
+                                        ++ [ Game Nothing
+                                                id
                                                 Nothing
                                                 coords
                                                 [ Side 0 False Nothing
@@ -783,30 +785,57 @@ update msg model =
 
         UpdateGameName name ->
             let
-                maybeName : Maybe String
-                maybeName =
-                    case name of
-                        "" ->
-                            Nothing
+                updatedGame : List Game -> Game -> Game
+                updatedGame games game =
+                    let
+                        maybeName : Maybe String
+                        maybeName =
+                            case name of
+                                "" ->
+                                    Nothing
 
-                        _ ->
-                            Just name
+                                _ ->
+                                    Just name
 
-                updatedGame : Game -> Game
-                updatedGame game =
-                    { game | name = maybeName }
+                        isNameTaken : Bool
+                        isNameTaken =
+                            List.any
+                                (\g ->
+                                    case ( g.name, maybeName ) of
+                                        ( Just name1, Just name2 ) ->
+                                            String.toUpper name1 == String.toUpper name2
+
+                                        _ ->
+                                            False
+                                )
+                                games
+                    in
+                    { game
+                        | name = maybeName
+                        , errorMessage =
+                            if isNameTaken then
+                                Just "Name is already being used."
+
+                            else
+                                Nothing
+                    }
 
                 updatedBracket : Game -> Bracket -> Bracket
                 updatedBracket game bracket =
-                    { bracket | games = List.Extra.updateIf (\g -> g.id == game.id) (\g -> updatedGame game) bracket.games }
+                    { bracket | games = List.Extra.updateIf (\g -> g.id == game.id) (\g -> updatedGame bracket.games game) bracket.games }
             in
             ( case model.overlay of
                 Just (EditingGame game) ->
-                    { model
-                        | overlay = Just (EditingGame (updatedGame game))
-                        , changed = True
-                        , bracket = RemoteData.map (updatedBracket game) model.bracket
-                    }
+                    case model.bracket of
+                        Success bracket ->
+                            { model
+                                | overlay = Just (EditingGame (updatedGame bracket.games game))
+                                , changed = True
+                                , bracket = Success (updatedBracket game bracket)
+                            }
+
+                        _ ->
+                            model
 
                 _ ->
                     model
@@ -1346,7 +1375,13 @@ viewEditGame teams bracket game =
         [ div [ class "modal-header" ]
             [ h5 [ class "modal-title" ] [ text "Edit Game" ] ]
         , div [ class "modal-body" ]
-            ([ div
+            ([ case game.errorMessage of
+                Just errorMessage ->
+                    div [ class "alert alert-danger" ] [ text errorMessage ]
+
+                Nothing ->
+                    text ""
+             , div
                 [ class "form-group" ]
                 [ label [ for "editing-game-name" ] [ text "Game Name" ]
                 , input
@@ -1361,7 +1396,7 @@ viewEditGame teams bracket game =
                 ++ List.indexedMap viewSideField game.sides
             )
         , div [ class "modal-footer" ]
-            [ button [ onClick CloseEditGame, class "btn btn-primary mr-2" ] [ text "Close" ]
+            [ button [ onClick CloseEditGame, class "btn btn-primary mr-2", disabled (game.errorMessage /= Nothing) ] [ text "Close" ]
             ]
         ]
 
