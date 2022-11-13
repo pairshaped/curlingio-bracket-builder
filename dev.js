@@ -10974,17 +10974,22 @@ var $author$project$BracketBuilder$Coords = F3(
 	function (groupId, col, row) {
 		return {col: col, groupId: groupId, row: row};
 	});
-var $author$project$BracketBuilder$Game = F5(
-	function (errorMessage, id, name, coords, sides) {
-		return {coords: coords, errorMessage: errorMessage, id: id, name: name, sides: sides};
+var $author$project$BracketBuilder$Game = F6(
+	function (errorMessage, id, name, coords, state, sides) {
+		return {coords: coords, errorMessage: errorMessage, id: id, name: name, sides: sides, state: state};
 	});
+var $author$project$BracketBuilder$GameActive = {$: 'GameActive'};
+var $author$project$BracketBuilder$GameComplete = {$: 'GameComplete'};
+var $author$project$BracketBuilder$GamePending = {$: 'GamePending'};
 var $author$project$BracketBuilder$LoserAssignment = function (a) {
 	return {$: 'LoserAssignment', a: a};
 };
-var $author$project$BracketBuilder$Side = F3(
-	function (position, firstHammer, assignment) {
-		return {assignment: assignment, firstHammer: firstHammer, position: position};
+var $author$project$BracketBuilder$Side = F5(
+	function (position, firstHammer, assignment, teamId, result) {
+		return {assignment: assignment, firstHammer: firstHammer, position: position, result: result, teamId: teamId};
 	});
+var $author$project$BracketBuilder$SideResultLost = {$: 'SideResultLost'};
+var $author$project$BracketBuilder$SideResultWon = {$: 'SideResultWon'};
 var $author$project$BracketBuilder$TeamAssignment = function (a) {
 	return {$: 'TeamAssignment', a: a};
 };
@@ -10992,7 +10997,6 @@ var $author$project$BracketBuilder$WinnerAssignment = function (a) {
 	return {$: 'WinnerAssignment', a: a};
 };
 var $elm$json$Json$Decode$bool = _Json_decodeBool;
-var $elm$json$Json$Decode$map4 = _Json_map4;
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
 var $elm$json$Json$Decode$maybe = function (decoder) {
 	return $elm$json$Json$Decode$oneOf(
@@ -11002,15 +11006,22 @@ var $elm$json$Json$Decode$maybe = function (decoder) {
 				$elm$json$Json$Decode$succeed($elm$core$Maybe$Nothing)
 			]));
 };
+var $elm$core$String$toLower = _String_toLower;
 var $author$project$BracketBuilder$gameDecoder = function () {
 	var sideDecoder = function () {
+		var decodeSideResult = A2(
+			$elm$json$Json$Decode$andThen,
+			function (str) {
+				if (str === 'won') {
+					return $elm$json$Json$Decode$succeed($author$project$BracketBuilder$SideResultWon);
+				} else {
+					return $elm$json$Json$Decode$succeed($author$project$BracketBuilder$SideResultLost);
+				}
+			},
+			$elm$json$Json$Decode$string);
 		var assignmentDecoder = $elm$json$Json$Decode$oneOf(
 			_List_fromArray(
 				[
-					A2(
-					$elm$json$Json$Decode$map,
-					$author$project$BracketBuilder$TeamAssignment,
-					A2($elm$json$Json$Decode$field, 'team_id', $elm$json$Json$Decode$int)),
 					A2(
 					$elm$json$Json$Decode$map,
 					$author$project$BracketBuilder$WinnerAssignment,
@@ -11018,28 +11029,51 @@ var $author$project$BracketBuilder$gameDecoder = function () {
 					A2(
 					$elm$json$Json$Decode$map,
 					$author$project$BracketBuilder$LoserAssignment,
-					A2($elm$json$Json$Decode$field, 'loser_id', $elm$json$Json$Decode$string))
+					A2($elm$json$Json$Decode$field, 'loser_id', $elm$json$Json$Decode$string)),
+					A2(
+					$elm$json$Json$Decode$map,
+					$author$project$BracketBuilder$TeamAssignment,
+					A2($elm$json$Json$Decode$field, 'team_id', $elm$json$Json$Decode$int))
 				]));
-		return A4(
-			$elm$json$Json$Decode$map3,
+		return A6(
+			$elm$json$Json$Decode$map5,
 			$author$project$BracketBuilder$Side,
 			A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$int),
 			A2($elm$json$Json$Decode$field, 'first_hammer', $elm$json$Json$Decode$bool),
-			$elm$json$Json$Decode$maybe(assignmentDecoder));
+			$elm$json$Json$Decode$maybe(assignmentDecoder),
+			$elm$json$Json$Decode$maybe(
+				A2($elm$json$Json$Decode$field, 'team_id', $elm$json$Json$Decode$int)),
+			$elm$json$Json$Decode$maybe(
+				A2($elm$json$Json$Decode$field, 'result', decodeSideResult)));
 	}();
+	var decodeGameState = A2(
+		$elm$json$Json$Decode$andThen,
+		function (str) {
+			var _v0 = $elm$core$String$toLower(str);
+			switch (_v0) {
+				case 'active':
+					return $elm$json$Json$Decode$succeed($author$project$BracketBuilder$GameActive);
+				case 'complete':
+					return $elm$json$Json$Decode$succeed($author$project$BracketBuilder$GameComplete);
+				default:
+					return $elm$json$Json$Decode$succeed($author$project$BracketBuilder$GamePending);
+			}
+		},
+		$elm$json$Json$Decode$string);
 	var coordsDecoder = A4(
 		$elm$json$Json$Decode$map3,
 		$author$project$BracketBuilder$Coords,
 		A2($elm$json$Json$Decode$field, 'group_id', $elm$json$Json$Decode$int),
 		A2($elm$json$Json$Decode$field, 'col', $elm$json$Json$Decode$int),
 		A2($elm$json$Json$Decode$field, 'row', $elm$json$Json$Decode$int));
-	return A5(
-		$elm$json$Json$Decode$map4,
+	return A6(
+		$elm$json$Json$Decode$map5,
 		$author$project$BracketBuilder$Game($elm$core$Maybe$Nothing),
 		A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string),
 		$elm$json$Json$Decode$maybe(
 			A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string)),
 		A2($elm$json$Json$Decode$field, 'coords', coordsDecoder),
+		A2($elm$json$Json$Decode$field, 'state', decodeGameState),
 		A2(
 			$elm$json$Json$Decode$field,
 			'game_positions',
@@ -11051,6 +11085,7 @@ var $author$project$BracketBuilder$groupDecoder = A4(
 	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
 	$elm$json$Json$Decode$succeed(true));
+var $elm$json$Json$Decode$map4 = _Json_map4;
 var $author$project$BracketBuilder$bracketDecoder = A5(
 	$elm$json$Json$Decode$map4,
 	$author$project$BracketBuilder$Bracket,
@@ -11473,25 +11508,6 @@ var $elm$core$List$any = F2(
 			}
 		}
 	});
-var $author$project$BracketBuilder$clearAssignmentFromAllGames = F2(
-	function (games, assignment) {
-		var unassignedSide = function (side) {
-			return _Utils_eq(
-				side.assignment,
-				$elm$core$Maybe$Just(assignment)) ? _Utils_update(
-				side,
-				{assignment: $elm$core$Maybe$Nothing}) : side;
-		};
-		var unassignedGame = function (game) {
-			return _Utils_update(
-				game,
-				{
-					sides: A2($elm$core$List$map, unassignedSide, game.sides)
-				});
-		};
-		return A2($elm$core$List$map, unassignedGame, games);
-	});
-var $author$project$BracketBuilder$dragstart = _Platform_outgoingPort('dragstart', $elm$core$Basics$identity);
 var $elm_community$list_extra$List$Extra$find = F2(
 	function (predicate, list) {
 		find:
@@ -11513,6 +11529,113 @@ var $elm_community$list_extra$List$Extra$find = F2(
 			}
 		}
 	});
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $author$project$BracketBuilder$assignTeamsForCompletedGames = function (games) {
+	var updatedGame = function (game) {
+		var updatedSide = function (side) {
+			var updatedTeamId = function () {
+				var sidesForGameId = function (gameId) {
+					return A2(
+						$elm$core$Maybe$withDefault,
+						_List_Nil,
+						A2(
+							$elm$core$Maybe$map,
+							function ($) {
+								return $.sides;
+							},
+							A2(
+								$elm_community$list_extra$List$Extra$find,
+								function (g) {
+									return _Utils_eq(g.id, gameId) && _Utils_eq(g.state, $author$project$BracketBuilder$GameComplete);
+								},
+								games)));
+				};
+				var _v0 = side.assignment;
+				if (_v0.$ === 'Nothing') {
+					return $elm$core$Maybe$Nothing;
+				} else {
+					switch (_v0.a.$) {
+						case 'WinnerAssignment':
+							var gameId = _v0.a.a;
+							return A2(
+								$elm$core$Maybe$withDefault,
+								$elm$core$Maybe$Nothing,
+								A2(
+									$elm$core$Maybe$map,
+									function ($) {
+										return $.teamId;
+									},
+									A2(
+										$elm_community$list_extra$List$Extra$find,
+										function (s) {
+											return _Utils_eq(
+												s.result,
+												$elm$core$Maybe$Just($author$project$BracketBuilder$SideResultWon));
+										},
+										sidesForGameId(gameId))));
+						case 'LoserAssignment':
+							var gameId = _v0.a.a;
+							return A2(
+								$elm$core$Maybe$withDefault,
+								$elm$core$Maybe$Nothing,
+								A2(
+									$elm$core$Maybe$map,
+									function ($) {
+										return $.teamId;
+									},
+									A2(
+										$elm_community$list_extra$List$Extra$find,
+										function (s) {
+											return _Utils_eq(
+												s.result,
+												$elm$core$Maybe$Just($author$project$BracketBuilder$SideResultLost));
+										},
+										sidesForGameId(gameId))));
+						default:
+							return side.teamId;
+					}
+				}
+			}();
+			return _Utils_update(
+				side,
+				{teamId: updatedTeamId});
+		};
+		return _Utils_update(
+			game,
+			{
+				sides: A2($elm$core$List$map, updatedSide, game.sides)
+			});
+	};
+	return A2($elm$core$List$map, updatedGame, games);
+};
+var $author$project$BracketBuilder$clearAssignmentFromAllGames = F2(
+	function (games, assignment) {
+		var unassignedSide = function (side) {
+			return _Utils_eq(
+				side.assignment,
+				$elm$core$Maybe$Just(assignment)) ? _Utils_update(
+				side,
+				{assignment: $elm$core$Maybe$Nothing}) : side;
+		};
+		var unassignedGame = function (game) {
+			return _Utils_update(
+				game,
+				{
+					sides: A2($elm$core$List$map, unassignedSide, game.sides)
+				});
+		};
+		return A2($elm$core$List$map, unassignedGame, games);
+	});
+var $author$project$BracketBuilder$dragstart = _Platform_outgoingPort('dragstart', $elm$core$Basics$identity);
 var $author$project$BracketBuilder$findGameByCoords = F2(
 	function (coords, games) {
 		return A2(
@@ -11609,16 +11732,6 @@ var $elm$core$List$head = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
 var $krisajenkins$remotedata$RemoteData$NotAsked = {$: 'NotAsked'};
 var $krisajenkins$remotedata$RemoteData$map = F2(
 	function (f, data) {
@@ -11655,41 +11768,6 @@ var $elm$json$Json$Encode$null = _Json_encodeNull;
 var $author$project$BracketBuilder$gamesEncoder = function (games) {
 	var gameEncoder = function (game) {
 		var sideEncoder = function (side) {
-			var encodeAssignmentId = F2(
-				function (assignmentField, assignment) {
-					var _v1 = _Utils_Tuple2(assignmentField, assignment);
-					_v1$3:
-					while (true) {
-						if (_v1.b.$ === 'Just') {
-							switch (_v1.b.a.$) {
-								case 'TeamAssignment':
-									if (_v1.a === 'team_id') {
-										var id = _v1.b.a.a;
-										return $elm$json$Json$Encode$int(id);
-									} else {
-										break _v1$3;
-									}
-								case 'WinnerAssignment':
-									if (_v1.a === 'winner_id') {
-										var id = _v1.b.a.a;
-										return $elm$json$Json$Encode$string(id);
-									} else {
-										break _v1$3;
-									}
-								default:
-									if (_v1.a === 'loser_id') {
-										var id = _v1.b.a.a;
-										return $elm$json$Json$Encode$string(id);
-									} else {
-										break _v1$3;
-									}
-							}
-						} else {
-							break _v1$3;
-						}
-					}
-					return $elm$json$Json$Encode$null;
-				});
 			return $elm$json$Json$Encode$object(
 				_List_fromArray(
 					[
@@ -11701,13 +11779,37 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 						$elm$json$Json$Encode$bool(side.firstHammer)),
 						_Utils_Tuple2(
 						'team_id',
-						A2(encodeAssignmentId, 'team_id', side.assignment)),
+						function () {
+							var _v1 = side.teamId;
+							if (_v1.$ === 'Just') {
+								var teamId = _v1.a;
+								return $elm$json$Json$Encode$int(teamId);
+							} else {
+								return $elm$json$Json$Encode$null;
+							}
+						}()),
 						_Utils_Tuple2(
 						'winner_id',
-						A2(encodeAssignmentId, 'winner_id', side.assignment)),
+						function () {
+							var _v2 = side.assignment;
+							if ((_v2.$ === 'Just') && (_v2.a.$ === 'WinnerAssignment')) {
+								var id = _v2.a.a;
+								return $elm$json$Json$Encode$string(id);
+							} else {
+								return $elm$json$Json$Encode$null;
+							}
+						}()),
 						_Utils_Tuple2(
 						'loser_id',
-						A2(encodeAssignmentId, 'loser_id', side.assignment))
+						function () {
+							var _v3 = side.assignment;
+							if ((_v3.$ === 'Just') && (_v3.a.$ === 'LoserAssignment')) {
+								var id = _v3.a.a;
+								return $elm$json$Json$Encode$string(id);
+							} else {
+								return $elm$json$Json$Encode$null;
+							}
+						}())
 					]));
 		};
 		var coordsEncoder = function (coords) {
@@ -12188,10 +12290,11 @@ var $author$project$BracketBuilder$update = F2(
 											return _Utils_update(
 												bracket,
 												{
-													games: A2(
-														$elm$core$List$map,
-														updatedGame,
-														A2($author$project$BracketBuilder$clearAssignmentFromAllGames, bracket.games, from))
+													games: $author$project$BracketBuilder$assignTeamsForCompletedGames(
+														A2(
+															$elm$core$List$map,
+															updatedGame,
+															A2($author$project$BracketBuilder$clearAssignmentFromAllGames, bracket.games, from)))
 												});
 										};
 										return _Utils_update(
@@ -12393,16 +12496,17 @@ var $author$project$BracketBuilder$update = F2(
 								games,
 								_List_fromArray(
 									[
-										A5(
+										A6(
 										$author$project$BracketBuilder$Game,
 										$elm$core$Maybe$Nothing,
 										id,
 										$elm$core$Maybe$Nothing,
 										coords,
+										$author$project$BracketBuilder$GamePending,
 										_List_fromArray(
 											[
-												A3($author$project$BracketBuilder$Side, 0, false, $elm$core$Maybe$Nothing),
-												A3($author$project$BracketBuilder$Side, 1, true, $elm$core$Maybe$Nothing)
+												A5($author$project$BracketBuilder$Side, 0, false, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing),
+												A5($author$project$BracketBuilder$Side, 1, true, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing)
 											]))
 									]));
 						} else {
@@ -12536,25 +12640,25 @@ var $author$project$BracketBuilder$update = F2(
 				var updatedGame = F3(
 					function (teams, games, game) {
 						var typedAssignment = function () {
-							var _v14 = A2($elm$core$String$split, '_', assignment);
-							if (_v14.b) {
-								var x = _v14.a;
-								var xs = _v14.b;
+							var _v13 = A2($elm$core$String$split, '_', assignment);
+							if (_v13.b) {
+								var x = _v13.a;
+								var xs = _v13.b;
 								var matchesTeamId = function () {
-									var _v18 = $elm$core$List$head(xs);
-									if (_v18.$ === 'Just') {
-										var idStr = _v18.a;
-										var _v19 = $elm$core$String$toInt(idStr);
-										if (_v19.$ === 'Just') {
-											var id = _v19.a;
-											var _v20 = A2(
+									var _v17 = $elm$core$List$head(xs);
+									if (_v17.$ === 'Just') {
+										var idStr = _v17.a;
+										var _v18 = $elm$core$String$toInt(idStr);
+										if (_v18.$ === 'Just') {
+											var id = _v18.a;
+											var _v19 = A2(
 												$elm_community$list_extra$List$Extra$find,
 												function (team) {
 													return _Utils_eq(team.id, id);
 												},
 												teams);
-											if (_v20.$ === 'Just') {
-												var team = _v20.a;
+											if (_v19.$ === 'Just') {
+												var team = _v19.a;
 												return $elm$core$Maybe$Just(team.id);
 											} else {
 												return $elm$core$Maybe$Nothing;
@@ -12567,17 +12671,17 @@ var $author$project$BracketBuilder$update = F2(
 									}
 								}();
 								var matchesGameId = function () {
-									var _v16 = $elm$core$List$head(xs);
-									if (_v16.$ === 'Just') {
-										var id = _v16.a;
-										var _v17 = A2(
+									var _v15 = $elm$core$List$head(xs);
+									if (_v15.$ === 'Just') {
+										var id = _v15.a;
+										var _v16 = A2(
 											$elm_community$list_extra$List$Extra$find,
 											function (g) {
 												return _Utils_eq(g.id, id);
 											},
 											games);
-										if (_v17.$ === 'Just') {
-											var g = _v17.a;
+										if (_v16.$ === 'Just') {
+											var g = _v16.a;
 											return $elm$core$Maybe$Just(g.id);
 										} else {
 											return $elm$core$Maybe$Nothing;
@@ -12600,49 +12704,16 @@ var $author$project$BracketBuilder$update = F2(
 								return $elm$core$Maybe$Nothing;
 							}
 						}();
-						if (typedAssignment.$ === 'Just') {
-							if (typedAssignment.a.$ === 'TeamAssignment') {
-								var teamId = typedAssignment.a.a;
-								var updatedSide = function (side) {
-									return _Utils_eq(side.position, position) ? _Utils_update(
-										side,
-										{
-											assignment: $elm$core$Maybe$Just(
-												$author$project$BracketBuilder$TeamAssignment(teamId))
-										}) : side;
-								};
-								return _Utils_update(
-									game,
-									{
-										sides: A2($elm$core$List$map, updatedSide, game.sides)
-									});
-							} else {
-								var gameAssignment = typedAssignment.a;
-								var updatedSide = function (side) {
-									return _Utils_eq(side.position, position) ? _Utils_update(
-										side,
-										{
-											assignment: $elm$core$Maybe$Just(gameAssignment)
-										}) : side;
-								};
-								return _Utils_update(
-									game,
-									{
-										sides: A2($elm$core$List$map, updatedSide, game.sides)
-									});
-							}
-						} else {
-							var updatedSide = function (side) {
-								return _Utils_eq(side.position, position) ? _Utils_update(
-									side,
-									{assignment: $elm$core$Maybe$Nothing}) : side;
-							};
-							return _Utils_update(
-								game,
-								{
-									sides: A2($elm$core$List$map, updatedSide, game.sides)
-								});
-						}
+						var updatedSide = function (side) {
+							return _Utils_eq(side.position, position) ? _Utils_update(
+								side,
+								{assignment: typedAssignment}) : side;
+						};
+						return _Utils_update(
+							game,
+							{
+								sides: A2($elm$core$List$map, updatedSide, game.sides)
+							});
 					});
 				var updatedBracket = F3(
 					function (game, teams, bracket) {
@@ -12652,7 +12723,8 @@ var $author$project$BracketBuilder$update = F2(
 						return _Utils_update(
 							bracket,
 							{
-								games: A2($elm$core$List$map, shouldUpdateGame, bracket.games)
+								games: $author$project$BracketBuilder$assignTeamsForCompletedGames(
+									A2($elm$core$List$map, shouldUpdateGame, bracket.games))
 							});
 					});
 				return _Utils_Tuple2(
@@ -13166,7 +13238,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
 			]);
 	});
 var $author$project$BracketBuilder$viewSide = F7(
-	function (dragId, dropId, teams, games, gameId, position, side) {
+	function (dragId, dropId, teams, games, onGame, position, side) {
 		var positionClass = (!position) ? _Utils_Tuple2('game-top', true) : _Utils_Tuple2('game-bottom', true);
 		var label = function () {
 			var _v1 = side.assignment;
@@ -13196,21 +13268,59 @@ var $author$project$BracketBuilder$viewSide = F7(
 							games);
 						if (_v3.$ === 'Just') {
 							var g = _v3.a;
-							return 'W: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.name);
+							var _v4 = side.teamId;
+							if (_v4.$ === 'Just') {
+								var teamId = _v4.a;
+								return A2(
+									$elm$core$Maybe$withDefault,
+									A2($elm$core$Maybe$withDefault, '', g.name),
+									A2(
+										$elm$core$Maybe$map,
+										function ($) {
+											return $.name;
+										},
+										A2(
+											$elm_community$list_extra$List$Extra$find,
+											function (t) {
+												return _Utils_eq(t.id, teamId);
+											},
+											teams)));
+							} else {
+								return 'W: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.name);
+							}
 						} else {
 							return 'TBD';
 						}
 					default:
 						var id = _v1.a.a;
-						var _v4 = A2(
+						var _v5 = A2(
 							$elm_community$list_extra$List$Extra$find,
 							function (g) {
 								return _Utils_eq(g.id, id);
 							},
 							games);
-						if (_v4.$ === 'Just') {
-							var g = _v4.a;
-							return 'L: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.name);
+						if (_v5.$ === 'Just') {
+							var g = _v5.a;
+							var _v6 = side.teamId;
+							if (_v6.$ === 'Just') {
+								var teamId = _v6.a;
+								return A2(
+									$elm$core$Maybe$withDefault,
+									A2($elm$core$Maybe$withDefault, '', g.name),
+									A2(
+										$elm$core$Maybe$map,
+										function ($) {
+											return $.name;
+										},
+										A2(
+											$elm_community$list_extra$List$Extra$find,
+											function (t) {
+												return _Utils_eq(t.id, teamId);
+											},
+											teams)));
+							} else {
+								return 'L: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.name);
+							}
 						} else {
 							return 'TBD';
 						}
@@ -13220,12 +13330,16 @@ var $author$project$BracketBuilder$viewSide = F7(
 			}
 		}();
 		var dropTarget = function () {
-			var _v0 = _Utils_Tuple2(dragId, dropId);
-			if ((((_v0.a.$ === 'Just') && (_v0.a.a.$ === 'DraggableResult')) && (_v0.b.$ === 'Just')) && (_v0.b.a.$ === 'DroppableSide')) {
-				var gameIdAndPosition = _v0.b.a.a;
-				return _Utils_eq(
-					gameIdAndPosition,
-					_Utils_Tuple2(gameId, position)) ? true : false;
+			if (_Utils_eq(onGame.state, $author$project$BracketBuilder$GamePending)) {
+				var _v0 = _Utils_Tuple2(dragId, dropId);
+				if ((((_v0.a.$ === 'Just') && (_v0.a.a.$ === 'DraggableResult')) && (_v0.b.$ === 'Just')) && (_v0.b.a.$ === 'DroppableSide')) {
+					var gameIdAndPosition = _v0.b.a.a;
+					return _Utils_eq(
+						gameIdAndPosition,
+						_Utils_Tuple2(onGame.id, position)) ? true : false;
+				} else {
+					return false;
+				}
 			} else {
 				return false;
 			}
@@ -13246,7 +13360,7 @@ var $author$project$BracketBuilder$viewSide = F7(
 					$norpan$elm_html5_drag_drop$Html5$DragDrop$droppable,
 					$author$project$BracketBuilder$DragDropMsg,
 					$author$project$BracketBuilder$DroppableSide(
-						_Utils_Tuple2(gameId, position)))),
+						_Utils_Tuple2(onGame.id, position)))),
 			_List_fromArray(
 				[
 					$elm$html$Html$text(label)
@@ -13309,18 +13423,25 @@ var $author$project$BracketBuilder$viewGame = F5(
 									$elm$html$Html$text(
 									A2($elm$core$Maybe$withDefault, 'TDB', game.name))
 								])),
-							A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class('game-delete align-self-end'),
-									$elm$html$Html$Events$onClick(
-									$author$project$BracketBuilder$RemoveGame(game))
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text('✘')
-								]))
+							function () {
+							var _v0 = game.state;
+							if (_v0.$ === 'GameComplete') {
+								return $elm$html$Html$text('');
+							} else {
+								return A2(
+									$elm$html$Html$div,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class('game-delete align-self-end'),
+											$elm$html$Html$Events$onClick(
+											$author$project$BracketBuilder$RemoveGame(game))
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('✘')
+										]));
+							}
+						}()
 						])),
 					A2(
 					$elm$html$Html$div,
@@ -13340,7 +13461,7 @@ var $author$project$BracketBuilder$viewGame = F5(
 								$elm$core$List$indexedMap,
 								F2(
 									function (index, side) {
-										return A7($author$project$BracketBuilder$viewSide, dragId, dropId, teams, games, game.id, index, side);
+										return A7($author$project$BracketBuilder$viewSide, dragId, dropId, teams, games, game, index, side);
 									}),
 								game.sides)),
 							A2(
@@ -13863,6 +13984,7 @@ var $author$project$BracketBuilder$UpdateSide = F2(
 		return {$: 'UpdateSide', a: a, b: b};
 	});
 var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
+var $elm$html$Html$i = _VirtualDom_node('i');
 var $elm$html$Html$label = _VirtualDom_node('label');
 var $elm$html$Html$option = _VirtualDom_node('option');
 var $elm$html$Html$select = _VirtualDom_node('select');
@@ -14089,7 +14211,9 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 									$elm$html$Html$Attributes$class('form-control'),
 									$elm$html$Html$Attributes$id('editing-game'),
 									$elm$html$Html$Events$onInput(
-									$author$project$BracketBuilder$UpdateSide(index))
+									$author$project$BracketBuilder$UpdateSide(index)),
+									$elm$html$Html$Attributes$disabled(
+									!_Utils_eq(game.state, $author$project$BracketBuilder$GamePending))
 								]),
 							A2(assignmentOptions, index, side))
 						]));
@@ -14184,10 +14308,29 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('modal-footer')
+							$elm$html$Html$Attributes$class('modal-footer d-flex justify-content-between')
 						]),
 					_List_fromArray(
 						[
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('text-left')
+								]),
+							_List_fromArray(
+								[
+									_Utils_eq(game.state, $author$project$BracketBuilder$GamePending) ? $elm$html$Html$text('') : A2(
+									$elm$html$Html$i,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class('text-danger')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Teams cannot be assigned after game starts.')
+										]))
+								])),
 							A2(
 							$elm$html$Html$button,
 							_List_fromArray(
@@ -14673,4 +14816,4 @@ _Platform_export({'BracketBuilder':{'init':$author$project$BracketBuilder$main(
 					[
 						$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
 						A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$int)
-					])))))({"versions":{"elm":"0.19.1"},"types":{"message":"BracketBuilder.Msg","aliases":{"BracketBuilder.Bracket":{"args":[],"type":"{ id : Maybe.Maybe Basics.Int, name : String.String, groups : List.List BracketBuilder.Group, games : List.List BracketBuilder.Game }"},"BracketBuilder.Coords":{"args":[],"type":"{ groupId : Basics.Int, col : Basics.Int, row : Basics.Int }"},"BracketBuilder.Game":{"args":[],"type":"{ errorMessage : Maybe.Maybe String.String, id : String.String, name : Maybe.Maybe String.String, coords : BracketBuilder.Coords, sides : List.List BracketBuilder.Side }"},"BracketBuilder.Group":{"args":[],"type":"{ id : Basics.Int, name : String.String, visible : Basics.Bool }"},"BracketBuilder.Side":{"args":[],"type":"{ position : Basics.Int, firstHammer : Basics.Bool, assignment : Maybe.Maybe BracketBuilder.Assignment }"},"BracketBuilder.Team":{"args":[],"type":"{ id : Basics.Int, name : String.String }"},"RemoteData.WebData":{"args":["a"],"type":"RemoteData.RemoteData Http.Error a"},"Html5.DragDrop.Position":{"args":[],"type":"{ width : Basics.Int, height : Basics.Int, x : Basics.Int, y : Basics.Int }"},"Json.Decode.Value":{"args":[],"type":"Json.Encode.Value"}},"unions":{"BracketBuilder.Msg":{"args":[],"tags":{"GenerateNextGameId":["Random.Seed"],"DragDropMsg":["Html5.DragDrop.Msg BracketBuilder.DraggableId BracketBuilder.DroppableId"],"EditBracketName":[],"UpdateBracketName":["String.String"],"CloseEditBracketName":[],"AddGroup":[],"EditGroup":["BracketBuilder.Group"],"ToggleGroup":["BracketBuilder.Group"],"UpdateGroupName":["BracketBuilder.Group","String.String"],"CloseEditGroup":["BracketBuilder.Group"],"RemoveGroup":["BracketBuilder.Group"],"AddGame":["BracketBuilder.Coords"],"RemoveGame":["BracketBuilder.Game"],"EditGame":["BracketBuilder.Game"],"UpdateGameName":["String.String"],"UpdateSide":["Basics.Int","String.String"],"CloseEditGame":[],"Save":[],"ConfirmRevert":[],"Revert":[],"ReceivedTeamsFromServer":["RemoteData.WebData (List.List BracketBuilder.Team)"],"ReceivedBracketFromServer":["RemoteData.WebData BracketBuilder.Bracket"],"ConfirmClear":[],"Clear":[],"CancelConfirmation":[]}},"BracketBuilder.Assignment":{"args":[],"tags":{"TeamAssignment":["Basics.Int"],"WinnerAssignment":["String.String"],"LoserAssignment":["String.String"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"BracketBuilder.DraggableId":{"args":[],"tags":{"DraggableGame":["String.String"],"DraggableResult":["BracketBuilder.Assignment"]}},"BracketBuilder.DroppableId":{"args":[],"tags":{"DroppableCell":["BracketBuilder.Coords"],"DroppableSide":["( String.String, Basics.Int )"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Html5.DragDrop.Msg":{"args":["dragId","dropId"],"tags":{"DragStart":["dragId","Json.Decode.Value"],"DragEnd":[],"DragEnter":["dropId"],"DragLeave":["dropId"],"DragOver":["dropId","Basics.Int","Html5.DragDrop.Position"],"Drop":["dropId","Html5.DragDrop.Position"]}},"RemoteData.RemoteData":{"args":["e","a"],"tags":{"NotAsked":[],"Loading":[],"Failure":["e"],"Success":["a"]}},"Random.Seed":{"args":[],"tags":{"Seed":["Basics.Int","Basics.Int"]}},"String.String":{"args":[],"tags":{"String":[]}},"Json.Encode.Value":{"args":[],"tags":{"Value":[]}}}}})}});}(this));
+					])))))({"versions":{"elm":"0.19.1"},"types":{"message":"BracketBuilder.Msg","aliases":{"BracketBuilder.Bracket":{"args":[],"type":"{ id : Maybe.Maybe Basics.Int, name : String.String, groups : List.List BracketBuilder.Group, games : List.List BracketBuilder.Game }"},"BracketBuilder.Coords":{"args":[],"type":"{ groupId : Basics.Int, col : Basics.Int, row : Basics.Int }"},"BracketBuilder.Game":{"args":[],"type":"{ errorMessage : Maybe.Maybe String.String, id : String.String, name : Maybe.Maybe String.String, coords : BracketBuilder.Coords, state : BracketBuilder.GameState, sides : List.List BracketBuilder.Side }"},"BracketBuilder.Group":{"args":[],"type":"{ id : Basics.Int, name : String.String, visible : Basics.Bool }"},"BracketBuilder.Side":{"args":[],"type":"{ position : Basics.Int, firstHammer : Basics.Bool, assignment : Maybe.Maybe BracketBuilder.Assignment, teamId : Maybe.Maybe Basics.Int, result : Maybe.Maybe BracketBuilder.SideResult }"},"BracketBuilder.Team":{"args":[],"type":"{ id : Basics.Int, name : String.String }"},"RemoteData.WebData":{"args":["a"],"type":"RemoteData.RemoteData Http.Error a"},"Html5.DragDrop.Position":{"args":[],"type":"{ width : Basics.Int, height : Basics.Int, x : Basics.Int, y : Basics.Int }"},"Json.Decode.Value":{"args":[],"type":"Json.Encode.Value"}},"unions":{"BracketBuilder.Msg":{"args":[],"tags":{"GenerateNextGameId":["Random.Seed"],"DragDropMsg":["Html5.DragDrop.Msg BracketBuilder.DraggableId BracketBuilder.DroppableId"],"EditBracketName":[],"UpdateBracketName":["String.String"],"CloseEditBracketName":[],"AddGroup":[],"EditGroup":["BracketBuilder.Group"],"ToggleGroup":["BracketBuilder.Group"],"UpdateGroupName":["BracketBuilder.Group","String.String"],"CloseEditGroup":["BracketBuilder.Group"],"RemoveGroup":["BracketBuilder.Group"],"AddGame":["BracketBuilder.Coords"],"RemoveGame":["BracketBuilder.Game"],"EditGame":["BracketBuilder.Game"],"UpdateGameName":["String.String"],"UpdateSide":["Basics.Int","String.String"],"CloseEditGame":[],"Save":[],"ConfirmRevert":[],"Revert":[],"ReceivedTeamsFromServer":["RemoteData.WebData (List.List BracketBuilder.Team)"],"ReceivedBracketFromServer":["RemoteData.WebData BracketBuilder.Bracket"],"ConfirmClear":[],"Clear":[],"CancelConfirmation":[]}},"BracketBuilder.Assignment":{"args":[],"tags":{"TeamAssignment":["Basics.Int"],"WinnerAssignment":["String.String"],"LoserAssignment":["String.String"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"BracketBuilder.DraggableId":{"args":[],"tags":{"DraggableGame":["String.String"],"DraggableResult":["BracketBuilder.Assignment"]}},"BracketBuilder.DroppableId":{"args":[],"tags":{"DroppableCell":["BracketBuilder.Coords"],"DroppableSide":["( String.String, Basics.Int )"]}},"Http.Error":{"args":[],"tags":{"BadUrl":["String.String"],"Timeout":[],"NetworkError":[],"BadStatus":["Basics.Int"],"BadBody":["String.String"]}},"BracketBuilder.GameState":{"args":[],"tags":{"GamePending":[],"GameActive":[],"GameComplete":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Html5.DragDrop.Msg":{"args":["dragId","dropId"],"tags":{"DragStart":["dragId","Json.Decode.Value"],"DragEnd":[],"DragEnter":["dropId"],"DragLeave":["dropId"],"DragOver":["dropId","Basics.Int","Html5.DragDrop.Position"],"Drop":["dropId","Html5.DragDrop.Position"]}},"RemoteData.RemoteData":{"args":["e","a"],"tags":{"NotAsked":[],"Loading":[],"Failure":["e"],"Success":["a"]}},"Random.Seed":{"args":[],"tags":{"Seed":["Basics.Int","Basics.Int"]}},"BracketBuilder.SideResult":{"args":[],"tags":{"SideResultWon":[],"SideResultLost":[]}},"String.String":{"args":[],"tags":{"String":[]}},"Json.Encode.Value":{"args":[],"tags":{"Value":[]}}}}})}});}(this));

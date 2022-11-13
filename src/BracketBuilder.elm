@@ -96,15 +96,29 @@ type alias Game =
     , id : String
     , name : Maybe String
     , coords : Coords
+    , state : GameState
     , sides : List Side
     }
+
+
+type GameState
+    = GamePending
+    | GameActive
+    | GameComplete
 
 
 type alias Side =
     { position : Int
     , firstHammer : Bool
     , assignment : Maybe Assignment
+    , teamId : Maybe Int
+    , result : Maybe SideResult
     }
+
+
+type SideResult
+    = SideResultWon
+    | SideResultLost
 
 
 type alias Coords =
@@ -319,6 +333,51 @@ loadTeams { baseUrl } =
     RemoteData.Http.get url ReceivedTeamsFromServer teamsDecoder
 
 
+assignTeamsForCompletedGames : List Game -> List Game
+assignTeamsForCompletedGames games =
+    -- If the winner or loser assignment changes, it's possible that the game that's assigned has actually completed,
+    -- and if that's the case, we also want to assign the team that won / lost.
+    let
+        updatedGame game =
+            let
+                updatedSide side =
+                    let
+                        updatedTeamId =
+                            let
+                                sidesForGameId gameId =
+                                    -- Only if the game has completed
+                                    List.Extra.find (\g -> g.id == gameId && g.state == GameComplete) games
+                                        |> Maybe.map .sides
+                                        |> Maybe.withDefault []
+                            in
+                            case side.assignment of
+                                Just (WinnerAssignment gameId) ->
+                                    -- Check if the game has completed, and assign the winning team if it has.
+                                    List.Extra.find (\s -> s.result == Just SideResultWon) (sidesForGameId gameId)
+                                        |> Maybe.map .teamId
+                                        |> Maybe.withDefault Nothing
+
+                                Just (LoserAssignment gameId) ->
+                                    -- Check if the game has completed, and assign the losing team if it has.
+                                    List.Extra.find (\s -> s.result == Just SideResultLost) (sidesForGameId gameId)
+                                        |> Maybe.map .teamId
+                                        |> Maybe.withDefault Nothing
+
+                                Nothing ->
+                                    -- Make sure a team isn't still assigned from earlier.
+                                    Nothing
+
+                                Just (TeamAssignment _) ->
+                                    -- Do nothing. A direct team assignment is fine as is.
+                                    side.teamId
+                    in
+                    { side | teamId = updatedTeamId }
+            in
+            { game | sides = List.map updatedSide game.sides }
+    in
+    List.map updatedGame games
+
+
 
 ---- ENCODERS ----
 
@@ -368,28 +427,33 @@ gamesEncoder games =
             let
                 sideEncoder : Side -> Encode.Value
                 sideEncoder side =
-                    let
-                        encodeAssignmentId : String -> Maybe Assignment -> Encode.Value
-                        encodeAssignmentId assignmentField assignment =
-                            case ( assignmentField, assignment ) of
-                                ( "team_id", Just (TeamAssignment id) ) ->
-                                    Encode.int id
+                    Encode.object
+                        [ ( "position", Encode.int side.position )
+                        , ( "first_hammer", Encode.bool side.firstHammer )
+                        , ( "team_id"
+                          , case side.teamId of
+                                Just teamId ->
+                                    Encode.int teamId
 
-                                ( "winner_id", Just (WinnerAssignment id) ) ->
-                                    Encode.string id
-
-                                ( "loser_id", Just (LoserAssignment id) ) ->
+                                Nothing ->
+                                    Encode.null
+                          )
+                        , ( "winner_id"
+                          , case side.assignment of
+                                Just (WinnerAssignment id) ->
                                     Encode.string id
 
                                 _ ->
                                     Encode.null
-                    in
-                    Encode.object
-                        [ ( "position", Encode.int side.position )
-                        , ( "first_hammer", Encode.bool side.firstHammer )
-                        , ( "team_id", encodeAssignmentId "team_id" side.assignment )
-                        , ( "winner_id", encodeAssignmentId "winner_id" side.assignment )
-                        , ( "loser_id", encodeAssignmentId "loser_id" side.assignment )
+                          )
+                        , ( "loser_id"
+                          , case side.assignment of
+                                Just (LoserAssignment id) ->
+                                    Encode.string id
+
+                                _ ->
+                                    Encode.null
+                          )
                         ]
 
                 coordsEncoder : Coords -> Encode.Value
@@ -481,16 +545,31 @@ gameDecoder =
                 assignmentDecoder : Decode.Decoder Assignment
                 assignmentDecoder =
                     Decode.oneOf
-                        [ Decode.map TeamAssignment (Decode.field "team_id" Decode.int)
-                        , Decode.map WinnerAssignment (Decode.field "winner_id" Decode.string)
+                        [ Decode.map WinnerAssignment (Decode.field "winner_id" Decode.string)
                         , Decode.map LoserAssignment (Decode.field "loser_id" Decode.string)
+                        , Decode.map TeamAssignment (Decode.field "team_id" Decode.int)
                         ]
+
+                decodeSideResult : Decode.Decoder SideResult
+                decodeSideResult =
+                    Decode.string
+                        |> Decode.andThen
+                            (\str ->
+                                case str of
+                                    "won" ->
+                                        Decode.succeed SideResultWon
+
+                                    _ ->
+                                        Decode.succeed SideResultLost
+                            )
             in
-            Decode.map3
+            Decode.map5
                 Side
                 (Decode.field "position" Decode.int)
                 (Decode.field "first_hammer" Decode.bool)
                 (Decode.maybe assignmentDecoder)
+                (Decode.maybe (Decode.field "team_id" Decode.int))
+                (Decode.maybe (Decode.field "result" decodeSideResult))
 
         coordsDecoder : Decode.Decoder Coords
         coordsDecoder =
@@ -499,12 +578,29 @@ gameDecoder =
                 (Decode.field "group_id" Decode.int)
                 (Decode.field "col" Decode.int)
                 (Decode.field "row" Decode.int)
+
+        decodeGameState : Decode.Decoder GameState
+        decodeGameState =
+            Decode.string
+                |> Decode.andThen
+                    (\str ->
+                        case String.toLower str of
+                            "active" ->
+                                Decode.succeed GameActive
+
+                            "complete" ->
+                                Decode.succeed GameComplete
+
+                            _ ->
+                                Decode.succeed GamePending
+                    )
     in
-    Decode.map4
+    Decode.map5
         (Game Nothing)
         (Decode.field "id" Decode.string)
         (Decode.maybe (Decode.field "name" Decode.string))
         (Decode.field "coords" coordsDecoder)
+        (Decode.field "state" decodeGameState)
         (Decode.field "game_positions" (Decode.list sideDecoder))
 
 
@@ -598,6 +694,7 @@ update msg model =
                                 | games =
                                     clearAssignmentFromAllGames bracket.games from
                                         |> List.map updatedGame
+                                        |> assignTeamsForCompletedGames
                             }
                     in
                     { model
@@ -744,8 +841,9 @@ update msg model =
                                                 id
                                                 Nothing
                                                 coords
-                                                [ Side 0 False Nothing
-                                                , Side 1 True Nothing
+                                                GamePending
+                                                [ Side 0 False Nothing Nothing Nothing
+                                                , Side 1 True Nothing Nothing Nothing
                                                 ]
                                            ]
 
@@ -899,40 +997,15 @@ update msg model =
 
                                 _ ->
                                     Nothing
+
+                        updatedSide side =
+                            if side.position == position then
+                                { side | assignment = typedAssignment }
+
+                            else
+                                side
                     in
-                    case typedAssignment of
-                        Just (TeamAssignment teamId) ->
-                            let
-                                updatedSide side =
-                                    if side.position == position then
-                                        { side | assignment = Just (TeamAssignment teamId) }
-
-                                    else
-                                        side
-                            in
-                            { game | sides = List.map updatedSide game.sides }
-
-                        Just gameAssignment ->
-                            let
-                                updatedSide side =
-                                    if side.position == position then
-                                        { side | assignment = Just gameAssignment }
-
-                                    else
-                                        side
-                            in
-                            { game | sides = List.map updatedSide game.sides }
-
-                        Nothing ->
-                            let
-                                updatedSide side =
-                                    if side.position == position then
-                                        { side | assignment = Nothing }
-
-                                    else
-                                        side
-                            in
-                            { game | sides = List.map updatedSide game.sides }
+                    { game | sides = List.map updatedSide game.sides }
 
                 updatedBracket : Game -> List Team -> Bracket -> Bracket
                 updatedBracket game teams bracket =
@@ -944,7 +1017,7 @@ update msg model =
                             else
                                 g
                     in
-                    { bracket | games = List.map shouldUpdateGame bracket.games }
+                    { bracket | games = List.map shouldUpdateGame bracket.games |> assignTeamsForCompletedGames }
             in
             ( case ( model.overlay, model.teams, model.bracket ) of
                 ( Just (EditingGame game), Success teams, Success bracket ) ->
@@ -1367,6 +1440,7 @@ viewEditGame teams bracket game =
                     [ class "form-control"
                     , id "editing-game"
                     , onInput (UpdateSide index)
+                    , disabled (game.state /= GamePending)
                     ]
                     (assignmentOptions index side)
                 ]
@@ -1395,8 +1469,15 @@ viewEditGame teams bracket game =
              ]
                 ++ List.indexedMap viewSideField game.sides
             )
-        , div [ class "modal-footer" ]
-            [ button [ onClick CloseEditGame, class "btn btn-primary mr-2", disabled (game.errorMessage /= Nothing) ] [ text "Close" ]
+        , div [ class "modal-footer d-flex justify-content-between" ]
+            [ div [ class "text-left" ]
+                [ if game.state == GamePending then
+                    text ""
+
+                  else
+                    i [ class "text-danger" ] [ text "Teams cannot be assigned after game starts." ]
+                ]
+            , button [ onClick CloseEditGame, class "btn btn-primary mr-2", disabled (game.errorMessage /= Nothing) ] [ text "Close" ]
             ]
         ]
 
@@ -1558,23 +1639,28 @@ viewGame dragId dropId teams games game =
             [ div
                 [ class "game-name flex-fill" ]
                 [ text (Maybe.withDefault "TDB" game.name) ]
-            , div
-                [ class "game-delete align-self-end"
-                , onClick (RemoveGame game)
-                ]
-                [ text "✘" ]
+            , case game.state of
+                GameComplete ->
+                    text ""
+
+                _ ->
+                    div
+                        [ class "game-delete align-self-end"
+                        , onClick (RemoveGame game)
+                        ]
+                        [ text "✘" ]
             ]
         , div [ class "game-body d-flex" ]
             [ div
                 [ class "game-positions flex-fill" ]
-                (List.indexedMap (\index side -> viewSide dragId dropId teams games game.id index side) game.sides)
+                (List.indexedMap (\index side -> viewSide dragId dropId teams games game index side) game.sides)
             , div [ class "align-self-end ml-1" ] (viewResultConnectors dragId game.id)
             ]
         ]
 
 
-viewSide : Maybe DraggableId -> Maybe DroppableId -> List Team -> List Game -> String -> Int -> Side -> Html Msg
-viewSide dragId dropId teams games gameId position side =
+viewSide : Maybe DraggableId -> Maybe DroppableId -> List Team -> List Game -> Game -> Int -> Side -> Html Msg
+viewSide dragId dropId teams games onGame position side =
     let
         positionClass =
             if position == 0 then
@@ -1584,16 +1670,21 @@ viewSide dragId dropId teams games gameId position side =
                 ( "game-bottom", True )
 
         dropTarget =
-            case ( dragId, dropId ) of
-                ( Just (DraggableResult _), Just (DroppableSide gameIdAndPosition) ) ->
-                    if gameIdAndPosition == ( gameId, position ) then
-                        True
+            if onGame.state == GamePending then
+                -- Only allow assignments for games that haven't started.
+                case ( dragId, dropId ) of
+                    ( Just (DraggableResult _), Just (DroppableSide gameIdAndPosition) ) ->
+                        if gameIdAndPosition == ( onGame.id, position ) then
+                            True
 
-                    else
+                        else
+                            False
+
+                    _ ->
                         False
 
-                _ ->
-                    False
+            else
+                False
 
         label =
             case side.assignment of
@@ -1608,7 +1699,14 @@ viewSide dragId dropId teams games gameId position side =
                 Just (WinnerAssignment id) ->
                     case List.Extra.find (\g -> g.id == id) games of
                         Just g ->
-                            "W: " ++ Maybe.withDefault "TDB" g.name
+                            case side.teamId of
+                                Just teamId ->
+                                    List.Extra.find (\t -> t.id == teamId) teams
+                                        |> Maybe.map .name
+                                        |> Maybe.withDefault (Maybe.withDefault "" g.name)
+
+                                Nothing ->
+                                    "W: " ++ Maybe.withDefault "TDB" g.name
 
                         Nothing ->
                             "TBD"
@@ -1616,7 +1714,14 @@ viewSide dragId dropId teams games gameId position side =
                 Just (LoserAssignment id) ->
                     case List.Extra.find (\g -> g.id == id) games of
                         Just g ->
-                            "L: " ++ Maybe.withDefault "TDB" g.name
+                            case side.teamId of
+                                Just teamId ->
+                                    List.Extra.find (\t -> t.id == teamId) teams
+                                        |> Maybe.map .name
+                                        |> Maybe.withDefault (Maybe.withDefault "" g.name)
+
+                                Nothing ->
+                                    "L: " ++ Maybe.withDefault "TDB" g.name
 
                         Nothing ->
                             "TBD"
@@ -1625,7 +1730,7 @@ viewSide dragId dropId teams games gameId position side =
                     "TBD"
     in
     div
-        ([ classList [ positionClass, ( "drop-target", dropTarget ) ] ] ++ DragDrop.droppable DragDropMsg (DroppableSide ( gameId, position )))
+        ([ classList [ positionClass, ( "drop-target", dropTarget ) ] ] ++ DragDrop.droppable DragDropMsg (DroppableSide ( onGame.id, position )))
         [ text label ]
 
 

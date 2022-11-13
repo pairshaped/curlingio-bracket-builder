@@ -519,11 +519,11 @@ function _Debug_crash_UNUSED(identifier, fact1, fact2, fact3, fact4)
 
 function _Debug_regionToString(region)
 {
-	if (region.aw.Y === region.aB.Y)
+	if (region.ay.Y === region.aD.Y)
 	{
-		return 'on line ' + region.aw.Y;
+		return 'on line ' + region.ay.Y;
 	}
-	return 'on lines ' + region.aw.Y + ' through ' + region.aB.Y;
+	return 'on lines ' + region.ay.Y + ' through ' + region.aD.Y;
 }
 
 
@@ -1857,9 +1857,9 @@ var _Platform_worker = F4(function(impl, flagDecoder, debugMetadata, args)
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.bs,
-		impl.bL,
-		impl.bI,
+		impl.bu,
+		impl.bN,
+		impl.bK,
 		function() { return function() {} }
 	);
 });
@@ -2704,9 +2704,9 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		E: func(record.E),
-		ax: record.ax,
-		au: record.au
+		D: func(record.D),
+		az: record.az,
+		av: record.av
 	}
 });
 
@@ -2974,11 +2974,11 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.E;
-		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.ax;
+		var message = !tag ? value : tag < 3 ? value.a : value.D;
+		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.az;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
-			(tag == 2 ? value.b : tag == 3 && value.au) && event.preventDefault(),
+			(tag == 2 ? value.b : tag == 3 && value.av) && event.preventDefault(),
 			eventNode
 		);
 		var tagger;
@@ -3928,11 +3928,11 @@ var _Browser_element = _Debugger_element || F4(function(impl, flagDecoder, debug
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.bs,
-		impl.bL,
-		impl.bI,
+		impl.bu,
+		impl.bN,
+		impl.bK,
 		function(sendToApp, initialModel) {
-			var view = impl.bM;
+			var view = impl.bO;
 			/**/
 			var domNode = args['node'];
 			//*/
@@ -3964,12 +3964,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 	return _Platform_initialize(
 		flagDecoder,
 		args,
-		impl.bs,
-		impl.bL,
-		impl.bI,
+		impl.bu,
+		impl.bN,
+		impl.bK,
 		function(sendToApp, initialModel) {
-			var divertHrefToApp = impl.av && impl.av(sendToApp)
-			var view = impl.bM;
+			var divertHrefToApp = impl.ax && impl.ax(sendToApp)
+			var view = impl.bO;
 			var title = _VirtualDom_doc.title;
 			var bodyNode = _VirtualDom_doc.body;
 			var currNode = _VirtualDom_virtualize(bodyNode);
@@ -3977,12 +3977,12 @@ var _Browser_document = _Debugger_document || F4(function(impl, flagDecoder, deb
 			{
 				_VirtualDom_divertHrefToApp = divertHrefToApp;
 				var doc = view(model);
-				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.be);
+				var nextNode = _VirtualDom_node('body')(_List_Nil)(doc.bg);
 				var patches = _VirtualDom_diff(currNode, nextNode);
 				bodyNode = _VirtualDom_applyPatches(bodyNode, currNode, patches, sendToApp);
 				currNode = nextNode;
 				_VirtualDom_divertHrefToApp = 0;
-				(title !== doc.bK) && (_VirtualDom_doc.title = title = doc.bK);
+				(title !== doc.bM) && (_VirtualDom_doc.title = title = doc.bM);
 			});
 		}
 	);
@@ -4038,12 +4038,12 @@ function _Browser_makeAnimator(model, draw)
 
 function _Browser_application(impl)
 {
-	var onUrlChange = impl.by;
-	var onUrlRequest = impl.bz;
+	var onUrlChange = impl.bA;
+	var onUrlRequest = impl.bB;
 	var key = function() { key.a(onUrlChange(_Browser_getUrl())); };
 
 	return _Browser_document({
-		av: function(sendToApp)
+		ax: function(sendToApp)
 		{
 			key.a = sendToApp;
 			_Browser_window.addEventListener('popstate', key);
@@ -4059,9 +4059,9 @@ function _Browser_application(impl)
 					var next = $elm$url$Url$fromString(href).a;
 					sendToApp(onUrlRequest(
 						(next
-							&& curr.aS === next.aS
-							&& curr.aI === next.aI
-							&& curr.aP.a === next.aP.a
+							&& curr.aU === next.aU
+							&& curr.aK === next.aK
+							&& curr.aR.a === next.aR.a
 						)
 							? $elm$browser$Browser$Internal(next)
 							: $elm$browser$Browser$External(href)
@@ -4069,13 +4069,13 @@ function _Browser_application(impl)
 				}
 			});
 		},
-		bs: function(flags)
+		bu: function(flags)
 		{
-			return A3(impl.bs, flags, _Browser_getUrl(), key);
+			return A3(impl.bu, flags, _Browser_getUrl(), key);
 		},
-		bM: impl.bM,
-		bL: impl.bL,
-		bI: impl.bI
+		bO: impl.bO,
+		bN: impl.bN,
+		bK: impl.bK
 	});
 }
 
@@ -4141,17 +4141,17 @@ var _Browser_decodeEvent = F2(function(decoder, event)
 function _Browser_visibilityInfo()
 {
 	return (typeof _VirtualDom_doc.hidden !== 'undefined')
-		? { bp: 'hidden', bg: 'visibilitychange' }
+		? { br: 'hidden', bi: 'visibilitychange' }
 		:
 	(typeof _VirtualDom_doc.mozHidden !== 'undefined')
-		? { bp: 'mozHidden', bg: 'mozvisibilitychange' }
+		? { br: 'mozHidden', bi: 'mozvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.msHidden !== 'undefined')
-		? { bp: 'msHidden', bg: 'msvisibilitychange' }
+		? { br: 'msHidden', bi: 'msvisibilitychange' }
 		:
 	(typeof _VirtualDom_doc.webkitHidden !== 'undefined')
-		? { bp: 'webkitHidden', bg: 'webkitvisibilitychange' }
-		: { bp: 'hidden', bg: 'visibilitychange' };
+		? { br: 'webkitHidden', bi: 'webkitvisibilitychange' }
+		: { br: 'hidden', bi: 'visibilitychange' };
 }
 
 
@@ -4232,12 +4232,12 @@ var _Browser_call = F2(function(functionName, id)
 function _Browser_getViewport()
 {
 	return {
-		aZ: _Browser_getScene(),
-		a6: {
-			a8: _Browser_window.pageXOffset,
-			a9: _Browser_window.pageYOffset,
-			a7: _Browser_doc.documentElement.clientWidth,
-			aH: _Browser_doc.documentElement.clientHeight
+		a$: _Browser_getScene(),
+		a8: {
+			ba: _Browser_window.pageXOffset,
+			bb: _Browser_window.pageYOffset,
+			a9: _Browser_doc.documentElement.clientWidth,
+			aJ: _Browser_doc.documentElement.clientHeight
 		}
 	};
 }
@@ -4247,8 +4247,8 @@ function _Browser_getScene()
 	var body = _Browser_doc.body;
 	var elem = _Browser_doc.documentElement;
 	return {
-		a7: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
-		aH: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
+		a9: Math.max(body.scrollWidth, body.offsetWidth, elem.scrollWidth, elem.offsetWidth, elem.clientWidth),
+		aJ: Math.max(body.scrollHeight, body.offsetHeight, elem.scrollHeight, elem.offsetHeight, elem.clientHeight)
 	};
 }
 
@@ -4271,15 +4271,15 @@ function _Browser_getViewportOf(id)
 	return _Browser_withNode(id, function(node)
 	{
 		return {
-			aZ: {
-				a7: node.scrollWidth,
-				aH: node.scrollHeight
+			a$: {
+				a9: node.scrollWidth,
+				aJ: node.scrollHeight
 			},
-			a6: {
-				a8: node.scrollLeft,
-				a9: node.scrollTop,
-				a7: node.clientWidth,
-				aH: node.clientHeight
+			a8: {
+				ba: node.scrollLeft,
+				bb: node.scrollTop,
+				a9: node.clientWidth,
+				aJ: node.clientHeight
 			}
 		};
 	});
@@ -4309,18 +4309,18 @@ function _Browser_getElement(id)
 		var x = _Browser_window.pageXOffset;
 		var y = _Browser_window.pageYOffset;
 		return {
-			aZ: _Browser_getScene(),
-			a6: {
-				a8: x,
-				a9: y,
-				a7: _Browser_doc.documentElement.clientWidth,
-				aH: _Browser_doc.documentElement.clientHeight
+			a$: _Browser_getScene(),
+			a8: {
+				ba: x,
+				bb: y,
+				a9: _Browser_doc.documentElement.clientWidth,
+				aJ: _Browser_doc.documentElement.clientHeight
 			},
-			bj: {
-				a8: x + rect.left,
-				a9: y + rect.top,
-				a7: rect.width,
-				aH: rect.height
+			bl: {
+				ba: x + rect.left,
+				bb: y + rect.top,
+				a9: rect.width,
+				aJ: rect.height
 			}
 		};
 	});
@@ -4448,25 +4448,25 @@ var _Http_toTask = F3(function(router, toTask, request)
 	return _Scheduler_binding(function(callback)
 	{
 		function done(response) {
-			callback(toTask(request.ar.a(response)));
+			callback(toTask(request.as.a(response)));
 		}
 
 		var xhr = new XMLHttpRequest();
 		xhr.addEventListener('error', function() { done($elm$http$Http$NetworkError_); });
 		xhr.addEventListener('timeout', function() { done($elm$http$Http$Timeout_); });
-		xhr.addEventListener('load', function() { done(_Http_toResponse(request.ar.b, xhr)); });
-		$elm$core$Maybe$isJust(request.a5) && _Http_track(router, xhr, request.a5.a);
+		xhr.addEventListener('load', function() { done(_Http_toResponse(request.as.b, xhr)); });
+		$elm$core$Maybe$isJust(request.a7) && _Http_track(router, xhr, request.a7.a);
 
 		try {
-			xhr.open(request.bu, request.ay, true);
+			xhr.open(request.bw, request.aA, true);
 		} catch (e) {
-			return done($elm$http$Http$BadUrl_(request.ay));
+			return done($elm$http$Http$BadUrl_(request.aA));
 		}
 
 		_Http_configureRequest(xhr, request);
 
-		request.be.a && xhr.setRequestHeader('Content-Type', request.be.a);
-		xhr.send(request.be.b);
+		request.bg.a && xhr.setRequestHeader('Content-Type', request.bg.a);
+		xhr.send(request.bg.b);
 
 		return function() { xhr.c = true; xhr.abort(); };
 	});
@@ -4477,13 +4477,13 @@ var _Http_toTask = F3(function(router, toTask, request)
 
 function _Http_configureRequest(xhr, request)
 {
-	for (var headers = request.aG; headers.b; headers = headers.b) // WHILE_CONS
+	for (var headers = request.aI; headers.b; headers = headers.b) // WHILE_CONS
 	{
 		xhr.setRequestHeader(headers.a.a, headers.a.b);
 	}
-	xhr.timeout = request.bJ.a || 0;
-	xhr.responseType = request.ar.d;
-	xhr.withCredentials = request.bc;
+	xhr.timeout = request.bL.a || 0;
+	xhr.responseType = request.as.d;
+	xhr.withCredentials = request.be;
 }
 
 
@@ -4504,10 +4504,10 @@ function _Http_toResponse(toBody, xhr)
 function _Http_toMetadata(xhr)
 {
 	return {
-		ay: xhr.responseURL,
-		bF: xhr.status,
-		bG: xhr.statusText,
-		aG: _Http_parseHeaders(xhr.getAllResponseHeaders())
+		aA: xhr.responseURL,
+		bH: xhr.status,
+		bI: xhr.statusText,
+		aI: _Http_parseHeaders(xhr.getAllResponseHeaders())
 	};
 }
 
@@ -4602,15 +4602,15 @@ function _Http_track(router, xhr, tracker)
 	xhr.upload.addEventListener('progress', function(event) {
 		if (xhr.c) { return; }
 		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Sending({
-			bE: event.loaded,
-			a2: event.total
+			bG: event.loaded,
+			a4: event.total
 		}))));
 	});
 	xhr.addEventListener('progress', function(event) {
 		if (xhr.c) { return; }
 		_Scheduler_rawSpawn(A2($elm$core$Platform$sendToSelf, router, _Utils_Tuple2(tracker, $elm$http$Http$Receiving({
-			bB: event.loaded,
-			a2: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
+			bD: event.loaded,
+			a4: event.lengthComputable ? $elm$core$Maybe$Just(event.total) : $elm$core$Maybe$Nothing
 		}))));
 	});
 }var $elm$core$Maybe$Just = function (a) {
@@ -5022,22 +5022,22 @@ var $elm$core$Array$builderToArray = F2(
 		if (!builder.f) {
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.j),
+				$elm$core$Elm$JsArray$length(builder.i),
 				$elm$core$Array$shiftStep,
 				$elm$core$Elm$JsArray$empty,
-				builder.j);
+				builder.i);
 		} else {
 			var treeLen = builder.f * $elm$core$Array$branchFactor;
 			var depth = $elm$core$Basics$floor(
 				A2($elm$core$Basics$logBase, $elm$core$Array$branchFactor, treeLen - 1));
-			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.l) : builder.l;
+			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.j) : builder.j;
 			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.f);
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.j) + treeLen,
+				$elm$core$Elm$JsArray$length(builder.i) + treeLen,
 				A2($elm$core$Basics$max, 5, depth * $elm$core$Array$shiftStep),
 				tree,
-				builder.j);
+				builder.i);
 		}
 	});
 var $elm$core$Basics$idiv = _Basics_idiv;
@@ -5050,7 +5050,7 @@ var $elm$core$Array$initializeHelp = F5(
 				return A2(
 					$elm$core$Array$builderToArray,
 					false,
-					{l: nodeList, f: (len / $elm$core$Array$branchFactor) | 0, j: tail});
+					{j: nodeList, f: (len / $elm$core$Array$branchFactor) | 0, i: tail});
 			} else {
 				var leaf = $elm$core$Array$Leaf(
 					A3($elm$core$Elm$JsArray$initialize, $elm$core$Array$branchFactor, fromIndex, fn));
@@ -5118,7 +5118,7 @@ var $elm$url$Url$Http = 0;
 var $elm$url$Url$Https = 1;
 var $elm$url$Url$Url = F6(
 	function (protocol, host, port_, path, query, fragment) {
-		return {aD: fragment, aI: host, aN: path, aP: port_, aS: protocol, aT: query};
+		return {aF: fragment, aK: host, aP: path, aR: port_, aU: protocol, aV: query};
 	});
 var $elm$core$String$contains = _String_contains;
 var $elm$core$String$length = _String_length;
@@ -5405,18 +5405,18 @@ var $krisajenkins$remotedata$RemoteData$Success = function (a) {
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $author$project$BracketBuilder$Group = F3(
 	function (id, name, visible) {
-		return {a: id, d: name, aq: visible};
+		return {a: id, c: name, ar: visible};
 	});
 var $author$project$BracketBuilder$emptyBracket = F2(
 	function (id, name) {
 		return {
-			c: _List_Nil,
-			o: _List_fromArray(
+			d: _List_Nil,
+			n: _List_fromArray(
 				[
 					A3($author$project$BracketBuilder$Group, 1, 'Group 1', true)
 				]),
 			a: id,
-			d: name
+			c: name
 		};
 	});
 var $author$project$BracketBuilder$GenerateNextGameId = function (a) {
@@ -5602,23 +5602,28 @@ var $author$project$BracketBuilder$ReceivedBracketFromServer = function (a) {
 };
 var $author$project$BracketBuilder$Bracket = F4(
 	function (id, name, groups, games) {
-		return {c: games, o: groups, a: id, d: name};
+		return {d: games, n: groups, a: id, c: name};
 	});
 var $author$project$BracketBuilder$Coords = F3(
 	function (groupId, col, row) {
-		return {O: col, X: groupId, R: row};
+		return {N: col, X: groupId, Q: row};
 	});
-var $author$project$BracketBuilder$Game = F5(
-	function (errorMessage, id, name, coords, sides) {
-		return {n: coords, ak: errorMessage, a: id, d: name, g: sides};
+var $author$project$BracketBuilder$Game = F6(
+	function (errorMessage, id, name, coords, state, sides) {
+		return {m: coords, al: errorMessage, a: id, c: name, h: sides, S: state};
 	});
+var $author$project$BracketBuilder$GameActive = 1;
+var $author$project$BracketBuilder$GameComplete = 2;
+var $author$project$BracketBuilder$GamePending = 0;
 var $author$project$BracketBuilder$LoserAssignment = function (a) {
 	return {$: 2, a: a};
 };
-var $author$project$BracketBuilder$Side = F3(
-	function (position, firstHammer, assignment) {
-		return {k: assignment, aC: firstHammer, K: position};
+var $author$project$BracketBuilder$Side = F5(
+	function (position, firstHammer, assignment, teamId, result) {
+		return {l: assignment, aE: firstHammer, aa: position, aw: result, F: teamId};
 	});
+var $author$project$BracketBuilder$SideResultLost = 1;
+var $author$project$BracketBuilder$SideResultWon = 0;
 var $author$project$BracketBuilder$TeamAssignment = function (a) {
 	return {$: 0, a: a};
 };
@@ -5629,7 +5634,7 @@ var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $elm$json$Json$Decode$int = _Json_decodeInt;
 var $elm$json$Json$Decode$list = _Json_decodeList;
 var $elm$json$Json$Decode$map3 = _Json_map3;
-var $elm$json$Json$Decode$map4 = _Json_map4;
+var $elm$json$Json$Decode$map5 = _Json_map5;
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
 var $elm$json$Json$Decode$maybe = function (decoder) {
 	return $elm$json$Json$Decode$oneOf(
@@ -5640,15 +5645,22 @@ var $elm$json$Json$Decode$maybe = function (decoder) {
 			]));
 };
 var $elm$json$Json$Decode$string = _Json_decodeString;
+var $elm$core$String$toLower = _String_toLower;
 var $author$project$BracketBuilder$gameDecoder = function () {
 	var sideDecoder = function () {
+		var decodeSideResult = A2(
+			$elm$json$Json$Decode$andThen,
+			function (str) {
+				if (str === 'won') {
+					return $elm$json$Json$Decode$succeed(0);
+				} else {
+					return $elm$json$Json$Decode$succeed(1);
+				}
+			},
+			$elm$json$Json$Decode$string);
 		var assignmentDecoder = $elm$json$Json$Decode$oneOf(
 			_List_fromArray(
 				[
-					A2(
-					$elm$json$Json$Decode$map,
-					$author$project$BracketBuilder$TeamAssignment,
-					A2($elm$json$Json$Decode$field, 'team_id', $elm$json$Json$Decode$int)),
 					A2(
 					$elm$json$Json$Decode$map,
 					$author$project$BracketBuilder$WinnerAssignment,
@@ -5656,28 +5668,51 @@ var $author$project$BracketBuilder$gameDecoder = function () {
 					A2(
 					$elm$json$Json$Decode$map,
 					$author$project$BracketBuilder$LoserAssignment,
-					A2($elm$json$Json$Decode$field, 'loser_id', $elm$json$Json$Decode$string))
+					A2($elm$json$Json$Decode$field, 'loser_id', $elm$json$Json$Decode$string)),
+					A2(
+					$elm$json$Json$Decode$map,
+					$author$project$BracketBuilder$TeamAssignment,
+					A2($elm$json$Json$Decode$field, 'team_id', $elm$json$Json$Decode$int))
 				]));
-		return A4(
-			$elm$json$Json$Decode$map3,
+		return A6(
+			$elm$json$Json$Decode$map5,
 			$author$project$BracketBuilder$Side,
 			A2($elm$json$Json$Decode$field, 'position', $elm$json$Json$Decode$int),
 			A2($elm$json$Json$Decode$field, 'first_hammer', $elm$json$Json$Decode$bool),
-			$elm$json$Json$Decode$maybe(assignmentDecoder));
+			$elm$json$Json$Decode$maybe(assignmentDecoder),
+			$elm$json$Json$Decode$maybe(
+				A2($elm$json$Json$Decode$field, 'team_id', $elm$json$Json$Decode$int)),
+			$elm$json$Json$Decode$maybe(
+				A2($elm$json$Json$Decode$field, 'result', decodeSideResult)));
 	}();
+	var decodeGameState = A2(
+		$elm$json$Json$Decode$andThen,
+		function (str) {
+			var _v0 = $elm$core$String$toLower(str);
+			switch (_v0) {
+				case 'active':
+					return $elm$json$Json$Decode$succeed(1);
+				case 'complete':
+					return $elm$json$Json$Decode$succeed(2);
+				default:
+					return $elm$json$Json$Decode$succeed(0);
+			}
+		},
+		$elm$json$Json$Decode$string);
 	var coordsDecoder = A4(
 		$elm$json$Json$Decode$map3,
 		$author$project$BracketBuilder$Coords,
 		A2($elm$json$Json$Decode$field, 'group_id', $elm$json$Json$Decode$int),
 		A2($elm$json$Json$Decode$field, 'col', $elm$json$Json$Decode$int),
 		A2($elm$json$Json$Decode$field, 'row', $elm$json$Json$Decode$int));
-	return A5(
-		$elm$json$Json$Decode$map4,
+	return A6(
+		$elm$json$Json$Decode$map5,
 		$author$project$BracketBuilder$Game($elm$core$Maybe$Nothing),
 		A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$string),
 		$elm$json$Json$Decode$maybe(
 			A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string)),
 		A2($elm$json$Json$Decode$field, 'coords', coordsDecoder),
+		A2($elm$json$Json$Decode$field, 'state', decodeGameState),
 		A2(
 			$elm$json$Json$Decode$field,
 			'game_positions',
@@ -5689,6 +5724,7 @@ var $author$project$BracketBuilder$groupDecoder = A4(
 	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
 	$elm$json$Json$Decode$succeed(true));
+var $elm$json$Json$Decode$map4 = _Json_map4;
 var $author$project$BracketBuilder$bracketDecoder = A5(
 	$elm$json$Json$Decode$map4,
 	$author$project$BracketBuilder$Bracket,
@@ -6296,7 +6332,7 @@ var $elm$http$Http$resolve = F2(
 			case 3:
 				var metadata = response.a;
 				return $elm$core$Result$Err(
-					$elm$http$Http$BadStatus(metadata.bF));
+					$elm$http$Http$BadStatus(metadata.bH));
 			default:
 				var body = response.b;
 				return A2(
@@ -6335,7 +6371,7 @@ var $elm$http$Http$Request = function (a) {
 };
 var $elm$http$Http$State = F2(
 	function (reqs, subs) {
-		return {aV: reqs, a3: subs};
+		return {aX: reqs, a5: subs};
 	});
 var $elm$http$Http$init = $elm$core$Task$succeed(
 	A2($elm$http$Http$State, $elm$core$Dict$empty, _List_Nil));
@@ -6379,7 +6415,7 @@ var $elm$http$Http$updateReqs = F3(
 					return A2(
 						$elm$core$Task$andThen,
 						function (pid) {
-							var _v4 = req.a5;
+							var _v4 = req.a7;
 							if (_v4.$ === 1) {
 								return A3($elm$http$Http$updateReqs, router, otherCmds, reqs);
 							} else {
@@ -6409,7 +6445,7 @@ var $elm$http$Http$onEffects = F4(
 				return $elm$core$Task$succeed(
 					A2($elm$http$Http$State, reqs, subs));
 			},
-			A3($elm$http$Http$updateReqs, router, cmds, state.aV));
+			A3($elm$http$Http$updateReqs, router, cmds, state.aX));
 	});
 var $elm$core$List$maybeCons = F3(
 	function (f, mx, xs) {
@@ -6452,7 +6488,7 @@ var $elm$http$Http$onSelfMsg = F3(
 				A2(
 					$elm$core$List$filterMap,
 					A3($elm$http$Http$maybeSend, router, tracker, progress),
-					state.a3)));
+					state.a5)));
 	});
 var $elm$http$Http$Cancel = function (a) {
 	return {$: 0, a: a};
@@ -6466,14 +6502,14 @@ var $elm$http$Http$cmdMap = F2(
 			var r = cmd.a;
 			return $elm$http$Http$Request(
 				{
-					bc: r.bc,
 					be: r.be,
-					ar: A2(_Http_mapExpect, func, r.ar),
-					aG: r.aG,
-					bu: r.bu,
-					bJ: r.bJ,
-					a5: r.a5,
-					ay: r.ay
+					bg: r.bg,
+					as: A2(_Http_mapExpect, func, r.as),
+					aI: r.aI,
+					bw: r.bw,
+					bL: r.bL,
+					a7: r.a7,
+					aA: r.aA
 				});
 		}
 	});
@@ -6496,15 +6532,15 @@ var $elm$http$Http$subscription = _Platform_leaf('Http');
 var $elm$http$Http$request = function (r) {
 	return $elm$http$Http$command(
 		$elm$http$Http$Request(
-			{bc: false, be: r.be, ar: r.ar, aG: r.aG, bu: r.bu, bJ: r.bJ, a5: r.a5, ay: r.ay}));
+			{be: false, bg: r.bg, as: r.as, aI: r.aI, bw: r.bw, bL: r.bL, a7: r.a7, aA: r.aA}));
 };
 var $elm$http$Http$riskyRequest = function (r) {
 	return $elm$http$Http$command(
 		$elm$http$Http$Request(
-			{bc: true, be: r.be, ar: r.ar, aG: r.aG, bu: r.bu, bJ: r.bJ, a5: r.a5, ay: r.ay}));
+			{be: true, bg: r.bg, as: r.as, aI: r.aI, bw: r.bw, bL: r.bL, a7: r.a7, aA: r.aA}));
 };
 var $ohanhi$remotedata_http$RemoteData$Http$performRequest = function (_v0) {
-	var risky = _v0.Q;
+	var risky = _v0.P;
 	return risky ? $elm$http$Http$riskyRequest : $elm$http$Http$request;
 };
 var $ohanhi$remotedata_http$RemoteData$Http$request = F6(
@@ -6513,16 +6549,16 @@ var $ohanhi$remotedata_http$RemoteData$Http$request = F6(
 			$ohanhi$remotedata_http$RemoteData$Http$performRequest,
 			config,
 			{
-				be: body,
-				ar: A2(
+				bg: body,
+				as: A2(
 					$elm$http$Http$expectJson,
 					A2($elm$core$Basics$composeR, $krisajenkins$remotedata$RemoteData$fromResult, tagger),
 					decoder),
-				aG: config.aG,
-				bu: method,
-				bJ: config.bJ,
-				a5: config.a5,
-				ay: url
+				aI: config.aI,
+				bw: method,
+				bL: config.bL,
+				a7: config.a7,
+				aA: url
 			});
 	});
 var $ohanhi$remotedata_http$RemoteData$Http$getWithConfig = F4(
@@ -6536,21 +6572,21 @@ var $elm$http$Http$Header = F2(
 var $elm$http$Http$header = $elm$http$Http$Header;
 var $ohanhi$remotedata_http$RemoteData$Http$acceptJson = A2($elm$http$Http$header, 'Accept', 'application/json');
 var $ohanhi$remotedata_http$RemoteData$Http$defaultConfig = {
-	aG: _List_fromArray(
+	aI: _List_fromArray(
 		[$ohanhi$remotedata_http$RemoteData$Http$acceptJson]),
-	Q: false,
-	bJ: $elm$core$Maybe$Nothing,
-	a5: $elm$core$Maybe$Nothing
+	P: false,
+	bL: $elm$core$Maybe$Nothing,
+	a7: $elm$core$Maybe$Nothing
 };
 var $ohanhi$remotedata_http$RemoteData$Http$noCache = A2($elm$http$Http$header, 'Cache-Control', 'no-store, must-revalidate, no-cache, max-age=0');
 var $ohanhi$remotedata_http$RemoteData$Http$noCacheConfig = _Utils_update(
 	$ohanhi$remotedata_http$RemoteData$Http$defaultConfig,
 	{
-		aG: A2($elm$core$List$cons, $ohanhi$remotedata_http$RemoteData$Http$noCache, $ohanhi$remotedata_http$RemoteData$Http$defaultConfig.aG)
+		aI: A2($elm$core$List$cons, $ohanhi$remotedata_http$RemoteData$Http$noCache, $ohanhi$remotedata_http$RemoteData$Http$defaultConfig.aI)
 	});
 var $ohanhi$remotedata_http$RemoteData$Http$get = $ohanhi$remotedata_http$RemoteData$Http$getWithConfig($ohanhi$remotedata_http$RemoteData$Http$noCacheConfig);
 var $author$project$BracketBuilder$loadBracket = function (_v0) {
-	var baseUrl = _v0.N;
+	var baseUrl = _v0.M;
 	var id = _v0.a;
 	var url = function () {
 		if (!id.$) {
@@ -6567,7 +6603,7 @@ var $author$project$BracketBuilder$ReceivedTeamsFromServer = function (a) {
 };
 var $author$project$BracketBuilder$Team = F2(
 	function (id, name) {
-		return {a: id, d: name};
+		return {a: id, c: name};
 	});
 var $author$project$BracketBuilder$teamDecoder = A3(
 	$elm$json$Json$Decode$map2,
@@ -6576,7 +6612,7 @@ var $author$project$BracketBuilder$teamDecoder = A3(
 	A2($elm$json$Json$Decode$field, 'short_name', $elm$json$Json$Decode$string));
 var $author$project$BracketBuilder$teamsDecoder = $elm$json$Json$Decode$list($author$project$BracketBuilder$teamDecoder);
 var $author$project$BracketBuilder$loadTeams = function (_v0) {
-	var baseUrl = _v0.N;
+	var baseUrl = _v0.M;
 	var url = baseUrl + 'teams';
 	return A3($ohanhi$remotedata_http$RemoteData$Http$get, url, $author$project$BracketBuilder$ReceivedTeamsFromServer, $author$project$BracketBuilder$teamsDecoder);
 };
@@ -6593,12 +6629,12 @@ var $author$project$BracketBuilder$init = function (flags) {
 						A2($author$project$BracketBuilder$emptyBracket, $elm$core$Maybe$Nothing, 'Playoffs'));
 				}
 			}(),
-			i: false,
+			g: false,
 			H: $norpan$elm_html5_drag_drop$Html5$DragDrop$init,
 			V: flags,
-			al: $elm$core$Maybe$Nothing,
+			am: $elm$core$Maybe$Nothing,
 			e: $elm$core$Maybe$Nothing,
-			ab: $krisajenkins$remotedata$RemoteData$Loading
+			ac: $krisajenkins$remotedata$RemoteData$Loading
 		},
 		$elm$core$Platform$Cmd$batch(
 			_List_fromArray(
@@ -6651,25 +6687,6 @@ var $elm$core$List$any = F2(
 			}
 		}
 	});
-var $author$project$BracketBuilder$clearAssignmentFromAllGames = F2(
-	function (games, assignment) {
-		var unassignedSide = function (side) {
-			return _Utils_eq(
-				side.k,
-				$elm$core$Maybe$Just(assignment)) ? _Utils_update(
-				side,
-				{k: $elm$core$Maybe$Nothing}) : side;
-		};
-		var unassignedGame = function (game) {
-			return _Utils_update(
-				game,
-				{
-					g: A2($elm$core$List$map, unassignedSide, game.g)
-				});
-		};
-		return A2($elm$core$List$map, unassignedGame, games);
-	});
-var $author$project$BracketBuilder$dragstart = _Platform_outgoingPort('dragstart', $elm$core$Basics$identity);
 var $elm_community$list_extra$List$Extra$find = F2(
 	function (predicate, list) {
 		find:
@@ -6691,12 +6708,128 @@ var $elm_community$list_extra$List$Extra$find = F2(
 			}
 		}
 	});
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (!maybe.$) {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (!maybe.$) {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$BracketBuilder$assignTeamsForCompletedGames = function (games) {
+	var updatedGame = function (game) {
+		var updatedSide = function (side) {
+			var updatedTeamId = function () {
+				var sidesForGameId = function (gameId) {
+					return A2(
+						$elm$core$Maybe$withDefault,
+						_List_Nil,
+						A2(
+							$elm$core$Maybe$map,
+							function ($) {
+								return $.h;
+							},
+							A2(
+								$elm_community$list_extra$List$Extra$find,
+								function (g) {
+									return _Utils_eq(g.a, gameId) && (g.S === 2);
+								},
+								games)));
+				};
+				var _v0 = side.l;
+				if (_v0.$ === 1) {
+					return $elm$core$Maybe$Nothing;
+				} else {
+					switch (_v0.a.$) {
+						case 1:
+							var gameId = _v0.a.a;
+							return A2(
+								$elm$core$Maybe$withDefault,
+								$elm$core$Maybe$Nothing,
+								A2(
+									$elm$core$Maybe$map,
+									function ($) {
+										return $.F;
+									},
+									A2(
+										$elm_community$list_extra$List$Extra$find,
+										function (s) {
+											return _Utils_eq(
+												s.aw,
+												$elm$core$Maybe$Just(0));
+										},
+										sidesForGameId(gameId))));
+						case 2:
+							var gameId = _v0.a.a;
+							return A2(
+								$elm$core$Maybe$withDefault,
+								$elm$core$Maybe$Nothing,
+								A2(
+									$elm$core$Maybe$map,
+									function ($) {
+										return $.F;
+									},
+									A2(
+										$elm_community$list_extra$List$Extra$find,
+										function (s) {
+											return _Utils_eq(
+												s.aw,
+												$elm$core$Maybe$Just(1));
+										},
+										sidesForGameId(gameId))));
+						default:
+							return side.F;
+					}
+				}
+			}();
+			return _Utils_update(
+				side,
+				{F: updatedTeamId});
+		};
+		return _Utils_update(
+			game,
+			{
+				h: A2($elm$core$List$map, updatedSide, game.h)
+			});
+	};
+	return A2($elm$core$List$map, updatedGame, games);
+};
+var $author$project$BracketBuilder$clearAssignmentFromAllGames = F2(
+	function (games, assignment) {
+		var unassignedSide = function (side) {
+			return _Utils_eq(
+				side.l,
+				$elm$core$Maybe$Just(assignment)) ? _Utils_update(
+				side,
+				{l: $elm$core$Maybe$Nothing}) : side;
+		};
+		var unassignedGame = function (game) {
+			return _Utils_update(
+				game,
+				{
+					h: A2($elm$core$List$map, unassignedSide, game.h)
+				});
+		};
+		return A2($elm$core$List$map, unassignedGame, games);
+	});
+var $author$project$BracketBuilder$dragstart = _Platform_outgoingPort('dragstart', $elm$core$Basics$identity);
 var $author$project$BracketBuilder$findGameByCoords = F2(
 	function (coords, games) {
 		return A2(
 			$elm_community$list_extra$List$Extra$find,
 			function (game) {
-				return _Utils_eq(game.n, coords);
+				return _Utils_eq(game.m, coords);
 			},
 			games);
 	});
@@ -6773,7 +6906,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragstartEvent = function (msg
 		var dragId = msg.a;
 		var event = msg.b;
 		return $elm$core$Maybe$Just(
-			{bi: dragId, bk: event});
+			{bk: dragId, bm: event});
 	} else {
 		return $elm$core$Maybe$Nothing;
 	}
@@ -6787,16 +6920,6 @@ var $elm$core$List$head = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (!maybe.$) {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
-		} else {
-			return $elm$core$Maybe$Nothing;
-		}
-	});
 var $krisajenkins$remotedata$RemoteData$NotAsked = {$: 0};
 var $krisajenkins$remotedata$RemoteData$map = F2(
 	function (f, data) {
@@ -6857,59 +6980,48 @@ var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$BracketBuilder$gamesEncoder = function (games) {
 	var gameEncoder = function (game) {
 		var sideEncoder = function (side) {
-			var encodeAssignmentId = F2(
-				function (assignmentField, assignment) {
-					var _v1 = _Utils_Tuple2(assignmentField, assignment);
-					_v1$3:
-					while (true) {
-						if (!_v1.b.$) {
-							switch (_v1.b.a.$) {
-								case 0:
-									if (_v1.a === 'team_id') {
-										var id = _v1.b.a.a;
-										return $elm$json$Json$Encode$int(id);
-									} else {
-										break _v1$3;
-									}
-								case 1:
-									if (_v1.a === 'winner_id') {
-										var id = _v1.b.a.a;
-										return $elm$json$Json$Encode$string(id);
-									} else {
-										break _v1$3;
-									}
-								default:
-									if (_v1.a === 'loser_id') {
-										var id = _v1.b.a.a;
-										return $elm$json$Json$Encode$string(id);
-									} else {
-										break _v1$3;
-									}
-							}
-						} else {
-							break _v1$3;
-						}
-					}
-					return $elm$json$Json$Encode$null;
-				});
 			return $elm$json$Json$Encode$object(
 				_List_fromArray(
 					[
 						_Utils_Tuple2(
 						'position',
-						$elm$json$Json$Encode$int(side.K)),
+						$elm$json$Json$Encode$int(side.aa)),
 						_Utils_Tuple2(
 						'first_hammer',
-						$elm$json$Json$Encode$bool(side.aC)),
+						$elm$json$Json$Encode$bool(side.aE)),
 						_Utils_Tuple2(
 						'team_id',
-						A2(encodeAssignmentId, 'team_id', side.k)),
+						function () {
+							var _v1 = side.F;
+							if (!_v1.$) {
+								var teamId = _v1.a;
+								return $elm$json$Json$Encode$int(teamId);
+							} else {
+								return $elm$json$Json$Encode$null;
+							}
+						}()),
 						_Utils_Tuple2(
 						'winner_id',
-						A2(encodeAssignmentId, 'winner_id', side.k)),
+						function () {
+							var _v2 = side.l;
+							if ((!_v2.$) && (_v2.a.$ === 1)) {
+								var id = _v2.a.a;
+								return $elm$json$Json$Encode$string(id);
+							} else {
+								return $elm$json$Json$Encode$null;
+							}
+						}()),
 						_Utils_Tuple2(
 						'loser_id',
-						A2(encodeAssignmentId, 'loser_id', side.k))
+						function () {
+							var _v3 = side.l;
+							if ((!_v3.$) && (_v3.a.$ === 2)) {
+								var id = _v3.a.a;
+								return $elm$json$Json$Encode$string(id);
+							} else {
+								return $elm$json$Json$Encode$null;
+							}
+						}())
 					]));
 		};
 		var coordsEncoder = function (coords) {
@@ -6921,10 +7033,10 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 						$elm$json$Json$Encode$int(coords.X)),
 						_Utils_Tuple2(
 						'col',
-						$elm$json$Json$Encode$int(coords.O)),
+						$elm$json$Json$Encode$int(coords.N)),
 						_Utils_Tuple2(
 						'row',
-						$elm$json$Json$Encode$int(coords.R))
+						$elm$json$Json$Encode$int(coords.Q))
 					]));
 		};
 		return $elm$json$Json$Encode$object(
@@ -6936,7 +7048,7 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 					_Utils_Tuple2(
 					'name',
 					function () {
-						var _v0 = game.d;
+						var _v0 = game.c;
 						if (!_v0.$) {
 							var name = _v0.a;
 							return $elm$json$Json$Encode$string(name);
@@ -6946,10 +7058,10 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 					}()),
 					_Utils_Tuple2(
 					'game_positions',
-					A2($elm$json$Json$Encode$list, sideEncoder, game.g)),
+					A2($elm$json$Json$Encode$list, sideEncoder, game.h)),
 					_Utils_Tuple2(
 					'coords',
-					coordsEncoder(game.n))
+					coordsEncoder(game.m))
 				]));
 	};
 	return A2($elm$json$Json$Encode$list, gameEncoder, games);
@@ -6964,7 +7076,7 @@ var $author$project$BracketBuilder$groupsEncoder = function (groups) {
 					$elm$json$Json$Encode$int(group.a)),
 					_Utils_Tuple2(
 					'name',
-					$elm$json$Json$Encode$string(group.d))
+					$elm$json$Json$Encode$string(group.c))
 				]));
 	};
 	return A2($elm$json$Json$Encode$list, groupEncoder, groups);
@@ -6986,13 +7098,13 @@ var $author$project$BracketBuilder$bracketEncoder = function (bracket) {
 				}()),
 				_Utils_Tuple2(
 				'name_en',
-				$elm$json$Json$Encode$string(bracket.d)),
+				$elm$json$Json$Encode$string(bracket.c)),
 				_Utils_Tuple2(
 				'groups',
-				$author$project$BracketBuilder$groupsEncoder(bracket.o)),
+				$author$project$BracketBuilder$groupsEncoder(bracket.n)),
 				_Utils_Tuple2(
 				'games',
-				$author$project$BracketBuilder$gamesEncoder(bracket.c))
+				$author$project$BracketBuilder$gamesEncoder(bracket.d))
 			]));
 };
 var $elm$http$Http$jsonBody = function (value) {
@@ -7018,7 +7130,7 @@ var $ohanhi$remotedata_http$RemoteData$Http$postWithConfig = $ohanhi$remotedata_
 var $ohanhi$remotedata_http$RemoteData$Http$post = $ohanhi$remotedata_http$RemoteData$Http$postWithConfig($ohanhi$remotedata_http$RemoteData$Http$defaultConfig);
 var $author$project$BracketBuilder$saveBracket = F2(
 	function (_v0, bracketResult) {
-		var baseUrl = _v0.N;
+		var baseUrl = _v0.M;
 		var sendCmd = F3(
 			function (action, url, bracket) {
 				return A4(
@@ -7305,15 +7417,6 @@ var $elm_community$list_extra$List$Extra$updateIf = F3(
 			},
 			list);
 	});
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (!maybe.$) {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $author$project$BracketBuilder$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -7325,7 +7428,7 @@ var $author$project$BracketBuilder$update = F2(
 					_Utils_update(
 						model,
 						{
-							al: $elm$core$Maybe$Just(newUuid)
+							am: $elm$core$Maybe$Just(newUuid)
 						}),
 					$elm$core$Platform$Cmd$none);
 			case 1:
@@ -7347,7 +7450,7 @@ var $author$project$BracketBuilder$update = F2(
 											return _Utils_update(
 												bracket,
 												{
-													c: A3(
+													d: A3(
 														$elm_community$list_extra$List$Extra$updateIf,
 														function (game) {
 															return _Utils_eq(game.a, gameId);
@@ -7355,16 +7458,16 @@ var $author$project$BracketBuilder$update = F2(
 														function (game) {
 															return _Utils_update(
 																game,
-																{n: coords});
+																{m: coords});
 														},
-														bracket.c)
+														bracket.d)
 												});
 										};
 										return _Utils_update(
 											model,
 											{
 												b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-												i: true,
+												g: true,
 												H: model_
 											});
 									} else {
@@ -7380,16 +7483,16 @@ var $author$project$BracketBuilder$update = F2(
 										var updatedGame = function (game) {
 											if (_Utils_eq(game.a, toGameId)) {
 												var updatedSide = function (side) {
-													return _Utils_eq(side.K, toPosition) ? _Utils_update(
+													return _Utils_eq(side.aa, toPosition) ? _Utils_update(
 														side,
 														{
-															k: $elm$core$Maybe$Just(from)
+															l: $elm$core$Maybe$Just(from)
 														}) : side;
 												};
 												return _Utils_update(
 													game,
 													{
-														g: A2($elm$core$List$map, updatedSide, game.g)
+														h: A2($elm$core$List$map, updatedSide, game.h)
 													});
 											} else {
 												return game;
@@ -7399,17 +7502,18 @@ var $author$project$BracketBuilder$update = F2(
 											return _Utils_update(
 												bracket,
 												{
-													c: A2(
-														$elm$core$List$map,
-														updatedGame,
-														A2($author$project$BracketBuilder$clearAssignmentFromAllGames, bracket.c, from))
+													d: $author$project$BracketBuilder$assignTeamsForCompletedGames(
+														A2(
+															$elm$core$List$map,
+															updatedGame,
+															A2($author$project$BracketBuilder$clearAssignmentFromAllGames, bracket.d, from)))
 												});
 										};
 										return _Utils_update(
 											model,
 											{
 												b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-												i: true,
+												g: true,
 												H: model_
 											});
 									} else {
@@ -7432,7 +7536,7 @@ var $author$project$BracketBuilder$update = F2(
 							A2(
 								$elm$core$Basics$composeR,
 								function ($) {
-									return $.bk;
+									return $.bm;
 								},
 								$author$project$BracketBuilder$dragstart),
 							$norpan$elm_html5_drag_drop$Html5$DragDrop$getDragstartEvent(msg_))));
@@ -7449,25 +7553,25 @@ var $author$project$BracketBuilder$update = F2(
 				var updatedBracket = function (bracket) {
 					return _Utils_update(
 						bracket,
-						{d: name});
+						{c: name});
 				};
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							i: true
+							g: true
 						}),
 					$elm$core$Platform$Cmd$none);
 			case 4:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{i: true, e: $elm$core$Maybe$Nothing}),
+						{g: true, e: $elm$core$Maybe$Nothing}),
 					$elm$core$Platform$Cmd$none);
 			case 5:
 				var updatedBracket = function (bracket) {
-					var nextGroupId = $elm$core$List$length(bracket.o) + 1;
+					var nextGroupId = $elm$core$List$length(bracket.n) + 1;
 					var newGroup = A3(
 						$author$project$BracketBuilder$Group,
 						nextGroupId,
@@ -7476,8 +7580,8 @@ var $author$project$BracketBuilder$update = F2(
 					return _Utils_update(
 						bracket,
 						{
-							o: _Utils_ap(
-								bracket.o,
+							n: _Utils_ap(
+								bracket.n,
 								_List_fromArray(
 									[newGroup]))
 						});
@@ -7487,7 +7591,7 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							i: true
+							g: true
 						}),
 					$elm$core$Platform$Cmd$none);
 			case 6:
@@ -7504,7 +7608,7 @@ var $author$project$BracketBuilder$update = F2(
 				var group = msg.a;
 				var updatedGroup = _Utils_update(
 					group,
-					{aq: !group.aq});
+					{ar: !group.ar});
 				var updatedGroups = function (groups) {
 					return A3(
 						$elm_community$list_extra$List$Extra$updateIf,
@@ -7520,7 +7624,7 @@ var $author$project$BracketBuilder$update = F2(
 					return _Utils_update(
 						bracket,
 						{
-							o: updatedGroups(bracket.o)
+							n: updatedGroups(bracket.n)
 						});
 				};
 				return _Utils_Tuple2(
@@ -7528,7 +7632,7 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							i: true
+							g: true
 						}),
 					$elm$core$Platform$Cmd$none);
 			case 8:
@@ -7536,7 +7640,7 @@ var $author$project$BracketBuilder$update = F2(
 				var name = msg.b;
 				var updatedGroup = _Utils_update(
 					group,
-					{d: name});
+					{c: name});
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -7562,7 +7666,7 @@ var $author$project$BracketBuilder$update = F2(
 					return _Utils_update(
 						bracket,
 						{
-							o: updatedGroups(bracket.o)
+							n: updatedGroups(bracket.n)
 						});
 				};
 				return _Utils_Tuple2(
@@ -7570,7 +7674,7 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							i: true,
+							g: true,
 							e: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
@@ -7580,7 +7684,7 @@ var $author$project$BracketBuilder$update = F2(
 					return _Utils_update(
 						bracket,
 						{
-							o: A2($elm_community$list_extra$List$Extra$remove, group, bracket.o)
+							n: A2($elm_community$list_extra$List$Extra$remove, group, bracket.n)
 						});
 				};
 				return _Utils_Tuple2(
@@ -7588,7 +7692,7 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							i: true,
+							g: true,
 							e: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
@@ -7597,23 +7701,24 @@ var $author$project$BracketBuilder$update = F2(
 				var addGame = function (games) {
 					var _v6 = A2($author$project$BracketBuilder$findGameByCoords, coords, games);
 					if (_v6.$ === 1) {
-						var _v7 = model.al;
+						var _v7 = model.am;
 						if (!_v7.$) {
 							var id = _v7.a;
 							return _Utils_ap(
 								games,
 								_List_fromArray(
 									[
-										A5(
+										A6(
 										$author$project$BracketBuilder$Game,
 										$elm$core$Maybe$Nothing,
 										id,
 										$elm$core$Maybe$Nothing,
 										coords,
+										0,
 										_List_fromArray(
 											[
-												A3($author$project$BracketBuilder$Side, 0, false, $elm$core$Maybe$Nothing),
-												A3($author$project$BracketBuilder$Side, 1, true, $elm$core$Maybe$Nothing)
+												A5($author$project$BracketBuilder$Side, 0, false, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing),
+												A5($author$project$BracketBuilder$Side, 1, true, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing, $elm$core$Maybe$Nothing)
 											]))
 									]));
 						} else {
@@ -7627,7 +7732,7 @@ var $author$project$BracketBuilder$update = F2(
 					return _Utils_update(
 						bracket,
 						{
-							c: addGame(bracket.c)
+							d: addGame(bracket.d)
 						});
 				};
 				return _Utils_Tuple2(
@@ -7635,7 +7740,7 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							i: true
+							g: true
 						}),
 					$author$project$BracketBuilder$generateNextGameId);
 			case 12:
@@ -7644,7 +7749,7 @@ var $author$project$BracketBuilder$update = F2(
 					return _Utils_update(
 						bracket,
 						{
-							c: A2($elm_community$list_extra$List$Extra$remove, game, bracket.c)
+							d: A2($elm_community$list_extra$List$Extra$remove, game, bracket.d)
 						});
 				};
 				return _Utils_Tuple2(
@@ -7652,7 +7757,7 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							i: true,
+							g: true,
 							e: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
@@ -7680,7 +7785,7 @@ var $author$project$BracketBuilder$update = F2(
 						var isNameTaken = A2(
 							$elm$core$List$any,
 							function (g) {
-								var _v10 = _Utils_Tuple2(g.d, maybeName);
+								var _v10 = _Utils_Tuple2(g.c, maybeName);
 								if ((!_v10.a.$) && (!_v10.b.$)) {
 									var name1 = _v10.a.a;
 									var name2 = _v10.b.a;
@@ -7695,8 +7800,8 @@ var $author$project$BracketBuilder$update = F2(
 						return _Utils_update(
 							game,
 							{
-								ak: isNameTaken ? $elm$core$Maybe$Just('Name is already being used.') : $elm$core$Maybe$Nothing,
-								d: maybeName
+								al: isNameTaken ? $elm$core$Maybe$Just('Name is already being used.') : $elm$core$Maybe$Nothing,
+								c: maybeName
 							});
 					});
 				var updatedBracket = F2(
@@ -7704,15 +7809,15 @@ var $author$project$BracketBuilder$update = F2(
 						return _Utils_update(
 							bracket,
 							{
-								c: A3(
+								d: A3(
 									$elm_community$list_extra$List$Extra$updateIf,
 									function (g) {
 										return _Utils_eq(g.a, game.a);
 									},
 									function (g) {
-										return A2(updatedGame, bracket.c, game);
+										return A2(updatedGame, bracket.d, game);
 									},
-									bracket.c)
+									bracket.d)
 							});
 					});
 				return _Utils_Tuple2(
@@ -7728,10 +7833,10 @@ var $author$project$BracketBuilder$update = F2(
 									{
 										b: $krisajenkins$remotedata$RemoteData$Success(
 											A2(updatedBracket, game, bracket)),
-										i: true,
+										g: true,
 										e: $elm$core$Maybe$Just(
 											$author$project$BracketBuilder$EditingGame(
-												A2(updatedGame, bracket.c, game)))
+												A2(updatedGame, bracket.d, game)))
 									});
 							} else {
 								return model;
@@ -7747,25 +7852,25 @@ var $author$project$BracketBuilder$update = F2(
 				var updatedGame = F3(
 					function (teams, games, game) {
 						var typedAssignment = function () {
-							var _v14 = A2($elm$core$String$split, '_', assignment);
-							if (_v14.b) {
-								var x = _v14.a;
-								var xs = _v14.b;
+							var _v13 = A2($elm$core$String$split, '_', assignment);
+							if (_v13.b) {
+								var x = _v13.a;
+								var xs = _v13.b;
 								var matchesTeamId = function () {
-									var _v18 = $elm$core$List$head(xs);
-									if (!_v18.$) {
-										var idStr = _v18.a;
-										var _v19 = $elm$core$String$toInt(idStr);
-										if (!_v19.$) {
-											var id = _v19.a;
-											var _v20 = A2(
+									var _v17 = $elm$core$List$head(xs);
+									if (!_v17.$) {
+										var idStr = _v17.a;
+										var _v18 = $elm$core$String$toInt(idStr);
+										if (!_v18.$) {
+											var id = _v18.a;
+											var _v19 = A2(
 												$elm_community$list_extra$List$Extra$find,
 												function (team) {
 													return _Utils_eq(team.a, id);
 												},
 												teams);
-											if (!_v20.$) {
-												var team = _v20.a;
+											if (!_v19.$) {
+												var team = _v19.a;
 												return $elm$core$Maybe$Just(team.a);
 											} else {
 												return $elm$core$Maybe$Nothing;
@@ -7778,17 +7883,17 @@ var $author$project$BracketBuilder$update = F2(
 									}
 								}();
 								var matchesGameId = function () {
-									var _v16 = $elm$core$List$head(xs);
-									if (!_v16.$) {
-										var id = _v16.a;
-										var _v17 = A2(
+									var _v15 = $elm$core$List$head(xs);
+									if (!_v15.$) {
+										var id = _v15.a;
+										var _v16 = A2(
 											$elm_community$list_extra$List$Extra$find,
 											function (g) {
 												return _Utils_eq(g.a, id);
 											},
 											games);
-										if (!_v17.$) {
-											var g = _v17.a;
+										if (!_v16.$) {
+											var g = _v16.a;
 											return $elm$core$Maybe$Just(g.a);
 										} else {
 											return $elm$core$Maybe$Nothing;
@@ -7811,64 +7916,32 @@ var $author$project$BracketBuilder$update = F2(
 								return $elm$core$Maybe$Nothing;
 							}
 						}();
-						if (!typedAssignment.$) {
-							if (!typedAssignment.a.$) {
-								var teamId = typedAssignment.a.a;
-								var updatedSide = function (side) {
-									return _Utils_eq(side.K, position) ? _Utils_update(
-										side,
-										{
-											k: $elm$core$Maybe$Just(
-												$author$project$BracketBuilder$TeamAssignment(teamId))
-										}) : side;
-								};
-								return _Utils_update(
-									game,
-									{
-										g: A2($elm$core$List$map, updatedSide, game.g)
-									});
-							} else {
-								var gameAssignment = typedAssignment.a;
-								var updatedSide = function (side) {
-									return _Utils_eq(side.K, position) ? _Utils_update(
-										side,
-										{
-											k: $elm$core$Maybe$Just(gameAssignment)
-										}) : side;
-								};
-								return _Utils_update(
-									game,
-									{
-										g: A2($elm$core$List$map, updatedSide, game.g)
-									});
-							}
-						} else {
-							var updatedSide = function (side) {
-								return _Utils_eq(side.K, position) ? _Utils_update(
-									side,
-									{k: $elm$core$Maybe$Nothing}) : side;
-							};
-							return _Utils_update(
-								game,
-								{
-									g: A2($elm$core$List$map, updatedSide, game.g)
-								});
-						}
+						var updatedSide = function (side) {
+							return _Utils_eq(side.aa, position) ? _Utils_update(
+								side,
+								{l: typedAssignment}) : side;
+						};
+						return _Utils_update(
+							game,
+							{
+								h: A2($elm$core$List$map, updatedSide, game.h)
+							});
 					});
 				var updatedBracket = F3(
 					function (game, teams, bracket) {
 						var shouldUpdateGame = function (g) {
-							return _Utils_eq(g.a, game.a) ? A3(updatedGame, teams, bracket.c, game) : g;
+							return _Utils_eq(g.a, game.a) ? A3(updatedGame, teams, bracket.d, game) : g;
 						};
 						return _Utils_update(
 							bracket,
 							{
-								c: A2($elm$core$List$map, shouldUpdateGame, bracket.c)
+								d: $author$project$BracketBuilder$assignTeamsForCompletedGames(
+									A2($elm$core$List$map, shouldUpdateGame, bracket.d))
 							});
 					});
 				return _Utils_Tuple2(
 					function () {
-						var _v12 = _Utils_Tuple3(model.e, model.ab, model.b);
+						var _v12 = _Utils_Tuple3(model.e, model.ac, model.b);
 						if ((((!_v12.a.$) && (_v12.a.a.$ === 2)) && (_v12.b.$ === 3)) && (_v12.c.$ === 3)) {
 							var game = _v12.a.a.a;
 							var teams = _v12.b.a;
@@ -7878,10 +7951,10 @@ var $author$project$BracketBuilder$update = F2(
 								{
 									b: $krisajenkins$remotedata$RemoteData$Success(
 										A3(updatedBracket, game, teams, bracket)),
-									i: true,
+									g: true,
 									e: $elm$core$Maybe$Just(
 										$author$project$BracketBuilder$EditingGame(
-											A3(updatedGame, teams, bracket.c, game)))
+											A3(updatedGame, teams, bracket.d, game)))
 								});
 						} else {
 							return model;
@@ -7898,7 +7971,7 @@ var $author$project$BracketBuilder$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{i: false}),
+						{g: false}),
 					A2($author$project$BracketBuilder$saveBracket, model.V, model.b));
 			case 18:
 				return _Utils_Tuple2(
@@ -7912,14 +7985,14 @@ var $author$project$BracketBuilder$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{b: $krisajenkins$remotedata$RemoteData$Loading, i: false, e: $elm$core$Maybe$Nothing}),
+						{b: $krisajenkins$remotedata$RemoteData$Loading, g: false, e: $elm$core$Maybe$Nothing}),
 					$author$project$BracketBuilder$loadBracket(model.V));
 			case 20:
 				var result = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{ab: result}),
+						{ac: result}),
 					$elm$core$Platform$Cmd$none);
 			case 21:
 				var result = msg.a;
@@ -7935,7 +8008,7 @@ var $author$project$BracketBuilder$update = F2(
 					return _Utils_update(
 						bracket,
 						{
-							o: sortedGroups(bracket.o)
+							n: sortedGroups(bracket.n)
 						});
 				};
 				return _Utils_Tuple2(
@@ -7955,14 +8028,14 @@ var $author$project$BracketBuilder$update = F2(
 					$elm$core$Platform$Cmd$none);
 			case 23:
 				var newBracket = function (bracket) {
-					return A2($author$project$BracketBuilder$emptyBracket, bracket.a, bracket.d);
+					return A2($author$project$BracketBuilder$emptyBracket, bracket.a, bracket.c);
 				};
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, newBracket, model.b),
-							i: true,
+							g: true,
 							e: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
@@ -8150,12 +8223,12 @@ var $author$project$BracketBuilder$rowsForGroup = F2(
 				A2(
 					$elm$core$List$map,
 					function (g) {
-						return g.n.R + 3;
+						return g.m.Q + 3;
 					},
 					A2(
 						$elm$core$List$filter,
 						function (g) {
-							return _Utils_eq(g.n.X, group.a);
+							return _Utils_eq(g.m.X, group.a);
 						},
 						games))));
 	});
@@ -8202,15 +8275,15 @@ var $elm$html$Html$Events$custom = F2(
 	});
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions = F3(
 	function (name, _v0, decoder) {
-		var stopPropagation = _v0.ax;
-		var preventDefault = _v0.au;
+		var stopPropagation = _v0.az;
+		var preventDefault = _v0.av;
 		return A2(
 			$elm$html$Html$Events$custom,
 			name,
 			A2(
 				$elm$json$Json$Decode$map,
 				function (msg) {
-					return {E: msg, au: preventDefault, ax: stopPropagation};
+					return {D: msg, av: preventDefault, az: stopPropagation};
 				},
 				decoder));
 	});
@@ -8223,7 +8296,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$draggable = F2(
 				A3(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
 				'dragstart',
-				{au: false, ax: true},
+				{av: false, az: true},
 				A2(
 					$elm$json$Json$Decode$map,
 					A2(
@@ -8234,7 +8307,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$draggable = F2(
 				A3(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
 				'dragend',
-				{au: false, ax: true},
+				{av: false, az: true},
 				$elm$json$Json$Decode$succeed(
 					wrap($norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnd)))
 			]);
@@ -8350,7 +8423,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$Drop = F2(
 	});
 var $norpan$elm_html5_drag_drop$Html5$DragDrop$Position = F4(
 	function (width, height, x, y) {
-		return {aH: height, a7: width, a8: x, a9: y};
+		return {aJ: height, a9: width, ba: x, bb: y};
 	});
 var $elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
@@ -8402,21 +8475,21 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
 				A3(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
 				'dragenter',
-				{au: true, ax: true},
+				{av: true, az: true},
 				$elm$json$Json$Decode$succeed(
 					wrap(
 						$norpan$elm_html5_drag_drop$Html5$DragDrop$DragEnter(dropId)))),
 				A3(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
 				'dragleave',
-				{au: true, ax: true},
+				{av: true, az: true},
 				$elm$json$Json$Decode$succeed(
 					wrap(
 						$norpan$elm_html5_drag_drop$Html5$DragDrop$DragLeave(dropId)))),
 				A3(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
 				'dragover',
-				{au: true, ax: false},
+				{av: true, az: false},
 				A2(
 					$elm$json$Json$Decode$map,
 					wrap,
@@ -8428,7 +8501,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
 				A3(
 				$norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions,
 				'drop',
-				{au: true, ax: true},
+				{av: true, az: true},
 				A2(
 					$elm$json$Json$Decode$map,
 					A2(
@@ -8439,10 +8512,10 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$droppable = F2(
 			]);
 	});
 var $author$project$BracketBuilder$viewSide = F7(
-	function (dragId, dropId, teams, games, gameId, position, side) {
+	function (dragId, dropId, teams, games, onGame, position, side) {
 		var positionClass = (!position) ? _Utils_Tuple2('game-top', true) : _Utils_Tuple2('game-bottom', true);
 		var label = function () {
-			var _v1 = side.k;
+			var _v1 = side.l;
 			if (!_v1.$) {
 				switch (_v1.a.$) {
 					case 0:
@@ -8455,7 +8528,7 @@ var $author$project$BracketBuilder$viewSide = F7(
 							teams);
 						if (!_v2.$) {
 							var team = _v2.a;
-							return team.d;
+							return team.c;
 						} else {
 							return 'TBD';
 						}
@@ -8469,21 +8542,59 @@ var $author$project$BracketBuilder$viewSide = F7(
 							games);
 						if (!_v3.$) {
 							var g = _v3.a;
-							return 'W: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.d);
+							var _v4 = side.F;
+							if (!_v4.$) {
+								var teamId = _v4.a;
+								return A2(
+									$elm$core$Maybe$withDefault,
+									A2($elm$core$Maybe$withDefault, '', g.c),
+									A2(
+										$elm$core$Maybe$map,
+										function ($) {
+											return $.c;
+										},
+										A2(
+											$elm_community$list_extra$List$Extra$find,
+											function (t) {
+												return _Utils_eq(t.a, teamId);
+											},
+											teams)));
+							} else {
+								return 'W: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.c);
+							}
 						} else {
 							return 'TBD';
 						}
 					default:
 						var id = _v1.a.a;
-						var _v4 = A2(
+						var _v5 = A2(
 							$elm_community$list_extra$List$Extra$find,
 							function (g) {
 								return _Utils_eq(g.a, id);
 							},
 							games);
-						if (!_v4.$) {
-							var g = _v4.a;
-							return 'L: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.d);
+						if (!_v5.$) {
+							var g = _v5.a;
+							var _v6 = side.F;
+							if (!_v6.$) {
+								var teamId = _v6.a;
+								return A2(
+									$elm$core$Maybe$withDefault,
+									A2($elm$core$Maybe$withDefault, '', g.c),
+									A2(
+										$elm$core$Maybe$map,
+										function ($) {
+											return $.c;
+										},
+										A2(
+											$elm_community$list_extra$List$Extra$find,
+											function (t) {
+												return _Utils_eq(t.a, teamId);
+											},
+											teams)));
+							} else {
+								return 'L: ' + A2($elm$core$Maybe$withDefault, 'TDB', g.c);
+							}
 						} else {
 							return 'TBD';
 						}
@@ -8493,12 +8604,16 @@ var $author$project$BracketBuilder$viewSide = F7(
 			}
 		}();
 		var dropTarget = function () {
-			var _v0 = _Utils_Tuple2(dragId, dropId);
-			if ((((!_v0.a.$) && (_v0.a.a.$ === 1)) && (!_v0.b.$)) && (_v0.b.a.$ === 1)) {
-				var gameIdAndPosition = _v0.b.a.a;
-				return _Utils_eq(
-					gameIdAndPosition,
-					_Utils_Tuple2(gameId, position)) ? true : false;
+			if (!onGame.S) {
+				var _v0 = _Utils_Tuple2(dragId, dropId);
+				if ((((!_v0.a.$) && (_v0.a.a.$ === 1)) && (!_v0.b.$)) && (_v0.b.a.$ === 1)) {
+					var gameIdAndPosition = _v0.b.a.a;
+					return _Utils_eq(
+						gameIdAndPosition,
+						_Utils_Tuple2(onGame.a, position)) ? true : false;
+				} else {
+					return false;
+				}
 			} else {
 				return false;
 			}
@@ -8519,7 +8634,7 @@ var $author$project$BracketBuilder$viewSide = F7(
 					$norpan$elm_html5_drag_drop$Html5$DragDrop$droppable,
 					$author$project$BracketBuilder$DragDropMsg,
 					$author$project$BracketBuilder$DroppableSide(
-						_Utils_Tuple2(gameId, position)))),
+						_Utils_Tuple2(onGame.a, position)))),
 			_List_fromArray(
 				[
 					$elm$html$Html$text(label)
@@ -8549,11 +8664,11 @@ var $author$project$BracketBuilder$viewGame = F5(
 						A2(
 						$elm$html$Html$Attributes$style,
 						'left',
-						$elm$core$String$fromInt(game.n.O * $author$project$BracketBuilder$gridSize) + 'px'),
+						$elm$core$String$fromInt(game.m.N * $author$project$BracketBuilder$gridSize) + 'px'),
 						A2(
 						$elm$html$Html$Attributes$style,
 						'top',
-						$elm$core$String$fromInt(game.n.R * $author$project$BracketBuilder$gridSize) + 'px'),
+						$elm$core$String$fromInt(game.m.Q * $author$project$BracketBuilder$gridSize) + 'px'),
 						$elm$html$Html$Events$onDoubleClick(
 						$author$project$BracketBuilder$EditGame(game))
 					]),
@@ -8580,20 +8695,27 @@ var $author$project$BracketBuilder$viewGame = F5(
 							_List_fromArray(
 								[
 									$elm$html$Html$text(
-									A2($elm$core$Maybe$withDefault, 'TDB', game.d))
+									A2($elm$core$Maybe$withDefault, 'TDB', game.c))
 								])),
-							A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class('game-delete align-self-end'),
-									$elm$html$Html$Events$onClick(
-									$author$project$BracketBuilder$RemoveGame(game))
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text('✘')
-								]))
+							function () {
+							var _v0 = game.S;
+							if (_v0 === 2) {
+								return $elm$html$Html$text('');
+							} else {
+								return A2(
+									$elm$html$Html$div,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class('game-delete align-self-end'),
+											$elm$html$Html$Events$onClick(
+											$author$project$BracketBuilder$RemoveGame(game))
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('✘')
+										]));
+							}
+						}()
 						])),
 					A2(
 					$elm$html$Html$div,
@@ -8613,9 +8735,9 @@ var $author$project$BracketBuilder$viewGame = F5(
 								$elm$core$List$indexedMap,
 								F2(
 									function (index, side) {
-										return A7($author$project$BracketBuilder$viewSide, dragId, dropId, teams, games, game.a, index, side);
+										return A7($author$project$BracketBuilder$viewSide, dragId, dropId, teams, games, game, index, side);
 									}),
-								game.g)),
+								game.h)),
 							A2(
 							$elm$html$Html$div,
 							_List_fromArray(
@@ -8647,7 +8769,7 @@ var $author$project$BracketBuilder$colsForGames = function (games) {
 			A2(
 				$elm$core$List$map,
 				function (g) {
-					return g.n.O + 5;
+					return g.m.N + 5;
 				},
 				games)));
 };
@@ -8662,7 +8784,7 @@ var $elm$html$Html$td = _VirtualDom_node('td');
 var $author$project$BracketBuilder$viewCell = F6(
 	function (bracket, dragId, dropId, group, row, col) {
 		var onCoords = A3($author$project$BracketBuilder$Coords, group.a, col, row);
-		var onGame = A2($author$project$BracketBuilder$findGameByCoords, onCoords, bracket.c);
+		var onGame = A2($author$project$BracketBuilder$findGameByCoords, onCoords, bracket.d);
 		var highlighted = function () {
 			var _v0 = _Utils_Tuple2(dragId, dropId);
 			if ((((!_v0.a.$) && (!_v0.a.a.$)) && (!_v0.b.$)) && (!_v0.b.a.$)) {
@@ -8717,11 +8839,11 @@ var $author$project$BracketBuilder$viewRow = F5(
 				A2(
 					$elm$core$List$range,
 					0,
-					$author$project$BracketBuilder$colsForGames(bracket.c) - 1)));
+					$author$project$BracketBuilder$colsForGames(bracket.d) - 1)));
 	});
 var $author$project$BracketBuilder$LineConnector = F3(
 	function (gameResult, fromCoords, toCoords) {
-		return {W: fromCoords, aE: gameResult, ad: toCoords};
+		return {W: fromCoords, aG: gameResult, ae: toCoords};
 	});
 var $author$project$BracketBuilder$Loser = 1;
 var $author$project$BracketBuilder$Winner = 0;
@@ -8761,7 +8883,7 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 						$elm$svg$Svg$Attributes$strokeDasharray('3'),
 						$elm$svg$Svg$Attributes$stroke(
 						function () {
-							var _v4 = l.aE;
+							var _v4 = l.aG;
 							if (!_v4) {
 								return 'green';
 							} else {
@@ -8777,9 +8899,9 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 									_Utils_Tuple2(l.W.a + 11, l.W.b)),
 								_Utils_ap(
 									strPoint(
-										_Utils_Tuple2(l.ad.a - 8, l.ad.b)),
+										_Utils_Tuple2(l.ae.a - 8, l.ae.b)),
 									strPoint(
-										_Utils_Tuple2(l.ad.a - 3, l.ad.b))))))
+										_Utils_Tuple2(l.ae.a - 3, l.ae.b))))))
 					]),
 				_List_Nil);
 		};
@@ -8789,8 +8911,8 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 					function (toPosition, side) {
 						var toCoords = $elm$core$Maybe$Just(
 							_Utils_Tuple2(
-								(toGame.n.O * $author$project$BracketBuilder$gridSize) + 1,
-								(toGame.n.R * $author$project$BracketBuilder$gridSize) + ((!toPosition) ? 32 : 57)));
+								(toGame.m.N * $author$project$BracketBuilder$gridSize) + 1,
+								(toGame.m.Q * $author$project$BracketBuilder$gridSize) + ((!toPosition) ? 32 : 57)));
 						var fromCoords = F2(
 							function (fromGameId, gameResult) {
 								var _v3 = A2(
@@ -8803,13 +8925,13 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 									var fromGame = _v3.a;
 									return $elm$core$Maybe$Just(
 										_Utils_Tuple2(
-											(fromGame.n.O * $author$project$BracketBuilder$gridSize) + 175,
-											(fromGame.n.R * $author$project$BracketBuilder$gridSize) + ((!gameResult) ? 32 : 57)));
+											(fromGame.m.N * $author$project$BracketBuilder$gridSize) + 175,
+											(fromGame.m.Q * $author$project$BracketBuilder$gridSize) + ((!gameResult) ? 32 : 57)));
 								} else {
 									return $elm$core$Maybe$Nothing;
 								}
 							});
-						var _v0 = side.k;
+						var _v0 = side.l;
 						_v0$2:
 						while (true) {
 							if (!_v0.$) {
@@ -8849,7 +8971,7 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 						}
 						return $elm$core$Maybe$Nothing;
 					});
-				return A2($elm$core$List$indexedMap, connectorForPosition, toGame.g);
+				return A2($elm$core$List$indexedMap, connectorForPosition, toGame.h);
 			};
 			return A2(
 				$elm$core$List$filterMap,
@@ -8884,9 +9006,9 @@ var $author$project$BracketBuilder$viewGroup = F5(
 		var groupGames = A2(
 			$elm$core$List$filter,
 			function (g) {
-				return _Utils_eq(g.n.X, group.a);
+				return _Utils_eq(g.m.X, group.a);
 			},
-			bracket.c);
+			bracket.d);
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -8913,7 +9035,7 @@ var $author$project$BracketBuilder$viewGroup = F5(
 								]),
 							_List_fromArray(
 								[
-									$elm$html$Html$text('☷ ' + group.d)
+									$elm$html$Html$text('☷ ' + group.c)
 								])),
 							A2(
 							$elm$html$Html$div,
@@ -8934,7 +9056,7 @@ var $author$project$BracketBuilder$viewGroup = F5(
 						[
 							$elm$html$Html$Attributes$class('group')
 						]),
-					group.aq ? _List_fromArray(
+					group.ar ? _List_fromArray(
 						[
 							A2($author$project$BracketBuilder$viewSvgLines, group, groupGames),
 							A2(
@@ -8946,8 +9068,8 @@ var $author$project$BracketBuilder$viewGroup = F5(
 								A2(
 									$elm$core$List$range,
 									0,
-									A2($author$project$BracketBuilder$rowsForGroup, group, bracket.c) - 1))),
-							A5($author$project$BracketBuilder$viewGames, dragId, dropId, teams, bracket.c, groupGames)
+									A2($author$project$BracketBuilder$rowsForGroup, group, bracket.d) - 1))),
+							A5($author$project$BracketBuilder$viewGames, dragId, dropId, teams, bracket.d, groupGames)
 						]) : _List_fromArray(
 						[
 							A2(
@@ -8971,7 +9093,7 @@ var $author$project$BracketBuilder$viewGroups = F4(
 			A2(
 				$elm$core$List$map,
 				A4($author$project$BracketBuilder$viewGroup, teams, bracket, dragId, dropId),
-				bracket.o));
+				bracket.n));
 	});
 var $author$project$BracketBuilder$CancelConfirmation = {$: 24};
 var $author$project$BracketBuilder$Clear = {$: 23};
@@ -9178,6 +9300,7 @@ var $author$project$BracketBuilder$UpdateSide = F2(
 		return {$: 15, a: a, b: b};
 	});
 var $elm$html$Html$Attributes$for = $elm$html$Html$Attributes$stringProperty('htmlFor');
+var $elm$html$Html$i = _VirtualDom_node('i');
 var $elm$core$List$isEmpty = function (xs) {
 	if (!xs.b) {
 		return true;
@@ -9201,7 +9324,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 			var assignedTo = F2(
 				function (team, g) {
 					var assignedToPosition = function (p) {
-						var _v6 = p.k;
+						var _v6 = p.l;
 						if ((!_v6.$) && (!_v6.a.$)) {
 							var id = _v6.a.a;
 							return _Utils_eq(id, team.a);
@@ -9209,7 +9332,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 							return false;
 						}
 					};
-					return A2($elm$core$List$any, assignedToPosition, g.g);
+					return A2($elm$core$List$any, assignedToPosition, g.h);
 				});
 			var unassigned = function (team) {
 				return $elm$core$List$isEmpty(
@@ -9232,11 +9355,11 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 			};
 			var notAlreadyAssigned = function (assignment) {
 				var assignedToSide = function (side) {
-					return _Utils_eq(assignment, side.k);
+					return _Utils_eq(assignment, side.l);
 				};
 				var assignedToGame = function (g) {
 					return _Utils_eq(g.a, game.a) ? false : (!$elm$core$List$isEmpty(
-						A2($elm$core$List$filter, assignedToSide, g.g)));
+						A2($elm$core$List$filter, assignedToSide, g.h)));
 				};
 				if (assignment.$ === 1) {
 					return true;
@@ -9277,7 +9400,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 		var teamOption = F3(
 			function (index, selectedSide, team) {
 				var isSelected = function () {
-					var _v4 = selectedSide.k;
+					var _v4 = selectedSide.l;
 					if ((!_v4.$) && (!_v4.a.$)) {
 						var id = _v4.a.a;
 						return _Utils_eq(id, team.a);
@@ -9295,7 +9418,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 						]),
 					_List_fromArray(
 						[
-							$elm$html$Html$text(team.d)
+							$elm$html$Html$text(team.c)
 						]));
 			});
 		var gameOption = F3(
@@ -9305,14 +9428,14 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 						return A2(
 							$elm$core$Maybe$map,
 							function (g) {
-								return A2($elm$core$Maybe$withDefault, 'TBD', g.d);
+								return A2($elm$core$Maybe$withDefault, 'TBD', g.c);
 							},
 							A2(
 								$elm_community$list_extra$List$Extra$find,
 								function (g) {
 									return _Utils_eq(g.a, id);
 								},
-								bracket.c));
+								bracket.d));
 					};
 					switch (assignment.$) {
 						case 1:
@@ -9346,7 +9469,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 					}
 				}();
 				var isSelected = _Utils_eq(
-					selectedSide.k,
+					selectedSide.l,
 					$elm$core$Maybe$Just(assignment));
 				var _v1 = _Utils_Tuple2(optionId, optionLabel);
 				if ((!_v1.a.$) && (!_v1.b.$)) {
@@ -9378,11 +9501,11 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 						A2(
 							$elm$core$List$map,
 							A2(teamOption, index, selectedSide),
-							unassignedTeams(bracket.c)),
+							unassignedTeams(bracket.d)),
 						A2(
 							$elm$core$List$map,
 							A2(gameOption, index, selectedSide),
-							unassignedGameResults(bracket.c))));
+							unassignedGameResults(bracket.d))));
 			});
 		var viewSideField = F2(
 			function (index, side) {
@@ -9411,7 +9534,8 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 									$elm$html$Html$Attributes$class('form-control'),
 									$elm$html$Html$Attributes$id('editing-game'),
 									$elm$html$Html$Events$onInput(
-									$author$project$BracketBuilder$UpdateSide(index))
+									$author$project$BracketBuilder$UpdateSide(index)),
+									$elm$html$Html$Attributes$disabled(!(!game.S))
 								]),
 							A2(assignmentOptions, index, side))
 						]));
@@ -9453,7 +9577,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 						_List_fromArray(
 							[
 								function () {
-								var _v0 = game.ak;
+								var _v0 = game.al;
 								if (!_v0.$) {
 									var errorMessage = _v0.a;
 									return A2(
@@ -9495,21 +9619,40 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 												$elm$html$Html$Attributes$class('form-control'),
 												$elm$html$Html$Attributes$id('editing-game-name'),
 												$elm$html$Html$Attributes$value(
-												A2($elm$core$Maybe$withDefault, '', game.d)),
+												A2($elm$core$Maybe$withDefault, '', game.c)),
 												$elm$html$Html$Events$onInput($author$project$BracketBuilder$UpdateGameName)
 											]),
 										_List_Nil)
 									]))
 							]),
-						A2($elm$core$List$indexedMap, viewSideField, game.g))),
+						A2($elm$core$List$indexedMap, viewSideField, game.h))),
 					A2(
 					$elm$html$Html$div,
 					_List_fromArray(
 						[
-							$elm$html$Html$Attributes$class('modal-footer')
+							$elm$html$Html$Attributes$class('modal-footer d-flex justify-content-between')
 						]),
 					_List_fromArray(
 						[
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$class('text-left')
+								]),
+							_List_fromArray(
+								[
+									(!game.S) ? $elm$html$Html$text('') : A2(
+									$elm$html$Html$i,
+									_List_fromArray(
+										[
+											$elm$html$Html$Attributes$class('text-danger')
+										]),
+									_List_fromArray(
+										[
+											$elm$html$Html$text('Teams cannot be assigned after game starts.')
+										]))
+								])),
 							A2(
 							$elm$html$Html$button,
 							_List_fromArray(
@@ -9517,7 +9660,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 									$elm$html$Html$Events$onClick($author$project$BracketBuilder$CloseEditGame),
 									$elm$html$Html$Attributes$class('btn btn-primary mr-2'),
 									$elm$html$Html$Attributes$disabled(
-									!_Utils_eq(game.ak, $elm$core$Maybe$Nothing))
+									!_Utils_eq(game.al, $elm$core$Maybe$Nothing))
 								]),
 							_List_fromArray(
 								[
@@ -9538,14 +9681,14 @@ var $author$project$BracketBuilder$UpdateGroupName = F2(
 	});
 var $author$project$BracketBuilder$viewEditGroup = F2(
 	function (bracket, group) {
-		var hasNoName = $elm$core$String$trim(group.d) === '';
+		var hasNoName = $elm$core$String$trim(group.c) === '';
 		var hasNoGames = !$elm$core$List$isEmpty(
 			A2(
 				$elm$core$List$filter,
 				function (g) {
-					return _Utils_eq(g.n.X, group.a);
+					return _Utils_eq(g.m.X, group.a);
 				},
-				bracket.c));
+				bracket.d));
 		return A2(
 			$elm$html$Html$div,
 			_List_fromArray(
@@ -9595,7 +9738,7 @@ var $author$project$BracketBuilder$viewEditGroup = F2(
 										[
 											$elm$html$Html$Attributes$class('form-control'),
 											$elm$html$Html$Attributes$id('editing-group-name'),
-											$elm$html$Html$Attributes$value(group.d),
+											$elm$html$Html$Attributes$value(group.c),
 											$elm$html$Html$Events$onInput(
 											$author$project$BracketBuilder$UpdateGroupName(group))
 										]),
@@ -9743,7 +9886,7 @@ var $author$project$BracketBuilder$viewOverlay = F3(
 								switch (overlay.a.$) {
 									case 0:
 										var _v1 = overlay.a;
-										return $author$project$BracketBuilder$viewEditBracketName(bracket.d);
+										return $author$project$BracketBuilder$viewEditBracketName(bracket.c);
 									case 1:
 										var group = overlay.a.a;
 										return A2($author$project$BracketBuilder$viewEditGroup, bracket, group);
@@ -9769,7 +9912,7 @@ var $author$project$BracketBuilder$viewOnceLoaded = F3(
 		var flags = _v0.V;
 		var overlay = _v0.e;
 		var dragDrop = _v0.H;
-		var changed = _v0.i;
+		var changed = _v0.g;
 		var modalOpen = !_Utils_eq(overlay, $elm$core$Maybe$Nothing);
 		var dropId = $norpan$elm_html5_drag_drop$Html5$DragDrop$getDropId(dragDrop);
 		var dragId = $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId(dragDrop);
@@ -9793,7 +9936,7 @@ var $author$project$BracketBuilder$viewOnceLoaded = F3(
 						]),
 					_List_fromArray(
 						[
-							$author$project$BracketBuilder$viewBracketName(bracket.d),
+							$author$project$BracketBuilder$viewBracketName(bracket.c),
 							A4($author$project$BracketBuilder$viewGroups, teams, bracket, dragId, dropId),
 							A2(
 							$elm$html$Html$button,
@@ -9831,7 +9974,7 @@ var $author$project$BracketBuilder$viewOnceLoaded = F3(
 									_List_fromArray(
 										[
 											$elm$html$Html$Attributes$class('btn btn-secondary'),
-											$elm$html$Html$Attributes$href(flags.N + 'stages')
+											$elm$html$Html$Attributes$href(flags.M + 'stages')
 										]),
 									_List_fromArray(
 										[
@@ -9854,7 +9997,7 @@ var $author$project$BracketBuilder$viewOnceLoaded = F3(
 				]));
 	});
 var $author$project$BracketBuilder$view = function (model) {
-	var _v0 = _Utils_Tuple2(model.ab, model.b);
+	var _v0 = _Utils_Tuple2(model.ac, model.b);
 	_v0$2:
 	while (true) {
 		_v0$3:
@@ -9974,7 +10117,7 @@ var $author$project$BracketBuilder$view = function (model) {
 			]));
 };
 var $author$project$BracketBuilder$main = $elm$browser$Browser$element(
-	{bs: $author$project$BracketBuilder$init, bI: $author$project$BracketBuilder$subscriptions, bL: $author$project$BracketBuilder$update, bM: $author$project$BracketBuilder$view});
+	{bu: $author$project$BracketBuilder$init, bK: $author$project$BracketBuilder$subscriptions, bN: $author$project$BracketBuilder$update, bO: $author$project$BracketBuilder$view});
 _Platform_export({'BracketBuilder':{'init':$author$project$BracketBuilder$main(
 	A2(
 		$elm$json$Json$Decode$andThen,
@@ -9983,7 +10126,7 @@ _Platform_export({'BracketBuilder':{'init':$author$project$BracketBuilder$main(
 				$elm$json$Json$Decode$andThen,
 				function (baseUrl) {
 					return $elm$json$Json$Decode$succeed(
-						{N: baseUrl, a: id});
+						{M: baseUrl, a: id});
 				},
 				A2($elm$json$Json$Decode$field, 'baseUrl', $elm$json$Json$Decode$string));
 		},
