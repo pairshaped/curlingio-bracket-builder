@@ -2704,7 +2704,7 @@ var _VirtualDom_mapEventTuple = F2(function(func, tuple)
 var _VirtualDom_mapEventRecord = F2(function(func, record)
 {
 	return {
-		D: func(record.D),
+		E: func(record.E),
 		az: record.az,
 		av: record.av
 	}
@@ -2974,7 +2974,7 @@ function _VirtualDom_makeCallback(eventNode, initialHandler)
 		// 3 = Custom
 
 		var value = result.a;
-		var message = !tag ? value : tag < 3 ? value.a : value.D;
+		var message = !tag ? value : tag < 3 ? value.a : value.E;
 		var stopPropagation = tag == 1 ? value.b : tag == 3 && value.az;
 		var currentEventNode = (
 			stopPropagation && event.stopPropagation(),
@@ -5620,7 +5620,7 @@ var $author$project$BracketBuilder$LoserAssignment = function (a) {
 };
 var $author$project$BracketBuilder$Side = F5(
 	function (position, firstHammer, assignment, teamId, result) {
-		return {l: assignment, aE: firstHammer, aa: position, aw: result, F: teamId};
+		return {l: assignment, aE: firstHammer, aa: position, aw: result, B: teamId};
 	});
 var $author$project$BracketBuilder$SideResultLost = 1;
 var $author$project$BracketBuilder$SideResultWon = 0;
@@ -6760,7 +6760,7 @@ var $author$project$BracketBuilder$assignTeamsForCompletedGames = function (game
 								A2(
 									$elm$core$Maybe$map,
 									function ($) {
-										return $.F;
+										return $.B;
 									},
 									A2(
 										$elm_community$list_extra$List$Extra$find,
@@ -6778,7 +6778,7 @@ var $author$project$BracketBuilder$assignTeamsForCompletedGames = function (game
 								A2(
 									$elm$core$Maybe$map,
 									function ($) {
-										return $.F;
+										return $.B;
 									},
 									A2(
 										$elm_community$list_extra$List$Extra$find,
@@ -6789,13 +6789,13 @@ var $author$project$BracketBuilder$assignTeamsForCompletedGames = function (game
 										},
 										sidesForGameId(gameId))));
 						default:
-							return side.F;
+							return side.B;
 					}
 				}
 			}();
 			return _Utils_update(
 				side,
-				{F: updatedTeamId});
+				{B: updatedTeamId});
 		};
 		return _Utils_update(
 			game,
@@ -6992,7 +6992,7 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 						_Utils_Tuple2(
 						'team_id',
 						function () {
-							var _v1 = side.F;
+							var _v1 = side.B;
 							if (!_v1.$) {
 								var teamId = _v1.a;
 								return $elm$json$Json$Encode$int(teamId);
@@ -7852,25 +7852,25 @@ var $author$project$BracketBuilder$update = F2(
 				var updatedGame = F3(
 					function (teams, games, game) {
 						var typedAssignment = function () {
-							var _v13 = A2($elm$core$String$split, '_', assignment);
-							if (_v13.b) {
-								var x = _v13.a;
-								var xs = _v13.b;
+							var _v14 = A2($elm$core$String$split, '_', assignment);
+							if (_v14.b) {
+								var x = _v14.a;
+								var xs = _v14.b;
 								var matchesTeamId = function () {
-									var _v17 = $elm$core$List$head(xs);
-									if (!_v17.$) {
-										var idStr = _v17.a;
-										var _v18 = $elm$core$String$toInt(idStr);
-										if (!_v18.$) {
-											var id = _v18.a;
-											var _v19 = A2(
+									var _v18 = $elm$core$List$head(xs);
+									if (!_v18.$) {
+										var idStr = _v18.a;
+										var _v19 = $elm$core$String$toInt(idStr);
+										if (!_v19.$) {
+											var id = _v19.a;
+											var _v20 = A2(
 												$elm_community$list_extra$List$Extra$find,
 												function (team) {
 													return _Utils_eq(team.a, id);
 												},
 												teams);
-											if (!_v19.$) {
-												var team = _v19.a;
+											if (!_v20.$) {
+												var team = _v20.a;
 												return $elm$core$Maybe$Just(team.a);
 											} else {
 												return $elm$core$Maybe$Nothing;
@@ -7883,17 +7883,17 @@ var $author$project$BracketBuilder$update = F2(
 									}
 								}();
 								var matchesGameId = function () {
-									var _v15 = $elm$core$List$head(xs);
-									if (!_v15.$) {
-										var id = _v15.a;
-										var _v16 = A2(
+									var _v16 = $elm$core$List$head(xs);
+									if (!_v16.$) {
+										var id = _v16.a;
+										var _v17 = A2(
 											$elm_community$list_extra$List$Extra$find,
 											function (g) {
 												return _Utils_eq(g.a, id);
 											},
 											games);
-										if (!_v16.$) {
-											var g = _v16.a;
+										if (!_v17.$) {
+											var g = _v17.a;
 											return $elm$core$Maybe$Just(g.a);
 										} else {
 											return $elm$core$Maybe$Nothing;
@@ -7919,7 +7919,17 @@ var $author$project$BracketBuilder$update = F2(
 						var updatedSide = function (side) {
 							return _Utils_eq(side.aa, position) ? _Utils_update(
 								side,
-								{l: typedAssignment}) : side;
+								{
+									l: typedAssignment,
+									B: function () {
+										if ((!typedAssignment.$) && (!typedAssignment.a.$)) {
+											var id = typedAssignment.a.a;
+											return $elm$core$Maybe$Just(id);
+										} else {
+											return $elm$core$Maybe$Nothing;
+										}
+									}()
+								}) : side;
 						};
 						return _Utils_update(
 							game,
@@ -8283,7 +8293,7 @@ var $norpan$elm_html5_drag_drop$Html5$DragDrop$onWithOptions = F3(
 			A2(
 				$elm$json$Json$Decode$map,
 				function (msg) {
-					return {D: msg, av: preventDefault, az: stopPropagation};
+					return {E: msg, av: preventDefault, az: stopPropagation};
 				},
 				decoder));
 	});
@@ -8542,7 +8552,7 @@ var $author$project$BracketBuilder$viewSide = F7(
 							games);
 						if (!_v3.$) {
 							var g = _v3.a;
-							var _v4 = side.F;
+							var _v4 = side.B;
 							if (!_v4.$) {
 								var teamId = _v4.a;
 								return A2(
@@ -8575,7 +8585,7 @@ var $author$project$BracketBuilder$viewSide = F7(
 							games);
 						if (!_v5.$) {
 							var g = _v5.a;
-							var _v6 = side.F;
+							var _v6 = side.B;
 							if (!_v6.$) {
 								var teamId = _v6.a;
 								return A2(

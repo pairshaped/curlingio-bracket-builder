@@ -1000,7 +1000,17 @@ update msg model =
 
                         updatedSide side =
                             if side.position == position then
-                                { side | assignment = typedAssignment }
+                                { side
+                                    | assignment = typedAssignment
+                                    , teamId =
+                                        case typedAssignment of
+                                            Just (TeamAssignment id) ->
+                                                -- We also need to set the teamId if one was assigned.
+                                                Just id
+
+                                            _ ->
+                                                Nothing
+                                }
 
                             else
                                 side

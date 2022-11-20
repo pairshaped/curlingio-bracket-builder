@@ -12640,25 +12640,25 @@ var $author$project$BracketBuilder$update = F2(
 				var updatedGame = F3(
 					function (teams, games, game) {
 						var typedAssignment = function () {
-							var _v13 = A2($elm$core$String$split, '_', assignment);
-							if (_v13.b) {
-								var x = _v13.a;
-								var xs = _v13.b;
+							var _v14 = A2($elm$core$String$split, '_', assignment);
+							if (_v14.b) {
+								var x = _v14.a;
+								var xs = _v14.b;
 								var matchesTeamId = function () {
-									var _v17 = $elm$core$List$head(xs);
-									if (_v17.$ === 'Just') {
-										var idStr = _v17.a;
-										var _v18 = $elm$core$String$toInt(idStr);
-										if (_v18.$ === 'Just') {
-											var id = _v18.a;
-											var _v19 = A2(
+									var _v18 = $elm$core$List$head(xs);
+									if (_v18.$ === 'Just') {
+										var idStr = _v18.a;
+										var _v19 = $elm$core$String$toInt(idStr);
+										if (_v19.$ === 'Just') {
+											var id = _v19.a;
+											var _v20 = A2(
 												$elm_community$list_extra$List$Extra$find,
 												function (team) {
 													return _Utils_eq(team.id, id);
 												},
 												teams);
-											if (_v19.$ === 'Just') {
-												var team = _v19.a;
+											if (_v20.$ === 'Just') {
+												var team = _v20.a;
 												return $elm$core$Maybe$Just(team.id);
 											} else {
 												return $elm$core$Maybe$Nothing;
@@ -12671,17 +12671,17 @@ var $author$project$BracketBuilder$update = F2(
 									}
 								}();
 								var matchesGameId = function () {
-									var _v15 = $elm$core$List$head(xs);
-									if (_v15.$ === 'Just') {
-										var id = _v15.a;
-										var _v16 = A2(
+									var _v16 = $elm$core$List$head(xs);
+									if (_v16.$ === 'Just') {
+										var id = _v16.a;
+										var _v17 = A2(
 											$elm_community$list_extra$List$Extra$find,
 											function (g) {
 												return _Utils_eq(g.id, id);
 											},
 											games);
-										if (_v16.$ === 'Just') {
-											var g = _v16.a;
+										if (_v17.$ === 'Just') {
+											var g = _v17.a;
 											return $elm$core$Maybe$Just(g.id);
 										} else {
 											return $elm$core$Maybe$Nothing;
@@ -12707,7 +12707,17 @@ var $author$project$BracketBuilder$update = F2(
 						var updatedSide = function (side) {
 							return _Utils_eq(side.position, position) ? _Utils_update(
 								side,
-								{assignment: typedAssignment}) : side;
+								{
+									assignment: typedAssignment,
+									teamId: function () {
+										if ((typedAssignment.$ === 'Just') && (typedAssignment.a.$ === 'TeamAssignment')) {
+											var id = typedAssignment.a.a;
+											return $elm$core$Maybe$Just(id);
+										} else {
+											return $elm$core$Maybe$Nothing;
+										}
+									}()
+								}) : side;
 						};
 						return _Utils_update(
 							game,
