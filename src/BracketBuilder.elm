@@ -95,6 +95,7 @@ type alias Game =
     { errorMessage : Maybe String
     , id : String
     , name : Maybe String
+    , markedForDeletion : Bool
     , coords : Coords
     , state : GameState
     , sides : List Side
@@ -378,6 +379,11 @@ assignTeamsForCompletedGames games =
     List.map updatedGame games
 
 
+visibleGames : List Game -> List Game
+visibleGames games =
+    List.filter (\g -> g.markedForDeletion == False) games
+
+
 
 ---- ENCODERS ----
 
@@ -474,6 +480,7 @@ gamesEncoder games =
                         Nothing ->
                             Encode.null
                   )
+                , ( "_delete", Encode.bool game.markedForDeletion )
                 , ( "game_positions", Encode.list sideEncoder game.sides )
                 , ( "coords", coordsEncoder game.coords )
                 ]
@@ -595,10 +602,11 @@ gameDecoder =
                                 Decode.succeed GamePending
                     )
     in
-    Decode.map5
+    Decode.map6
         (Game Nothing)
         (Decode.field "id" Decode.string)
         (Decode.maybe (Decode.field "name" Decode.string))
+        (Decode.succeed False)
         (Decode.field "coords" coordsDecoder)
         (Decode.field "state" decodeGameState)
         (Decode.field "game_positions" (Decode.list sideDecoder))
@@ -840,6 +848,7 @@ update msg model =
                                         ++ [ Game Nothing
                                                 id
                                                 Nothing
+                                                False
                                                 coords
                                                 GamePending
                                                 [ Side 0 False Nothing Nothing Nothing
@@ -866,9 +875,17 @@ update msg model =
 
         RemoveGame game ->
             let
+                updatedGame : Game -> Game
+                updatedGame game_ =
+                    if game_.id == game.id then
+                        { game_ | markedForDeletion = True, sides = [] }
+
+                    else
+                        game_
+
                 updatedBracket : Bracket -> Bracket
                 updatedBracket bracket =
-                    { bracket | games = List.Extra.remove game bracket.games }
+                    { bracket | games = List.map updatedGame bracket.games }
             in
             ( { model
                 | overlay = Nothing
@@ -1242,9 +1259,12 @@ viewEditBracketName name =
 viewEditGroup : Bracket -> Group -> Html Msg
 viewEditGroup bracket group =
     let
+        games =
+            visibleGames bracket.games
+
         hasNoGames : Bool
         hasNoGames =
-            bracket.games
+            games
                 |> List.filter (\g -> g.coords.groupId == group.id)
                 |> List.isEmpty
                 |> not
@@ -1302,9 +1322,12 @@ viewEditGroup bracket group =
 viewEditGame : List Team -> Bracket -> Game -> Html Msg
 viewEditGame teams bracket game =
     let
+        games =
+            visibleGames bracket.games
+
         -- Return a list of teams that haven't been assigned to a game yet.
-        unassignedTeams : List Game -> List Team
-        unassignedTeams games =
+        unassignedTeams : List Team
+        unassignedTeams =
             let
                 gamesNotExcluded =
                     games
@@ -1331,8 +1354,8 @@ viewEditGame teams bracket game =
 
         -- Return a list of game results that haven't been assigned to another game yet.
         -- Pass in the currently selected assigninment to be included.
-        unassignedGameResults : List Game -> List Assignment
-        unassignedGameResults games =
+        unassignedGameResults : List Assignment
+        unassignedGameResults =
             -- TODO: exclude and include params need to be implemented
             let
                 allAssignments =
@@ -1412,7 +1435,7 @@ viewEditGame teams bracket game =
                 optionLabel =
                     let
                         gameName id =
-                            List.Extra.find (\g -> g.id == id) bracket.games
+                            List.Extra.find (\g -> g.id == id) games
                                 |> Maybe.map (\g -> Maybe.withDefault "TBD" g.name)
                     in
                     case assignment of
@@ -1435,10 +1458,10 @@ viewEditGame teams bracket game =
         assignmentOptions : Int -> Side -> List (Html Msg)
         assignmentOptions index selectedSide =
             [ option [] [] ]
-                ++ (unassignedTeams bracket.games
+                ++ (unassignedTeams
                         |> List.map (teamOption index selectedSide)
                    )
-                ++ (unassignedGameResults bracket.games
+                ++ (unassignedGameResults
                         |> List.map (gameOption index selectedSide)
                    )
 
@@ -1548,8 +1571,11 @@ viewGroups teams bracket dragId dropId =
 viewGroup : List Team -> Bracket -> Maybe DraggableId -> Maybe DroppableId -> Group -> Html Msg
 viewGroup teams bracket dragId dropId group =
     let
+        games =
+            visibleGames bracket.games
+
         groupGames =
-            List.filter (\g -> g.coords.groupId == group.id) bracket.games
+            List.filter (\g -> g.coords.groupId == group.id) games
     in
     div
         [ class "group-container" ]
@@ -1571,8 +1597,8 @@ viewGroup teams bracket dragId dropId group =
                 [ viewSvgLines group groupGames
                 , table
                     []
-                    (List.map (viewRow bracket dragId dropId group) (List.range 0 (rowsForGroup group bracket.games - 1)))
-                , viewGames dragId dropId teams bracket.games groupGames
+                    (List.map (viewRow bracket dragId dropId group) (List.range 0 (rowsForGroup group games - 1)))
+                , viewGames dragId dropId teams games groupGames
                 ]
 
              else
@@ -1583,19 +1609,26 @@ viewGroup teams bracket dragId dropId group =
 
 viewRow : Bracket -> Maybe DraggableId -> Maybe DroppableId -> Group -> Int -> Html Msg
 viewRow bracket dragId dropId group row =
+    let
+        games =
+            visibleGames bracket.games
+    in
     tr
         []
-        (List.map (viewCell bracket dragId dropId group row) (List.range 0 (colsForGames bracket.games - 1)))
+        (List.map (viewCell bracket dragId dropId group row) (List.range 0 (colsForGames games - 1)))
 
 
 viewCell : Bracket -> Maybe DraggableId -> Maybe DroppableId -> Group -> Int -> Int -> Html Msg
 viewCell bracket dragId dropId group row col =
     let
+        games =
+            visibleGames bracket.games
+
         onCoords =
             Coords group.id col row
 
         onGame =
-            findGameByCoords onCoords bracket.games
+            findGameByCoords onCoords games
 
         highlighted =
             case ( dragId, dropId ) of
