@@ -881,7 +881,30 @@ update msg model =
                         { game_ | markedForDeletion = True, sides = [] }
 
                     else
-                        game_
+                        let
+                            updatedSide side =
+                                case side.assignment of
+                                    Just (WinnerAssignment id) ->
+                                        if id == game_.id then
+                                            -- Remove the assignment
+                                            { side | assignment = Nothing }
+
+                                        else
+                                            side
+
+                                    Just (LoserAssignment id) ->
+                                        if id == game_.id then
+                                            -- Remove the assignment
+                                            { side | assignment = Nothing }
+
+                                        else
+                                            side
+
+                                    _ ->
+                                        side
+                        in
+                        -- Does the game have a game position assignment to the game we just removed?
+                        { game_ | sides = List.map updatedSide game_.sides }
 
                 updatedBracket : Bracket -> Bracket
                 updatedBracket bracket =

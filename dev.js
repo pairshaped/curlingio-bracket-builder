@@ -12540,9 +12540,42 @@ var $author$project$BracketBuilder$update = F2(
 			case 'RemoveGame':
 				var game = msg.a;
 				var updatedGame = function (game_) {
-					return _Utils_eq(game_.id, game.id) ? _Utils_update(
-						game_,
-						{markedForDeletion: true, sides: _List_Nil}) : game_;
+					if (_Utils_eq(game_.id, game.id)) {
+						return _Utils_update(
+							game_,
+							{markedForDeletion: true, sides: _List_Nil});
+					} else {
+						var updatedSide = function (side) {
+							var _v8 = side.assignment;
+							_v8$2:
+							while (true) {
+								if (_v8.$ === 'Just') {
+									switch (_v8.a.$) {
+										case 'WinnerAssignment':
+											var id = _v8.a.a;
+											return _Utils_eq(id, game_.id) ? _Utils_update(
+												side,
+												{assignment: $elm$core$Maybe$Nothing}) : side;
+										case 'LoserAssignment':
+											var id = _v8.a.a;
+											return _Utils_eq(id, game_.id) ? _Utils_update(
+												side,
+												{assignment: $elm$core$Maybe$Nothing}) : side;
+										default:
+											break _v8$2;
+									}
+								} else {
+									break _v8$2;
+								}
+							}
+							return side;
+						};
+						return _Utils_update(
+							game_,
+							{
+								sides: A2($elm$core$List$map, updatedSide, game_.sides)
+							});
+					}
 				};
 				var updatedBracket = function (bracket) {
 					return _Utils_update(
@@ -12584,10 +12617,10 @@ var $author$project$BracketBuilder$update = F2(
 						var isNameTaken = A2(
 							$elm$core$List$any,
 							function (g) {
-								var _v10 = _Utils_Tuple2(g.name, maybeName);
-								if ((_v10.a.$ === 'Just') && (_v10.b.$ === 'Just')) {
-									var name1 = _v10.a.a;
-									var name2 = _v10.b.a;
+								var _v11 = _Utils_Tuple2(g.name, maybeName);
+								if ((_v11.a.$ === 'Just') && (_v11.b.$ === 'Just')) {
+									var name1 = _v11.a.a;
+									var name2 = _v11.b.a;
 									return _Utils_eq(
 										$elm$core$String$toUpper(name1),
 										$elm$core$String$toUpper(name2));
@@ -12621,12 +12654,12 @@ var $author$project$BracketBuilder$update = F2(
 					});
 				return _Utils_Tuple2(
 					function () {
-						var _v8 = model.overlay;
-						if ((_v8.$ === 'Just') && (_v8.a.$ === 'EditingGame')) {
-							var game = _v8.a.a;
-							var _v9 = model.bracket;
-							if (_v9.$ === 'Success') {
-								var bracket = _v9.a;
+						var _v9 = model.overlay;
+						if ((_v9.$ === 'Just') && (_v9.a.$ === 'EditingGame')) {
+							var game = _v9.a.a;
+							var _v10 = model.bracket;
+							if (_v10.$ === 'Success') {
+								var bracket = _v10.a;
 								return _Utils_update(
 									model,
 									{
@@ -12651,25 +12684,25 @@ var $author$project$BracketBuilder$update = F2(
 				var updatedGame = F3(
 					function (teams, games, game) {
 						var typedAssignment = function () {
-							var _v14 = A2($elm$core$String$split, '_', assignment);
-							if (_v14.b) {
-								var x = _v14.a;
-								var xs = _v14.b;
+							var _v15 = A2($elm$core$String$split, '_', assignment);
+							if (_v15.b) {
+								var x = _v15.a;
+								var xs = _v15.b;
 								var matchesTeamId = function () {
-									var _v18 = $elm$core$List$head(xs);
-									if (_v18.$ === 'Just') {
-										var idStr = _v18.a;
-										var _v19 = $elm$core$String$toInt(idStr);
-										if (_v19.$ === 'Just') {
-											var id = _v19.a;
-											var _v20 = A2(
+									var _v19 = $elm$core$List$head(xs);
+									if (_v19.$ === 'Just') {
+										var idStr = _v19.a;
+										var _v20 = $elm$core$String$toInt(idStr);
+										if (_v20.$ === 'Just') {
+											var id = _v20.a;
+											var _v21 = A2(
 												$elm_community$list_extra$List$Extra$find,
 												function (team) {
 													return _Utils_eq(team.id, id);
 												},
 												teams);
-											if (_v20.$ === 'Just') {
-												var team = _v20.a;
+											if (_v21.$ === 'Just') {
+												var team = _v21.a;
 												return $elm$core$Maybe$Just(team.id);
 											} else {
 												return $elm$core$Maybe$Nothing;
@@ -12682,17 +12715,17 @@ var $author$project$BracketBuilder$update = F2(
 									}
 								}();
 								var matchesGameId = function () {
-									var _v16 = $elm$core$List$head(xs);
-									if (_v16.$ === 'Just') {
-										var id = _v16.a;
-										var _v17 = A2(
+									var _v17 = $elm$core$List$head(xs);
+									if (_v17.$ === 'Just') {
+										var id = _v17.a;
+										var _v18 = A2(
 											$elm_community$list_extra$List$Extra$find,
 											function (g) {
 												return _Utils_eq(g.id, id);
 											},
 											games);
-										if (_v17.$ === 'Just') {
-											var g = _v17.a;
+										if (_v18.$ === 'Just') {
+											var g = _v18.a;
 											return $elm$core$Maybe$Just(g.id);
 										} else {
 											return $elm$core$Maybe$Nothing;
@@ -12750,11 +12783,11 @@ var $author$project$BracketBuilder$update = F2(
 					});
 				return _Utils_Tuple2(
 					function () {
-						var _v12 = _Utils_Tuple3(model.overlay, model.teams, model.bracket);
-						if ((((_v12.a.$ === 'Just') && (_v12.a.a.$ === 'EditingGame')) && (_v12.b.$ === 'Success')) && (_v12.c.$ === 'Success')) {
-							var game = _v12.a.a.a;
-							var teams = _v12.b.a;
-							var bracket = _v12.c.a;
+						var _v13 = _Utils_Tuple3(model.overlay, model.teams, model.bracket);
+						if ((((_v13.a.$ === 'Just') && (_v13.a.a.$ === 'EditingGame')) && (_v13.b.$ === 'Success')) && (_v13.c.$ === 'Success')) {
+							var game = _v13.a.a.a;
+							var teams = _v13.b.a;
+							var bracket = _v13.c.a;
 							return _Utils_update(
 								model,
 								{

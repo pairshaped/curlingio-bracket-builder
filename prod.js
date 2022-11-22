@@ -5019,25 +5019,25 @@ var $elm$core$Array$treeFromBuilder = F2(
 	});
 var $elm$core$Array$builderToArray = F2(
 	function (reverseNodeList, builder) {
-		if (!builder.f) {
+		if (!builder.g) {
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.i),
+				$elm$core$Elm$JsArray$length(builder.j),
 				$elm$core$Array$shiftStep,
 				$elm$core$Elm$JsArray$empty,
-				builder.i);
+				builder.j);
 		} else {
-			var treeLen = builder.f * $elm$core$Array$branchFactor;
+			var treeLen = builder.g * $elm$core$Array$branchFactor;
 			var depth = $elm$core$Basics$floor(
 				A2($elm$core$Basics$logBase, $elm$core$Array$branchFactor, treeLen - 1));
-			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.j) : builder.j;
-			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.f);
+			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.k) : builder.k;
+			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.g);
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
-				$elm$core$Elm$JsArray$length(builder.i) + treeLen,
+				$elm$core$Elm$JsArray$length(builder.j) + treeLen,
 				A2($elm$core$Basics$max, 5, depth * $elm$core$Array$shiftStep),
 				tree,
-				builder.i);
+				builder.j);
 		}
 	});
 var $elm$core$Basics$idiv = _Basics_idiv;
@@ -5050,7 +5050,7 @@ var $elm$core$Array$initializeHelp = F5(
 				return A2(
 					$elm$core$Array$builderToArray,
 					false,
-					{j: nodeList, f: (len / $elm$core$Array$branchFactor) | 0, i: tail});
+					{k: nodeList, g: (len / $elm$core$Array$branchFactor) | 0, j: tail});
 			} else {
 				var leaf = $elm$core$Array$Leaf(
 					A3($elm$core$Elm$JsArray$initialize, $elm$core$Array$branchFactor, fromIndex, fn));
@@ -5610,7 +5610,7 @@ var $author$project$BracketBuilder$Coords = F3(
 	});
 var $author$project$BracketBuilder$Game = F7(
 	function (errorMessage, id, name, markedForDeletion, coords, state, sides) {
-		return {m: coords, al: errorMessage, a: id, am: markedForDeletion, c: name, g: sides, S: state};
+		return {m: coords, al: errorMessage, a: id, am: markedForDeletion, c: name, f: sides, S: state};
 	});
 var $author$project$BracketBuilder$GameActive = 1;
 var $author$project$BracketBuilder$GameComplete = 2;
@@ -5620,7 +5620,7 @@ var $author$project$BracketBuilder$LoserAssignment = function (a) {
 };
 var $author$project$BracketBuilder$Side = F5(
 	function (position, firstHammer, assignment, teamId, result) {
-		return {l: assignment, aF: firstHammer, aa: position, ax: result, B: teamId};
+		return {h: assignment, aF: firstHammer, aa: position, ax: result, B: teamId};
 	});
 var $author$project$BracketBuilder$SideResultLost = 1;
 var $author$project$BracketBuilder$SideResultWon = 0;
@@ -6631,7 +6631,7 @@ var $author$project$BracketBuilder$init = function (flags) {
 						A2($author$project$BracketBuilder$emptyBracket, $elm$core$Maybe$Nothing, 'Playoffs'));
 				}
 			}(),
-			h: false,
+			i: false,
 			H: $norpan$elm_html5_drag_drop$Html5$DragDrop$init,
 			V: flags,
 			an: $elm$core$Maybe$Nothing,
@@ -6740,7 +6740,7 @@ var $author$project$BracketBuilder$assignTeamsForCompletedGames = function (game
 						A2(
 							$elm$core$Maybe$map,
 							function ($) {
-								return $.g;
+								return $.f;
 							},
 							A2(
 								$elm_community$list_extra$List$Extra$find,
@@ -6749,7 +6749,7 @@ var $author$project$BracketBuilder$assignTeamsForCompletedGames = function (game
 								},
 								games)));
 				};
-				var _v0 = side.l;
+				var _v0 = side.h;
 				if (_v0.$ === 1) {
 					return $elm$core$Maybe$Nothing;
 				} else {
@@ -6802,7 +6802,7 @@ var $author$project$BracketBuilder$assignTeamsForCompletedGames = function (game
 		return _Utils_update(
 			game,
 			{
-				g: A2($elm$core$List$map, updatedSide, game.g)
+				f: A2($elm$core$List$map, updatedSide, game.f)
 			});
 	};
 	return A2($elm$core$List$map, updatedGame, games);
@@ -6811,16 +6811,16 @@ var $author$project$BracketBuilder$clearAssignmentFromAllGames = F2(
 	function (games, assignment) {
 		var unassignedSide = function (side) {
 			return _Utils_eq(
-				side.l,
+				side.h,
 				$elm$core$Maybe$Just(assignment)) ? _Utils_update(
 				side,
-				{l: $elm$core$Maybe$Nothing}) : side;
+				{h: $elm$core$Maybe$Nothing}) : side;
 		};
 		var unassignedGame = function (game) {
 			return _Utils_update(
 				game,
 				{
-					g: A2($elm$core$List$map, unassignedSide, game.g)
+					f: A2($elm$core$List$map, unassignedSide, game.f)
 				});
 		};
 		return A2($elm$core$List$map, unassignedGame, games);
@@ -7005,7 +7005,7 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 						_Utils_Tuple2(
 						'winner_id',
 						function () {
-							var _v2 = side.l;
+							var _v2 = side.h;
 							if ((!_v2.$) && (_v2.a.$ === 1)) {
 								var id = _v2.a.a;
 								return $elm$json$Json$Encode$string(id);
@@ -7016,7 +7016,7 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 						_Utils_Tuple2(
 						'loser_id',
 						function () {
-							var _v3 = side.l;
+							var _v3 = side.h;
 							if ((!_v3.$) && (_v3.a.$ === 2)) {
 								var id = _v3.a.a;
 								return $elm$json$Json$Encode$string(id);
@@ -7063,7 +7063,7 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 					$elm$json$Json$Encode$bool(game.am)),
 					_Utils_Tuple2(
 					'game_positions',
-					A2($elm$json$Json$Encode$list, sideEncoder, game.g)),
+					A2($elm$json$Json$Encode$list, sideEncoder, game.f)),
 					_Utils_Tuple2(
 					'coords',
 					coordsEncoder(game.m))
@@ -7472,7 +7472,7 @@ var $author$project$BracketBuilder$update = F2(
 											model,
 											{
 												b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-												h: true,
+												i: true,
 												H: model_
 											});
 									} else {
@@ -7491,13 +7491,13 @@ var $author$project$BracketBuilder$update = F2(
 													return _Utils_eq(side.aa, toPosition) ? _Utils_update(
 														side,
 														{
-															l: $elm$core$Maybe$Just(from)
+															h: $elm$core$Maybe$Just(from)
 														}) : side;
 												};
 												return _Utils_update(
 													game,
 													{
-														g: A2($elm$core$List$map, updatedSide, game.g)
+														f: A2($elm$core$List$map, updatedSide, game.f)
 													});
 											} else {
 												return game;
@@ -7518,7 +7518,7 @@ var $author$project$BracketBuilder$update = F2(
 											model,
 											{
 												b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-												h: true,
+												i: true,
 												H: model_
 											});
 									} else {
@@ -7565,14 +7565,14 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true
+							i: true
 						}),
 					$elm$core$Platform$Cmd$none);
 			case 4:
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{h: true, e: $elm$core$Maybe$Nothing}),
+						{i: true, e: $elm$core$Maybe$Nothing}),
 					$elm$core$Platform$Cmd$none);
 			case 5:
 				var updatedBracket = function (bracket) {
@@ -7596,7 +7596,7 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true
+							i: true
 						}),
 					$elm$core$Platform$Cmd$none);
 			case 6:
@@ -7637,7 +7637,7 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true
+							i: true
 						}),
 					$elm$core$Platform$Cmd$none);
 			case 8:
@@ -7679,7 +7679,7 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true,
+							i: true,
 							e: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
@@ -7697,7 +7697,7 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true,
+							i: true,
 							e: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
@@ -7746,15 +7746,48 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true
+							i: true
 						}),
 					$author$project$BracketBuilder$generateNextGameId);
 			case 12:
 				var game = msg.a;
 				var updatedGame = function (game_) {
-					return _Utils_eq(game_.a, game.a) ? _Utils_update(
-						game_,
-						{am: true, g: _List_Nil}) : game_;
+					if (_Utils_eq(game_.a, game.a)) {
+						return _Utils_update(
+							game_,
+							{am: true, f: _List_Nil});
+					} else {
+						var updatedSide = function (side) {
+							var _v8 = side.h;
+							_v8$2:
+							while (true) {
+								if (!_v8.$) {
+									switch (_v8.a.$) {
+										case 1:
+											var id = _v8.a.a;
+											return _Utils_eq(id, game_.a) ? _Utils_update(
+												side,
+												{h: $elm$core$Maybe$Nothing}) : side;
+										case 2:
+											var id = _v8.a.a;
+											return _Utils_eq(id, game_.a) ? _Utils_update(
+												side,
+												{h: $elm$core$Maybe$Nothing}) : side;
+										default:
+											break _v8$2;
+									}
+								} else {
+									break _v8$2;
+								}
+							}
+							return side;
+						};
+						return _Utils_update(
+							game_,
+							{
+								f: A2($elm$core$List$map, updatedSide, game_.f)
+							});
+					}
 				};
 				var updatedBracket = function (bracket) {
 					return _Utils_update(
@@ -7768,7 +7801,7 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, updatedBracket, model.b),
-							h: true,
+							i: true,
 							e: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
@@ -7796,10 +7829,10 @@ var $author$project$BracketBuilder$update = F2(
 						var isNameTaken = A2(
 							$elm$core$List$any,
 							function (g) {
-								var _v10 = _Utils_Tuple2(g.c, maybeName);
-								if ((!_v10.a.$) && (!_v10.b.$)) {
-									var name1 = _v10.a.a;
-									var name2 = _v10.b.a;
+								var _v11 = _Utils_Tuple2(g.c, maybeName);
+								if ((!_v11.a.$) && (!_v11.b.$)) {
+									var name1 = _v11.a.a;
+									var name2 = _v11.b.a;
 									return _Utils_eq(
 										$elm$core$String$toUpper(name1),
 										$elm$core$String$toUpper(name2));
@@ -7833,18 +7866,18 @@ var $author$project$BracketBuilder$update = F2(
 					});
 				return _Utils_Tuple2(
 					function () {
-						var _v8 = model.e;
-						if ((!_v8.$) && (_v8.a.$ === 2)) {
-							var game = _v8.a.a;
-							var _v9 = model.b;
-							if (_v9.$ === 3) {
-								var bracket = _v9.a;
+						var _v9 = model.e;
+						if ((!_v9.$) && (_v9.a.$ === 2)) {
+							var game = _v9.a.a;
+							var _v10 = model.b;
+							if (_v10.$ === 3) {
+								var bracket = _v10.a;
 								return _Utils_update(
 									model,
 									{
 										b: $krisajenkins$remotedata$RemoteData$Success(
 											A2(updatedBracket, game, bracket)),
-										h: true,
+										i: true,
 										e: $elm$core$Maybe$Just(
 											$author$project$BracketBuilder$EditingGame(
 												A2(updatedGame, bracket.d, game)))
@@ -7863,25 +7896,25 @@ var $author$project$BracketBuilder$update = F2(
 				var updatedGame = F3(
 					function (teams, games, game) {
 						var typedAssignment = function () {
-							var _v14 = A2($elm$core$String$split, '_', assignment);
-							if (_v14.b) {
-								var x = _v14.a;
-								var xs = _v14.b;
+							var _v15 = A2($elm$core$String$split, '_', assignment);
+							if (_v15.b) {
+								var x = _v15.a;
+								var xs = _v15.b;
 								var matchesTeamId = function () {
-									var _v18 = $elm$core$List$head(xs);
-									if (!_v18.$) {
-										var idStr = _v18.a;
-										var _v19 = $elm$core$String$toInt(idStr);
-										if (!_v19.$) {
-											var id = _v19.a;
-											var _v20 = A2(
+									var _v19 = $elm$core$List$head(xs);
+									if (!_v19.$) {
+										var idStr = _v19.a;
+										var _v20 = $elm$core$String$toInt(idStr);
+										if (!_v20.$) {
+											var id = _v20.a;
+											var _v21 = A2(
 												$elm_community$list_extra$List$Extra$find,
 												function (team) {
 													return _Utils_eq(team.a, id);
 												},
 												teams);
-											if (!_v20.$) {
-												var team = _v20.a;
+											if (!_v21.$) {
+												var team = _v21.a;
 												return $elm$core$Maybe$Just(team.a);
 											} else {
 												return $elm$core$Maybe$Nothing;
@@ -7894,17 +7927,17 @@ var $author$project$BracketBuilder$update = F2(
 									}
 								}();
 								var matchesGameId = function () {
-									var _v16 = $elm$core$List$head(xs);
-									if (!_v16.$) {
-										var id = _v16.a;
-										var _v17 = A2(
+									var _v17 = $elm$core$List$head(xs);
+									if (!_v17.$) {
+										var id = _v17.a;
+										var _v18 = A2(
 											$elm_community$list_extra$List$Extra$find,
 											function (g) {
 												return _Utils_eq(g.a, id);
 											},
 											games);
-										if (!_v17.$) {
-											var g = _v17.a;
+										if (!_v18.$) {
+											var g = _v18.a;
 											return $elm$core$Maybe$Just(g.a);
 										} else {
 											return $elm$core$Maybe$Nothing;
@@ -7931,7 +7964,7 @@ var $author$project$BracketBuilder$update = F2(
 							return _Utils_eq(side.aa, position) ? _Utils_update(
 								side,
 								{
-									l: typedAssignment,
+									h: typedAssignment,
 									B: function () {
 										if ((!typedAssignment.$) && (!typedAssignment.a.$)) {
 											var id = typedAssignment.a.a;
@@ -7945,7 +7978,7 @@ var $author$project$BracketBuilder$update = F2(
 						return _Utils_update(
 							game,
 							{
-								g: A2($elm$core$List$map, updatedSide, game.g)
+								f: A2($elm$core$List$map, updatedSide, game.f)
 							});
 					});
 				var updatedBracket = F3(
@@ -7962,17 +7995,17 @@ var $author$project$BracketBuilder$update = F2(
 					});
 				return _Utils_Tuple2(
 					function () {
-						var _v12 = _Utils_Tuple3(model.e, model.ac, model.b);
-						if ((((!_v12.a.$) && (_v12.a.a.$ === 2)) && (_v12.b.$ === 3)) && (_v12.c.$ === 3)) {
-							var game = _v12.a.a.a;
-							var teams = _v12.b.a;
-							var bracket = _v12.c.a;
+						var _v13 = _Utils_Tuple3(model.e, model.ac, model.b);
+						if ((((!_v13.a.$) && (_v13.a.a.$ === 2)) && (_v13.b.$ === 3)) && (_v13.c.$ === 3)) {
+							var game = _v13.a.a.a;
+							var teams = _v13.b.a;
+							var bracket = _v13.c.a;
 							return _Utils_update(
 								model,
 								{
 									b: $krisajenkins$remotedata$RemoteData$Success(
 										A3(updatedBracket, game, teams, bracket)),
-									h: true,
+									i: true,
 									e: $elm$core$Maybe$Just(
 										$author$project$BracketBuilder$EditingGame(
 											A3(updatedGame, teams, bracket.d, game)))
@@ -7992,7 +8025,7 @@ var $author$project$BracketBuilder$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{h: false}),
+						{i: false}),
 					A2($author$project$BracketBuilder$saveBracket, model.V, model.b));
 			case 18:
 				return _Utils_Tuple2(
@@ -8006,7 +8039,7 @@ var $author$project$BracketBuilder$update = F2(
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
-						{b: $krisajenkins$remotedata$RemoteData$Loading, h: false, e: $elm$core$Maybe$Nothing}),
+						{b: $krisajenkins$remotedata$RemoteData$Loading, i: false, e: $elm$core$Maybe$Nothing}),
 					$author$project$BracketBuilder$loadBracket(model.V));
 			case 20:
 				var result = msg.a;
@@ -8056,7 +8089,7 @@ var $author$project$BracketBuilder$update = F2(
 						model,
 						{
 							b: A2($krisajenkins$remotedata$RemoteData$map, newBracket, model.b),
-							h: true,
+							i: true,
 							e: $elm$core$Maybe$Nothing
 						}),
 					$elm$core$Platform$Cmd$none);
@@ -8536,7 +8569,7 @@ var $author$project$BracketBuilder$viewSide = F7(
 	function (dragId, dropId, teams, games, onGame, position, side) {
 		var positionClass = (!position) ? _Utils_Tuple2('game-top', true) : _Utils_Tuple2('game-bottom', true);
 		var label = function () {
-			var _v1 = side.l;
+			var _v1 = side.h;
 			if (!_v1.$) {
 				switch (_v1.a.$) {
 					case 0:
@@ -8758,7 +8791,7 @@ var $author$project$BracketBuilder$viewGame = F5(
 									function (index, side) {
 										return A7($author$project$BracketBuilder$viewSide, dragId, dropId, teams, games, game, index, side);
 									}),
-								game.g)),
+								game.f)),
 							A2(
 							$elm$html$Html$div,
 							_List_fromArray(
@@ -8962,7 +8995,7 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 									return $elm$core$Maybe$Nothing;
 								}
 							});
-						var _v0 = side.l;
+						var _v0 = side.h;
 						_v0$2:
 						while (true) {
 							if (!_v0.$) {
@@ -9002,7 +9035,7 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 						}
 						return $elm$core$Maybe$Nothing;
 					});
-				return A2($elm$core$List$indexedMap, connectorForPosition, toGame.g);
+				return A2($elm$core$List$indexedMap, connectorForPosition, toGame.f);
 			};
 			return A2(
 				$elm$core$List$filterMap,
@@ -9349,7 +9382,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 		var teamOption = F3(
 			function (index, selectedSide, team) {
 				var isSelected = function () {
-					var _v6 = selectedSide.l;
+					var _v6 = selectedSide.h;
 					if ((!_v6.$) && (!_v6.a.$)) {
 						var id = _v6.a.a;
 						return _Utils_eq(id, team.a);
@@ -9383,11 +9416,11 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 			};
 			var notAlreadyAssigned = function (assignment) {
 				var assignedToSide = function (side) {
-					return _Utils_eq(assignment, side.l);
+					return _Utils_eq(assignment, side.h);
 				};
 				var assignedToGame = function (g) {
 					return _Utils_eq(g.a, game.a) ? false : (!$elm$core$List$isEmpty(
-						A2($elm$core$List$filter, assignedToSide, g.g)));
+						A2($elm$core$List$filter, assignedToSide, g.f)));
 				};
 				if (assignment.$ === 1) {
 					return true;
@@ -9435,7 +9468,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 			var assignedTo = F2(
 				function (team, g) {
 					var assignedToPosition = function (p) {
-						var _v4 = p.l;
+						var _v4 = p.h;
 						if ((!_v4.$) && (!_v4.a.$)) {
 							var id = _v4.a.a;
 							return _Utils_eq(id, team.a);
@@ -9443,7 +9476,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 							return false;
 						}
 					};
-					return A2($elm$core$List$any, assignedToPosition, g.g);
+					return A2($elm$core$List$any, assignedToPosition, g.f);
 				});
 			var unassigned = function (team) {
 				return $elm$core$List$isEmpty(
@@ -9502,7 +9535,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 					}
 				}();
 				var isSelected = _Utils_eq(
-					selectedSide.l,
+					selectedSide.h,
 					$elm$core$Maybe$Just(assignment));
 				var _v1 = _Utils_Tuple2(optionId, optionLabel);
 				if ((!_v1.a.$) && (!_v1.b.$)) {
@@ -9658,7 +9691,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 										_List_Nil)
 									]))
 							]),
-						A2($elm$core$List$indexedMap, viewSideField, game.g))),
+						A2($elm$core$List$indexedMap, viewSideField, game.f))),
 					A2(
 					$elm$html$Html$div,
 					_List_fromArray(
@@ -9946,7 +9979,7 @@ var $author$project$BracketBuilder$viewOnceLoaded = F3(
 		var flags = _v0.V;
 		var overlay = _v0.e;
 		var dragDrop = _v0.H;
-		var changed = _v0.h;
+		var changed = _v0.i;
 		var modalOpen = !_Utils_eq(overlay, $elm$core$Maybe$Nothing);
 		var dropId = $norpan$elm_html5_drag_drop$Html5$DragDrop$getDropId(dragDrop);
 		var dragId = $norpan$elm_html5_drag_drop$Html5$DragDrop$getDragId(dragDrop);
