@@ -13384,7 +13384,7 @@ var $author$project$BracketBuilder$viewSide = F7(
 			}
 		}();
 		var dropTarget = function () {
-			if (_Utils_eq(onGame.state, $author$project$BracketBuilder$GamePending)) {
+			if (_Utils_eq(onGame.state, $author$project$BracketBuilder$GamePending) || _Utils_eq(side.assignment, $elm$core$Maybe$Nothing)) {
 				var _v0 = _Utils_Tuple2(dragId, dropId);
 				if ((((_v0.a.$ === 'Just') && (_v0.a.a.$ === 'DraggableResult')) && (_v0.b.$ === 'Just')) && (_v0.b.a.$ === 'DroppableSide')) {
 					var gameIdAndPosition = _v0.b.a.a;
@@ -14279,7 +14279,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 									$elm$html$Html$Events$onInput(
 									$author$project$BracketBuilder$UpdateSide(index)),
 									$elm$html$Html$Attributes$disabled(
-									!_Utils_eq(game.state, $author$project$BracketBuilder$GamePending))
+									(!_Utils_eq(game.state, $author$project$BracketBuilder$GamePending)) && (!_Utils_eq(side.assignment, $elm$core$Maybe$Nothing)))
 								]),
 							A2(assignmentOptions, index, side))
 						]));

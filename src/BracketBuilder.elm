@@ -1496,7 +1496,7 @@ viewEditGame teams bracket game =
                     [ class "form-control"
                     , id "editing-game"
                     , onInput (UpdateSide index)
-                    , disabled (game.state /= GamePending)
+                    , disabled (game.state /= GamePending && side.assignment /= Nothing)
                     ]
                     (assignmentOptions index side)
                 ]
@@ -1736,8 +1736,8 @@ viewSide dragId dropId teams games onGame position side =
                 ( "game-bottom", True )
 
         dropTarget =
-            if onGame.state == GamePending then
-                -- Only allow assignments for games that haven't started.
+            if onGame.state == GamePending || side.assignment == Nothing then
+                -- Only allow assignments for games that haven't started or is missing a team.
                 case ( dragId, dropId ) of
                     ( Just (DraggableResult _), Just (DroppableSide gameIdAndPosition) ) ->
                         if gameIdAndPosition == ( onGame.id, position ) then

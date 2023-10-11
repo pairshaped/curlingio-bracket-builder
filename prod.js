@@ -5019,7 +5019,7 @@ var $elm$core$Array$treeFromBuilder = F2(
 	});
 var $elm$core$Array$builderToArray = F2(
 	function (reverseNodeList, builder) {
-		if (!builder.g) {
+		if (!builder.h) {
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
 				$elm$core$Elm$JsArray$length(builder.j),
@@ -5027,11 +5027,11 @@ var $elm$core$Array$builderToArray = F2(
 				$elm$core$Elm$JsArray$empty,
 				builder.j);
 		} else {
-			var treeLen = builder.g * $elm$core$Array$branchFactor;
+			var treeLen = builder.h * $elm$core$Array$branchFactor;
 			var depth = $elm$core$Basics$floor(
 				A2($elm$core$Basics$logBase, $elm$core$Array$branchFactor, treeLen - 1));
 			var correctNodeList = reverseNodeList ? $elm$core$List$reverse(builder.k) : builder.k;
-			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.g);
+			var tree = A2($elm$core$Array$treeFromBuilder, correctNodeList, builder.h);
 			return A4(
 				$elm$core$Array$Array_elm_builtin,
 				$elm$core$Elm$JsArray$length(builder.j) + treeLen,
@@ -5050,7 +5050,7 @@ var $elm$core$Array$initializeHelp = F5(
 				return A2(
 					$elm$core$Array$builderToArray,
 					false,
-					{k: nodeList, g: (len / $elm$core$Array$branchFactor) | 0, j: tail});
+					{k: nodeList, h: (len / $elm$core$Array$branchFactor) | 0, j: tail});
 			} else {
 				var leaf = $elm$core$Array$Leaf(
 					A3($elm$core$Elm$JsArray$initialize, $elm$core$Array$branchFactor, fromIndex, fn));
@@ -5620,7 +5620,7 @@ var $author$project$BracketBuilder$LoserAssignment = function (a) {
 };
 var $author$project$BracketBuilder$Side = F5(
 	function (position, firstHammer, assignment, teamId, result) {
-		return {h: assignment, aF: firstHammer, aa: position, ax: result, B: teamId};
+		return {g: assignment, aF: firstHammer, aa: position, ax: result, B: teamId};
 	});
 var $author$project$BracketBuilder$SideResultLost = 1;
 var $author$project$BracketBuilder$SideResultWon = 0;
@@ -6749,7 +6749,7 @@ var $author$project$BracketBuilder$assignTeamsForCompletedGames = function (game
 								},
 								games)));
 				};
-				var _v0 = side.h;
+				var _v0 = side.g;
 				if (_v0.$ === 1) {
 					return $elm$core$Maybe$Nothing;
 				} else {
@@ -6811,10 +6811,10 @@ var $author$project$BracketBuilder$clearAssignmentFromAllGames = F2(
 	function (games, assignment) {
 		var unassignedSide = function (side) {
 			return _Utils_eq(
-				side.h,
+				side.g,
 				$elm$core$Maybe$Just(assignment)) ? _Utils_update(
 				side,
-				{h: $elm$core$Maybe$Nothing}) : side;
+				{g: $elm$core$Maybe$Nothing}) : side;
 		};
 		var unassignedGame = function (game) {
 			return _Utils_update(
@@ -7005,7 +7005,7 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 						_Utils_Tuple2(
 						'winner_id',
 						function () {
-							var _v2 = side.h;
+							var _v2 = side.g;
 							if ((!_v2.$) && (_v2.a.$ === 1)) {
 								var id = _v2.a.a;
 								return $elm$json$Json$Encode$string(id);
@@ -7016,7 +7016,7 @@ var $author$project$BracketBuilder$gamesEncoder = function (games) {
 						_Utils_Tuple2(
 						'loser_id',
 						function () {
-							var _v3 = side.h;
+							var _v3 = side.g;
 							if ((!_v3.$) && (_v3.a.$ === 2)) {
 								var id = _v3.a.a;
 								return $elm$json$Json$Encode$string(id);
@@ -7491,7 +7491,7 @@ var $author$project$BracketBuilder$update = F2(
 													return _Utils_eq(side.aa, toPosition) ? _Utils_update(
 														side,
 														{
-															h: $elm$core$Maybe$Just(from)
+															g: $elm$core$Maybe$Just(from)
 														}) : side;
 												};
 												return _Utils_update(
@@ -7758,7 +7758,7 @@ var $author$project$BracketBuilder$update = F2(
 							{am: true, f: _List_Nil});
 					} else {
 						var updatedSide = function (side) {
-							var _v8 = side.h;
+							var _v8 = side.g;
 							_v8$2:
 							while (true) {
 								if (!_v8.$) {
@@ -7767,12 +7767,12 @@ var $author$project$BracketBuilder$update = F2(
 											var id = _v8.a.a;
 											return _Utils_eq(id, game_.a) ? _Utils_update(
 												side,
-												{h: $elm$core$Maybe$Nothing}) : side;
+												{g: $elm$core$Maybe$Nothing}) : side;
 										case 2:
 											var id = _v8.a.a;
 											return _Utils_eq(id, game_.a) ? _Utils_update(
 												side,
-												{h: $elm$core$Maybe$Nothing}) : side;
+												{g: $elm$core$Maybe$Nothing}) : side;
 										default:
 											break _v8$2;
 									}
@@ -7964,7 +7964,7 @@ var $author$project$BracketBuilder$update = F2(
 							return _Utils_eq(side.aa, position) ? _Utils_update(
 								side,
 								{
-									h: typedAssignment,
+									g: typedAssignment,
 									B: function () {
 										if ((!typedAssignment.$) && (!typedAssignment.a.$)) {
 											var id = typedAssignment.a.a;
@@ -8569,7 +8569,7 @@ var $author$project$BracketBuilder$viewSide = F7(
 	function (dragId, dropId, teams, games, onGame, position, side) {
 		var positionClass = (!position) ? _Utils_Tuple2('game-top', true) : _Utils_Tuple2('game-bottom', true);
 		var label = function () {
-			var _v1 = side.h;
+			var _v1 = side.g;
 			if (!_v1.$) {
 				switch (_v1.a.$) {
 					case 0:
@@ -8658,7 +8658,7 @@ var $author$project$BracketBuilder$viewSide = F7(
 			}
 		}();
 		var dropTarget = function () {
-			if (!onGame.S) {
+			if ((!onGame.S) || _Utils_eq(side.g, $elm$core$Maybe$Nothing)) {
 				var _v0 = _Utils_Tuple2(dragId, dropId);
 				if ((((!_v0.a.$) && (_v0.a.a.$ === 1)) && (!_v0.b.$)) && (_v0.b.a.$ === 1)) {
 					var gameIdAndPosition = _v0.b.a.a;
@@ -8995,7 +8995,7 @@ var $author$project$BracketBuilder$viewSvgLines = F2(
 									return $elm$core$Maybe$Nothing;
 								}
 							});
-						var _v0 = side.h;
+						var _v0 = side.g;
 						_v0$2:
 						while (true) {
 							if (!_v0.$) {
@@ -9382,7 +9382,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 		var teamOption = F3(
 			function (index, selectedSide, team) {
 				var isSelected = function () {
-					var _v6 = selectedSide.h;
+					var _v6 = selectedSide.g;
 					if ((!_v6.$) && (!_v6.a.$)) {
 						var id = _v6.a.a;
 						return _Utils_eq(id, team.a);
@@ -9416,7 +9416,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 			};
 			var notAlreadyAssigned = function (assignment) {
 				var assignedToSide = function (side) {
-					return _Utils_eq(assignment, side.h);
+					return _Utils_eq(assignment, side.g);
 				};
 				var assignedToGame = function (g) {
 					return _Utils_eq(g.a, game.a) ? false : (!$elm$core$List$isEmpty(
@@ -9468,7 +9468,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 			var assignedTo = F2(
 				function (team, g) {
 					var assignedToPosition = function (p) {
-						var _v4 = p.h;
+						var _v4 = p.g;
 						if ((!_v4.$) && (!_v4.a.$)) {
 							var id = _v4.a.a;
 							return _Utils_eq(id, team.a);
@@ -9535,7 +9535,7 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 					}
 				}();
 				var isSelected = _Utils_eq(
-					selectedSide.h,
+					selectedSide.g,
 					$elm$core$Maybe$Just(assignment));
 				var _v1 = _Utils_Tuple2(optionId, optionLabel);
 				if ((!_v1.a.$) && (!_v1.b.$)) {
@@ -9601,7 +9601,8 @@ var $author$project$BracketBuilder$viewEditGame = F3(
 									$elm$html$Html$Attributes$id('editing-game'),
 									$elm$html$Html$Events$onInput(
 									$author$project$BracketBuilder$UpdateSide(index)),
-									$elm$html$Html$Attributes$disabled(!(!game.S))
+									$elm$html$Html$Attributes$disabled(
+									(!(!game.S)) && (!_Utils_eq(side.g, $elm$core$Maybe$Nothing)))
 								]),
 							A2(assignmentOptions, index, side))
 						]));
