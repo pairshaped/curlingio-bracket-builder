@@ -521,7 +521,7 @@
   "resolved" "https://registry.npmjs.org/elm-hot/-/elm-hot-1.1.4.tgz"
   "version" "1.1.4"
 
-"elm-live@github:wking-io/elm-live#e317b4914c471addea7243c47f28dcebe27a5d36":
+"elm-live@^4.0.2":
   "integrity" "sha512-4UtdqRBsoYKbtvPGwqZ4lCE8gciLqNbLyO7VMLkG20+0GaHLPvbfo8K90A/+zfpmuZVTcuVrgXphke2RNvTljQ=="
   "resolved" "git+ssh://git@github.com/wking-io/elm-live.git#e317b4914c471addea7243c47f28dcebe27a5d36"
   "version" "4.0.2"
@@ -541,7 +541,7 @@
     "serve-static" "1.14.1"
     "ws" "7.1.1"
 
-"elm@^0.19.1-no-deps":
+"elm@^0.19.1-5":
   "integrity" "sha512-rehOtJKZvoYDddlrd7AX5NAf0H+LUllnBg3AHaeaIOKWzw4W316d7Bkhlbo7aSG+hVUVWP2ihKwyYkDi589TfA=="
   "resolved" "https://registry.npmjs.org/elm/-/elm-0.19.1.tgz"
   "version" "0.19.1"
@@ -1914,11 +1914,6 @@
   "version" "3.1.5"
   dependencies:
     "is-typedarray" "^1.0.0"
-
-"uglify-js@^3.15.5":
-  "integrity" "sha512-hNM5q5GbBRB5xB+PMqVRcgYe4c8jbyZ1pzZhS6jbq54/4F2gFK869ZheiE5A8/t+W5jtTNpWef/5Q9zk639FNQ=="
-  "resolved" "https://registry.npmjs.org/uglify-js/-/uglify-js-3.15.5.tgz"
-  "version" "3.15.5"
 
 "unique-string@^2.0.0":
   "integrity" "sha512-uNaeirEPvpZWSgzwsPGtU2zVSTrn/8L5q/IexZmH0eH6SA73CmAA5U4GwORTxQAZs95TAXLNqeLoPPNO5gZfWg=="

@@ -17,16 +17,35 @@
 
 [Documentation](https://curling.io/docs/event-management/playoff-brackets)
 
-## Installing Dependencies
+## For Contributors
+
+### Installing Dependencies
+
+We use elm and elm-live for development. You can install these via npm.
 
 ```
-yarn
+npm install
 ```
 
-## Running It
+### Running It
+
+Edit dev.html and configure the application's parameters for your environment. Then run it:
 
 ```
-yarn start
+npm start
+```
+
+### Production Deployment
+
+Make sure you have uglify-js installed to compress the production js.
+```
+npm install -g uglify-js
+```
+
+Compile and optimize for production using:
+
+```
+./prod.sh
 ```
 
 ## Flags
@@ -40,18 +59,4 @@ yarn start
 
 ## Copyright and License
 
-Curling I/O Bracket Builder
-Copyright (C) 2022 Curling I/O
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+[See LICENSE.md](LICENSE.md)
