@@ -1183,7 +1183,7 @@ viewOnceLoaded { flags, overlay, dragDrop, changed } teams bracket =
                 div [ class "save-buttons" ]
                     [ button
                         [ class "btn btn-primary mr-1"
-                        , disabled (not changed)
+                        , disabled (not changed || (List.length bracket.games == 0))
                         , onClick Save
                         ]
                         [ text "Save" ]
