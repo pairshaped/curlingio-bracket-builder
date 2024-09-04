@@ -17,8 +17,12 @@
   <script>
     var app = Elm.BracketBuilder.init({
       node: document.getElementById('bracket'),
-      // flags: { baseUrl: "http://localhost:3000/", id: 1 }
-      flags: { baseUrl: "http://demo.curling.test:3000/en/admin/events/3742/", id: 2362 }
+      flags: {
+        id: 2362,
+        bracketsUrl: "http://demo.curling.test:3000/en/admin/events/3742/brackets",
+        teamsUrl: "http://demo.curling.test:3000/en/admin/events/3742/teams",
+        backUrl: "http://demo.curling.test:3000/en/admin/events/3742/stages"
+      }
     });
     app.ports.dragstart.subscribe(function (event) {
       event.dataTransfer.setData("text", "");

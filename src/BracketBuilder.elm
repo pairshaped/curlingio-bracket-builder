@@ -47,8 +47,10 @@ type alias Model =
 
 
 type alias Flags =
-    { baseUrl : String
-    , id : Maybe Int
+    { id : Maybe Int
+    , bracketsUrl : String
+    , teamsUrl : String
+    , backUrl : String
     }
 
 
@@ -145,19 +147,6 @@ type alias LineConnector =
     , fromCoords : ( Int, Int )
     , toCoords : ( Int, Int )
     }
-
-
-demoTeams : List Team
-demoTeams =
-    [ Team 1 "Homer"
-    , Team 2 "Marge"
-    , Team 3 "Bart"
-    , Team 4 "Lisa"
-    , Team 5 "Maggie"
-    , Team 6 "Krusty"
-    , Team 7 "Snowball"
-    , Team 8 "Apu"
-    ]
 
 
 emptyBracket : Maybe Int -> String -> Bracket
@@ -293,7 +282,7 @@ trimMaybe str =
 
 
 saveBracket : Flags -> WebData Bracket -> Cmd Msg
-saveBracket { baseUrl } bracketResult =
+saveBracket { bracketsUrl } bracketResult =
     let
         sendCmd action url bracket =
             action url ReceivedBracketFromServer bracketDecoder (bracketEncoder bracket)
@@ -302,36 +291,32 @@ saveBracket { baseUrl } bracketResult =
         Success bracket ->
             case bracket.id of
                 Just id ->
-                    sendCmd RemoteData.Http.patch (baseUrl ++ "brackets/" ++ String.fromInt id) bracket
+                    sendCmd RemoteData.Http.patch (bracketsUrl ++ "/" ++ String.fromInt id) bracket
 
                 Nothing ->
-                    sendCmd RemoteData.Http.post (baseUrl ++ "brackets") bracket
+                    sendCmd RemoteData.Http.post bracketsUrl bracket
 
         _ ->
             Cmd.none
 
 
 loadBracket : Flags -> Cmd Msg
-loadBracket { baseUrl, id } =
+loadBracket { bracketsUrl, id } =
     let
         url =
             case id of
                 Just id_ ->
-                    baseUrl ++ "brackets/" ++ String.fromInt id_
+                    bracketsUrl ++ "/" ++ String.fromInt id_
 
                 Nothing ->
-                    baseUrl ++ "brackets/new"
+                    bracketsUrl ++ "/new"
     in
     RemoteData.Http.get url ReceivedBracketFromServer bracketDecoder
 
 
 loadTeams : Flags -> Cmd Msg
-loadTeams { baseUrl } =
-    let
-        url =
-            baseUrl ++ "teams"
-    in
-    RemoteData.Http.get url ReceivedTeamsFromServer teamsDecoder
+loadTeams { teamsUrl } =
+    RemoteData.Http.get teamsUrl ReceivedTeamsFromServer teamsDecoder
 
 
 assignTeamsForCompletedGames : List Game -> List Game
@@ -1204,7 +1189,7 @@ viewOnceLoaded { flags, overlay, dragDrop, changed } teams bracket =
                         [ text "Save" ]
                     , a
                         [ class "btn btn-secondary"
-                        , href (flags.baseUrl ++ "stages")
+                        , href flags.backUrl
                         ]
                         [ text "Exit" ]
                     ]
