@@ -5,7 +5,7 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onDoubleClick, onInput)
 import Html5.DragDrop as DragDrop
-import Http exposing (expectJson)
+import Http
 import Json.Decode as Decode
 import Json.Encode as Encode
 import List.Extra
@@ -43,6 +43,7 @@ type alias Model =
     , changed : Bool
     , teams : WebData (List Team)
     , bracket : WebData Bracket
+    , lastError : Maybe String
     }
 
 
@@ -174,6 +175,7 @@ init flags =
 
                 Nothing ->
                     Success (emptyBracket Nothing "Playoffs")
+      , lastError = Nothing
       }
     , Cmd.batch
         [ loadTeams flags
@@ -496,6 +498,11 @@ buildErrorMessage httpError =
 ---- DECODERS ----
 
 
+errorMessageDecoder : Decode.Decoder String
+errorMessageDecoder =
+    Decode.field "error" Decode.string
+
+
 bracketDecoder : Decode.Decoder Bracket
 bracketDecoder =
     Decode.map4
@@ -624,6 +631,7 @@ type Msg
     | Revert
     | ReceivedTeamsFromServer (WebData (List Team))
     | ReceivedBracketFromServer (WebData Bracket)
+    | ReceivedErrorFromServer String
     | ConfirmClear
     | Clear
     | CancelConfirmation
@@ -1100,9 +1108,36 @@ update msg model =
                 updatedBracket bracket =
                     { bracket | groups = sortedGroups bracket.groups }
             in
-            ( { model | bracket = RemoteData.map updatedBracket result }
+            ( { model
+                | lastError =
+                    case result of
+                        Failure e ->
+                            case e of
+                                Http.BadStatus 422 ->
+                                    -- Validation error
+                                    Just "Validation failed and bracket was not saved. Possibly this bracket name is already being used in your event."
+
+                                _ ->
+                                    Just "Unable to save bracket. Please try again later."
+
+                        _ ->
+                            Nothing
+                , bracket =
+                    case result of
+                        Success bracket ->
+                            Success (updatedBracket bracket)
+
+                        Loading ->
+                            Loading
+
+                        _ ->
+                            model.bracket
+              }
             , Cmd.none
             )
+
+        ReceivedErrorFromServer result ->
+            ( { model | lastError = Just result }, Cmd.none )
 
         ConfirmClear ->
             ( { model | overlay = Just ClearConfirmation }, Cmd.none )
@@ -1160,7 +1195,7 @@ view model =
 
 
 viewOnceLoaded : Model -> List Team -> Bracket -> Html Msg
-viewOnceLoaded { flags, overlay, dragDrop, changed } teams bracket =
+viewOnceLoaded { flags, overlay, dragDrop, changed, lastError } teams bracket =
     let
         dragId =
             DragDrop.getDragId dragDrop
@@ -1170,10 +1205,19 @@ viewOnceLoaded { flags, overlay, dragDrop, changed } teams bracket =
 
         modalOpen =
             overlay /= Nothing
+
+        viewErrorMessage =
+            case lastError of
+                Just e ->
+                    div [ class "alert alert-danger w-75" ] [ text e ]
+
+                Nothing ->
+                    text ""
     in
     div [ classList [ ( "modal-open", modalOpen ) ] ]
         [ div [ class "py-3" ]
-            [ viewBracketName bracket.name
+            [ viewErrorMessage
+            , viewBracketName bracket.name
             , viewGroups teams bracket dragId dropId
             , button [ class "btn btn-primary", onClick AddGroup ] [ text "Add Group" ]
             , if modalOpen then
