@@ -507,7 +507,7 @@ bracketDecoder : Decode.Decoder Bracket
 bracketDecoder =
     Decode.map4
         Bracket
-        (Decode.maybe (Decode.field "id" Decode.int))
+        (Decode.field "id" Decode.int |> Decode.maybe)
         (Decode.field "name" Decode.string)
         (Decode.field "groups" (Decode.list groupDecoder))
         (Decode.field "games" (Decode.list gameDecoder))
@@ -566,9 +566,9 @@ gameDecoder =
                 Side
                 (Decode.field "position" Decode.int)
                 (Decode.field "first_hammer" Decode.bool)
-                (Decode.maybe assignmentDecoder)
-                (Decode.maybe (Decode.field "team_id" Decode.int))
-                (Decode.maybe (Decode.field "result" decodeSideResult))
+                (assignmentDecoder |> Decode.maybe)
+                (Decode.field "team_id" Decode.int |> Decode.maybe)
+                (Decode.field "result" decodeSideResult |> Decode.maybe)
 
         coordsDecoder : Decode.Decoder Coords
         coordsDecoder =
@@ -597,10 +597,13 @@ gameDecoder =
     Decode.map6
         (Game Nothing)
         (Decode.field "id" Decode.string)
-        (Decode.maybe (Decode.field "name" Decode.string))
+        (Decode.field "name" Decode.string |> Decode.maybe)
         (Decode.succeed False)
         (Decode.field "coords" coordsDecoder)
-        (Decode.field "state" decodeGameState)
+        (Decode.field "state" decodeGameState
+            |> Decode.maybe
+            |> Decode.map (Maybe.withDefault GamePending)
+        )
         (Decode.field "game_positions" (Decode.list sideDecoder))
 
 
