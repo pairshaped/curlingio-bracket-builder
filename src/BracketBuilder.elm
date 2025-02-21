@@ -113,7 +113,6 @@ type GameState
 
 type alias Side =
     { position : Int
-    , firstHammer : Bool
     , assignment : Maybe Assignment
     , teamId : Maybe Int
     , result : Maybe SideResult
@@ -422,7 +421,6 @@ gamesEncoder games =
                 sideEncoder side =
                     Encode.object
                         [ ( "position", Encode.int side.position )
-                        , ( "first_hammer", Encode.bool side.firstHammer )
                         , ( "team_id"
                           , case side.teamId of
                                 Just teamId ->
@@ -562,10 +560,9 @@ gameDecoder =
                                         Decode.succeed SideResultLost
                             )
             in
-            Decode.map5
+            Decode.map4
                 Side
                 (Decode.field "position" Decode.int)
-                (Decode.field "first_hammer" Decode.bool)
                 (assignmentDecoder |> Decode.maybe)
                 (Decode.field "team_id" Decode.int |> Decode.maybe)
                 (Decode.field "result" decodeSideResult |> Decode.maybe)
@@ -847,8 +844,8 @@ update msg model =
                                                 False
                                                 coords
                                                 GamePending
-                                                [ Side 0 False Nothing Nothing Nothing
-                                                , Side 1 True Nothing Nothing Nothing
+                                                [ Side 0 Nothing Nothing Nothing
+                                                , Side 1 Nothing Nothing Nothing
                                                 ]
                                            ]
 
